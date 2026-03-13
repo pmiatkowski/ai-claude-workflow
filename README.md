@@ -63,6 +63,33 @@ Each task lives in its own directory:
 
 ## Commands
 
+### `/rules <action> [args]`
+
+Manage Claude Code coding guidelines (CLAUDE.md rules). Actions:
+
+| Action | Description | Example |
+|--------|-------------|---------|
+| `add` | Add new rules from file or inline text | `/rules add path/to/rules.md` |
+| `change` | Modify existing rules matching query | `/rules change indentation` |
+| `delete` | Remove rules matching query | `/rules delete jquery` |
+| `analyze` | Analyze current rules for quality issues | `/rules analyze` |
+| `discover` | Scan codebase to discover conventions | `/rules discover` |
+
+The `discover` action scans the codebase to detect:
+- Tech stack (from package.json, Cargo.toml, pyproject.toml, etc.)
+- File naming conventions (PascalCase, camelCase, kebab-case)
+- Directory structure patterns
+- Import/export patterns
+- Existing linting and formatting configs
+
+The `analyze` action checks rules for:
+- Coverage gaps (what's missing)
+- Conflicts (contradictory rules)
+- Specificity (vague vs actionable)
+- Organization (structure quality)
+
+---
+
 ### `/task-create <name> <description>`
 
 Creates a new task. The name becomes the folder slug; the description is your rough brief.

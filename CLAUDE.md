@@ -37,6 +37,13 @@ install-task-workflow.sh    # Single-file installer containing all components
     task-fix.md              # Ad-hoc fixes in task context
     task-run.md              # Generic task-scoped command
     rules.md                 # Manage Claude Code rules (CLAUDE.md)
+  skills/                    # Skills (model-invoked capabilities)
+    rules/                   # Rules management skill
+      SKILL.md               # Main skill instructions
+      references/            # Reference documentation
+        RULE_TEMPLATE.md
+        DISCOVERY_PATTERNS.md
+        MEMORY_HIERARCHY.md
   agents/
     executor.md              # Implements one plan phase
     verificator.md           # Verifies full implementation
@@ -89,7 +96,7 @@ This project itself uses the task workflow. Active task context is injected auto
 | `/task-update-docs` | Update project documentation based on implementation |
 | `/task-fix [description]` | Ad-hoc fix or enhancement in task context |
 | `/task-run <anything>` | Generic task-scoped freeform command |
-| `/rules <action> [args]` | Manage Claude Code rules (add/change/remove/analyze) |
+| `/rules <action> [args]` | Manage Claude Code rules (add/change/delete/analyze/discover) |
 
 ### State
 
