@@ -46,20 +46,27 @@ The signatures are contracts — do not change them.
 Combine Format B and D rules: respect the signatures as contracts, implement
 bodies guided by the detailed todo descriptions. Do not change signatures.
 
-5. After implementation, discover quality commands:
+1. As you complete each individual task within your phase:
+   - Immediately update `plan.md`: change that task's `- [ ]` to `- [x]`.
+   - Do NOT wait until the end — mark each task complete the moment it is done.
+   - Edit the file directly using a write tool. Verify the change is saved before moving to the next task.
+2. After all tasks in the phase are implemented, discover quality commands:
    - Check `package.json` → `scripts` for lint, type-check, test, build
    - Check `Makefile` for targets
    - Check `CLAUDE.md` for specified commands
-6. Run all discovered quality commands. If any fail:
+3. Run all discovered quality commands. If any fail:
    - Fix the errors.
    - Re-run until all pass.
-7. Update `plan.md` checkboxes — this is mandatory, not optional:
-   - For every task you implemented in your phase: change `- [ ]` to `- [x]`
-   - Mark the phase entry in the Overall Progress list: change `- [ ]` to `- [x]`
-   - Edit the file directly using a write tool. Verify the changes are saved before finishing.
+4. Once all quality checks pass, mark the phase itself complete in `plan.md`:
+   - In the Overall Progress section, change the phase entry from `- [ ]` to `- [x]`.
+   - Edit the file directly using a write tool. Verify the change is saved before finishing.
 
 ## Hard Rules
+
 - Do NOT implement code from other phases.
 - Do NOT skip quality checks.
-- Do NOT mark tasks complete if quality checks are still failing.
+- Do NOT mark a task complete if its implementation has not been saved to disk.
+- Do NOT mark the phase complete if quality checks are still failing.
+- MANDATORY: Mark each task `- [x]` in `plan.md` immediately after completing it — never batch at the end.
+- MANDATORY: Mark the phase `- [x]` in the Overall Progress section after all tasks pass quality checks.
 - For Format B/D/B+D: do not add scope not described in the plan. If something is unclear, implement the minimal interpretation.
