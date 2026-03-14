@@ -1,4 +1,4 @@
-# /rules
+# /project-rules
 
 Manage Claude Code coding guidelines (CLAUDE.md rules). Usage: `/rules <action> [args]`
 
@@ -31,6 +31,7 @@ Manage Claude Code coding guidelines (CLAUDE.md rules). Usage: `/rules <action> 
 ## Action Details
 
 ### add
+
 - If argument is a file path (exists on disk): read file and extract rules
 - If argument is text: treat as rule content directly
 - If no argument: ask user for rule text or file path
@@ -38,23 +39,27 @@ Manage Claude Code coding guidelines (CLAUDE.md rules). Usage: `/rules <action> 
 - Use `@import` syntax if the rule set is large
 
 ### change
+
 - Search CLAUDE.md for rules matching the query
 - Present matching rules to user
 - Accept modification (full replacement or guided edit)
 - Preserve surrounding structure and formatting
 
 ### delete
+
 - Search CLAUDE.md for rules matching the query
 - Present matching rules and confirm deletion
 - Remove rule while preserving section structure
 - Clean up empty sections if they become empty
 
 ### analyze
+
 - Read project CLAUDE.md (and user CLAUDE.md if exists)
 - Check for: coverage gaps, conflicts, vagueness, organization issues
 - Produce structured analysis report with recommendations
 
 ### discover
+
 - Scan codebase for conventions using Glob/Grep/Read
 - Detect: tech stack, file naming patterns, import patterns, code structure
 - Check existing linting/formatting configs

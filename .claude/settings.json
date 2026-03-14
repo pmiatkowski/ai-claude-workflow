@@ -11,5 +11,10 @@
         ]
       }
     ]
+  },
+  "permissions": {
+    "additionalDirectories": [
+      "d:\\ai-claude-workflow\\.claude\\skills\\docs"
+    ]
   }
 }

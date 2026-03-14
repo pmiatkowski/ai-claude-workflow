@@ -1,5 +1,5 @@
 ---
-name: rules
+name: project-rules
 description: |
   Manage coding guidelines and CLAUDE.md rules. Use when the user wants to
   add, change, delete, analyze, or discover coding conventions. Triggers
@@ -32,11 +32,13 @@ When modifying rules, understand the target location:
 Add new rules to a CLAUDE.md file.
 
 **Input sources:**
+
 1. From file: User provides path to file containing rules
 2. From text: User provides rule text directly
 3. From discovery: Generated from codebase scan (see DISCOVER)
 
 **Process:**
+
 1. Determine target CLAUDE.md file (ask if unclear)
 2. Read existing content to understand structure
 3. Parse new rules and categorize them
@@ -46,6 +48,7 @@ Add new rules to a CLAUDE.md file.
 7. Consider using `@import` for large rule sets
 
 **Example insertion:**
+
 ```markdown
 ## Code Style
 
@@ -59,6 +62,7 @@ Add new rules to a CLAUDE.md file.
 Modify existing rules in a CLAUDE.md file.
 
 **Process:**
+
 1. Search CLAUDE.md for rules matching the query using Grep/Read
 2. Present all matching rules with context (section, surrounding rules)
 3. Ask user to confirm which rule(s) to modify
@@ -66,11 +70,13 @@ Modify existing rules in a CLAUDE.md file.
 5. Apply change preserving formatting and structure
 
 **Matching strategies:**
+
 - Exact section name match
 - Keyword search within rule text
 - Fuzzy match for partial queries
 
 **Example:**
+
 ```
 User: /rules change indentation
 Found in section "Code Style":
@@ -83,6 +89,7 @@ Change to: "- Use 2-space indentation"
 Remove rules from a CLAUDE.md file.
 
 **Process:**
+
 1. Search CLAUDE.md for rules matching the query
 2. Present all matching rules with context
 3. Ask user to confirm deletion
@@ -91,6 +98,7 @@ Remove rules from a CLAUDE.md file.
 6. Clean up any orphaned `@import` references
 
 **Example:**
+
 ```
 User: /rules delete jquery
 Found in section "Dependencies":
@@ -122,6 +130,7 @@ Analyze current CLAUDE.md rules for quality issues.
    - Appropriate section ordering
 
 **Output format:**
+
 ```markdown
 # Rules Analysis Report
 
@@ -180,6 +189,7 @@ Scan codebase to discover existing conventions and suggest rules.
    - CI/CD: .github/workflows/, .gitlab-ci.yml
 
 **Output format:**
+
 ```markdown
 # Discovered Conventions
 
