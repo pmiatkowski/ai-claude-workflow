@@ -56,7 +56,7 @@ Each task lives in its own directory:
     prd.md                         ← requirements document (AI-generated + clarified)
     plan.md                        ← implementation plan with actual code
     context.md                     ← additional context from files, URLs, discovery
-    verify-report.md               ← written by verificator agent
+    verify-report.md               ← written by task-verificator agent
 ```
 
 ---
@@ -76,6 +76,7 @@ Manage Claude Code coding guidelines (CLAUDE.md rules). Actions:
 | `discover` | Scan codebase to discover conventions | `/rules discover` |
 
 The `discover` action scans the codebase to detect:
+
 - Tech stack (from package.json, Cargo.toml, pyproject.toml, etc.)
 - File naming conventions (PascalCase, camelCase, kebab-case)
 - Directory structure patterns
@@ -83,6 +84,7 @@ The `discover` action scans the codebase to detect:
 - Existing linting and formatting configs
 
 The `analyze` action checks rules for:
+
 - Coverage gaps (what's missing)
 - Conflicts (contradictory rules)
 - Specificity (vague vs actionable)
@@ -173,11 +175,12 @@ Adds external context to the task. Three modes:
 | *(no argument)* | `/task-add-context` | Asks what you'd like to add |
 
 **Auto-discovery** (`discover`) scans for:
+
 - Coding patterns and conventions (component structure, naming, file layout)
 - Reusable utilities, hooks, helpers relevant to the task
 - Existing implementations of similar features
 - Tech stack (reads `package.json`, config files, etc.)
-- Quality commands — lint, type-check, test, build commands — recorded for later use by executor agents
+- Quality commands — lint, type-check, test, build commands — recorded for later use by task-executor agents
 
 After gathering context, Claude asks whether to add more or incorporate into the PRD (appended to Section 9: Additional Context).
 
@@ -202,7 +205,7 @@ Complexity signals:
 My recommendation: C — Hybrid
 Phase 1 (scaffolding) → Full code. Phase 2–3 (logic + middleware) → Detailed todos.
 Writing full code for business logic upfront tends to miss edge cases that only become
-clear when reading the actual files. Detailed todos keep the executor grounded in context.
+clear when reading the actual files. Detailed todos keep the task-executor grounded in context.
 
 | Format | Description                                                             | Best for                                             |
 |--------|-------------------------------------------------------------------------|------------------------------------------------------|
@@ -220,6 +223,7 @@ You pick the format. Then Claude asks for any final notes (TDD, patterns to foll
 Every phase in the plan follows the same outer structure — goal, dependencies, tasks, quality checks — with the **task block** varying by format:
 
 **Format A — Full code**
+
 ```markdown
 - [ ] 1.1 Create JWT utility module
   - **File:** `src/lib/jwt.ts`
@@ -233,6 +237,7 @@ Every phase in the plan follows the same outer structure — goal, dependencies,
 ```
 
 **Format B — Detailed todos**
+
 ```markdown
 - [ ] 2.1 Implement login endpoint
   - **File:** `src/routes/auth.ts`
@@ -248,6 +253,7 @@ Every phase in the plan follows the same outer structure — goal, dependencies,
 ```
 
 **Format D — Skeleton + signatures**
+
 ```markdown
 - [ ] 1.2 Define token types
   - **File:** `src/types/auth.ts`
@@ -267,7 +273,7 @@ Every phase in the plan follows the same outer structure — goal, dependencies,
 
 **Format B+D** combines both: typed signatures as contracts plus full detailed todos for the implementation body.
 
-The chosen format is stored in `state.yml` as `plan_format` so executor agents know how to interpret their tasks.
+The chosen format is stored in `state.yml` as `plan_format` so task-executor agents know how to interpret their tasks.
 
 ---
 
@@ -276,15 +282,17 @@ The chosen format is stored in `state.yml` as `plan_format` so executor agents k
 Executes the plan by spawning sub-agents. Claude asks two questions:
 
 **What to execute:**
+
 - `all` — all phases
 - `phase 2` — a specific phase
 - `phases 1,3` — specific phases
 
 **How to run them:**
+
 - `parallel` — all selected phases simultaneously (for independent phases)
 - `sequential` — one after another in order
 
-Claude spawns **Executor agents** via the Task tool. Each executor:
+Claude spawns **Task-Executor agents** via the Task tool. Each task-executor:
 
 1. Reads `state.yml` to determine `plan_format`
 2. Reads the full plan but implements only its assigned phase
@@ -298,9 +306,10 @@ Claude spawns **Executor agents** via the Task tool. Each executor:
 5. Runs all quality commands — fixes errors before finishing
 6. Updates `plan.md` — marks every completed task `- [x]` and the phase entry in Overall Progress
 
-After all executors finish, a **Verificator agent** runs automatically.
+After all task-executors finish, a **Task-Verificator agent** runs automatically.
 
-The Verificator:
+The Task-Verificator:
+
 - Checks every planned task is marked complete
 - Reads the actual implementation files and compares against the plan
 - Verifies all functional requirements from the PRD are satisfied
@@ -341,6 +350,7 @@ Result: PARTIAL
 Discovers documentation locations and checks if they need updating after implementation.
 
 Discovery checks:
+
 - `README.md` in root and subdirectories
 - `CLAUDE.md` for doc references
 - `docs/` directory
@@ -424,10 +434,10 @@ The difference from `/task-fix`: `/task-fix` is repair-oriented and always runs 
 # Claude asks: all phases, sequential or parallel?
 # → "phases 1,2 parallel, then phase 3 sequential"
 #
-# Spawns: executor for Phase 1 + executor for Phase 2 simultaneously
-# Both finish → spawns executor for Phase 3
+# Spawns: task-executor for Phase 1 + task-executor for Phase 2 simultaneously
+# Both finish → spawns task-executor for Phase 3
 # All finish → verificator runs automatically
-# Verificator report: PASS ✓
+# Task-Verificator report: PASS ✓
 
 # 6. Verify docs
 /task-update-docs
@@ -468,8 +478,8 @@ The script is safe to run on existing projects — it merges into existing `CLAU
     task-fix.md
     task-run.md
   agents/
-    executor.md
-    verificator.md
+    task-executor.md
+    task-verificator.md
   hooks/
     inject-task-context.sh     ← runs on every session start
   settings.json                ← hook registered here
@@ -534,15 +544,15 @@ Without the `UserPromptSubmit` hook, you'd need to re-establish task context at 
 
 Writing full implementation code into a plan works well for small, isolated tasks — the code is stable by the time it's executed. But for larger features, it's actively harmful: the AI writes code without seeing the actual files, misses project-specific patterns, and produces output that's already stale or subtly wrong by execution time.
 
-Detailed todos (Format B) solve this by making the executor reason through the implementation with full file context — it reads the existing code, follows referenced patterns, and handles edge cases with real knowledge of the codebase. The plan provides *what* and *why*, not *how*.
+Detailed todos (Format B) solve this by making the task-executor reason through the implementation with full file context — it reads the existing code, follows referenced patterns, and handles edge cases with real knowledge of the codebase. The plan provides *what* and *why*, not *how*.
 
-The hybrid and signature formats cover the middle ground: lock in the contracts (types, interfaces, signatures) at planning time when context is richest, but leave implementation bodies to the executor. Format B+D is particularly useful for TypeScript-heavy codebases where type safety is non-negotiable but implementation flexibility is needed.
+The hybrid and signature formats cover the middle ground: lock in the contracts (types, interfaces, signatures) at planning time when context is richest, but leave implementation bodies to the task-executor. Format B+D is particularly useful for TypeScript-heavy codebases where type safety is non-negotiable but implementation flexibility is needed.
 
-The chosen format is stored in `state.yml` so executor agents always know how to interpret their tasks without ambiguity.
+The chosen format is stored in `state.yml` so task-executor agents always know how to interpret their tasks without ambiguity.
 
-### Why a separate verificator agent
+### Why a separate task-verificator agent
 
-Executors are incentivized to finish their phase — they will rationalize partial compliance. The verificator runs after all execution is complete, with no investment in any particular phase, and checks the full picture: completeness, correctness, PRD compliance, and quality.
+Task-Executors are incentivized to finish their phase — they will rationalize partial compliance. The verificator runs after all execution is complete, with no investment in any particular phase, and checks the full picture: completeness, correctness, PRD compliance, and quality.
 
 ---
 
@@ -552,6 +562,6 @@ Executors are incentivized to finish their phase — they will rationalize parti
 |------|---------|-------------|
 | `state.yml` | Active task pointer | Every command |
 | `prd.md` | Requirements document | `/task-create`, `/task-clarify`, `/task-add-context` |
-| `plan.md` | Implementation plan (format varies: A/B/C/D/B+D) | `/task-plan`, executor agents |
+| `plan.md` | Implementation plan (format varies: A/B/C/D/B+D) | `/task-plan`, task-executor agents |
 | `context.md` | Additional gathered context | `/task-add-context` |
 | `verify-report.md` | Full verification report | Verificator agent, `/task-verify` |

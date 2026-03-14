@@ -122,7 +122,7 @@ All formats share the same outer structure. The **task block** content differs p
   - **Edge cases to handle:**
     - [e.g., "Empty array response — return empty state, not error"]
     - [e.g., "Network timeout — surface user-facing message"]
-  - **Do NOT:** [Anything the executor must avoid]
+  - **Do NOT:** [Anything the task-executor must avoid]
 ```
 
 ---
@@ -133,6 +133,7 @@ Apply Format A or B per phase based on complexity.
 Each phase must declare its format in the `**Format:**` header.
 
 Typical split:
+
 - Scaffolding, config, file creation → Format A (mechanical, low risk)
 - Business logic, integrations, state → Format B (complex, needs reasoning)
 
@@ -193,5 +194,5 @@ Combine Format B and Format D: full detailed todos AND typed signatures. No impl
 - Every task must specify exact file path and action (create / modify / delete).
 - Quality checks must list commands actually discovered from the project.
 - If TDD was requested: each phase lists failing test signatures/stubs first, then implementation tasks.
-- Format C: always declare the format in each phase header so executors know how to interpret tasks.
-- Always write `plan_format` to `state.yml` — executor agents read it to know how to work with the plan.
+- Format C: always declare the format in each phase header so task-executors know how to interpret tasks.
+- Always write `plan_format` to `state.yml` — task-executor agents read it to know how to work with the plan.

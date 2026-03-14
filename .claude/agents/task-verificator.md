@@ -1,6 +1,6 @@
 ---
-name: verificator
-description: Verifies the full implementation after all executor agents complete. Spawned by /task-execute.
+name: task-verificator
+description: Verifies the full implementation after all task-executor agents complete. Spawned by /task-execute.
 ---
 
 # Verificator Agent
@@ -25,17 +25,17 @@ You verify that the implementation is complete, correct, and meets quality stand
 
    **c. PRD compliance** — Does the implementation satisfy all functional and non-functional requirements?
 
-   **d. Quality** — Discover and run all quality commands (same discovery process as executors). All must pass.
+   **d. Quality** — Discover and run all quality commands (same discovery process as task-executors). All must pass.
 
    **e. Coding standards** — Read `CLAUDE.md` for guidelines. Check that implementation follows them.
 
-5. Write a verification report to `.temp/tasks/<task_name>/verify-report.md`:
+4. Write a verification report to `.temp/tasks/<task_name>/verify-report.md`:
 
 ```markdown
 # Verification Report: <task-name>
 
 **Date:** <date>
-**Verificator result:** PASS | PARTIAL | FAIL
+**Task-Verificator result:** PASS | PARTIAL | FAIL
 
 ## Completeness
 | Phase | Tasks | Complete | Issues |
@@ -57,4 +57,4 @@ You verify that the implementation is complete, correct, and meets quality stand
 [Overall assessment. If FAIL or PARTIAL — clear next steps for the user.]
 ```
 
-6. Report the result to the user clearly. If issues exist, prioritize them by severity.
+1. Report the result to the user clearly. If issues exist, prioritize them by severity.

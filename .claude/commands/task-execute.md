@@ -19,14 +19,14 @@ Execute the implementation plan by spawning executor agents.
    > - `parallel` — all selected phases simultaneously (independent phases only)
    > - `sequential` — one after another in order
 
-4. Spawn executor agents using the Task tool based on the choice.
-5. After all executors complete, automatically spawn the **Verificator agent**.
+4. Spawn task-executor agents using the Task tool based on the choice.
+5. After all task-executors complete, automatically spawn the **task-verificator agent**.
 6. Report final status to user.
 
-## Executor Agent Instructions (pass to each Task invocation)
+## task-executor Agent Instructions (pass to each Task invocation)
 
 ```
-You are an Executor agent for task: <task-name>, Phase <N>: <phase-name>.
+You are an Task-Executor agent for task: <task-name>, Phase <N>: <phase-name>.
 
 Read the full implementation plan at: <plan.md path>
 Implement ONLY Phase <N>. Do not touch other phases.
@@ -44,7 +44,7 @@ Do NOT implement anything outside Phase <N>.
 - **Parallel**: Use multiple simultaneous Task tool calls. Only safe when phases have no dependencies on each other.
 - **Sequential**: Await each Task tool call before starting the next.
 
-## Verificator
+## task-verificator
 
-After all executors finish, spawn the Verificator agent (see `.claude/agents/verificator.md`).
+After all task-executors finish, spawn the Task-Verificator agent (see `.claude/agents/task-verificator.md`).
 Pass it: task name, plan.md path, list of phase summaries.

@@ -31,7 +31,7 @@ install-task-workflow.sh    # Single-file installer containing all components
     task-clarify.md          # Structured Q&A for ambiguities
     task-add-context.md      # Adds files/URLs/repo context
     task-plan.md             # Generates implementation plan (5 formats)
-    task-execute.md          # Spawns Executor agents
+    task-execute.md          # Spawns Task-Executor agents
     task-verify.md           # Quality verification at any stage
     task-update-docs.md      # Updates documentation
     task-fix.md              # Ad-hoc fixes in task context
@@ -45,8 +45,8 @@ install-task-workflow.sh    # Single-file installer containing all components
         DISCOVERY_PATTERNS.md
         MEMORY_HIERARCHY.md
   agents/
-    executor.md              # Implements one plan phase
-    verificator.md           # Verifies full implementation
+    task-executor.md         # Implements one plan phase
+    task-verificator.md      # Verifies full implementation
   hooks/
     inject-task-context.sh   # UserPromptSubmit hook for context injection
   settings.json              # Registers the hook
@@ -56,15 +56,16 @@ install-task-workflow.sh    # Single-file installer containing all components
 
 1. **Flat command files**: Each command is standalone — no dispatcher. This keeps prompts focused and enables tab-autocomplete for `/task-*`.
 
-2. **Plan formats (A/B/C/D/B+D)**: Executors interpret plans differently based on `plan_format` in `state.yml`. Format A has full code; Format B has detailed todos; Format C is hybrid; D has signatures only.
+2. **Plan formats (A/B/C/D/B+D)**: Task-Executors interpret plans differently based on `plan_format` in `state.yml`. Format A has full code; Format B has detailed todos; Format C is hybrid; D has signatures only.
 
-3. **Executor → Verificator flow**: After all executors complete, the verificator runs automatically to check completeness, correctness, and quality.
+3. **Task-Executor → Task-Verificator flow**: After all task-executors complete, the task-verificator runs automatically to check completeness, correctness, and quality.
 
 4. **Context injection via hook**: The `inject-task-context.sh` runs on every `UserPromptSubmit`, reading `state.yml` and injecting active task context so Claude always knows the current task.
 
 ### State Management
 
 Task state lives in `.temp/tasks/` (gitignored):
+
 - `state.yml` — active task pointer, status, paths
 - `<task-name>/prd.md` — requirements document
 - `<task-name>/plan.md` — implementation plan
