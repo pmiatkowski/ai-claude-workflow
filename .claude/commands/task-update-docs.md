@@ -22,7 +22,37 @@ Update project documentation based on the completed task implementation.
    - Search ./docs/*.md for related content
    - Identify documentation gaps and overlaps
 
-5. Generate documentation update suggestions:
+5. **Generate ADRs from Decision Matrix**:
+   - Read PRD Section 9 (Decisions)
+   - For each significant decision (architectural, technology choice, pattern):
+     - Create ADR file: `docs/adr/NNN-[slug].md`
+     - Number sequentially based on existing ADRs
+   - ADR format:
+
+```markdown
+# ADR-N: [Title]
+
+## Status
+Accepted
+
+## Context
+[Why this decision was needed - from PRD]
+
+## Decision
+[What was decided - from Decision Matrix]
+
+## Consequences
+[Derived constraints from PRD Section 10]
+
+## Alternatives Considered
+| Option | Pros | Cons | Why Not Chosen |
+|--------|------|------|----------------|
+
+## Date
+[From Decision Matrix]
+```
+
+6. Generate documentation update suggestions:
 
 ```markdown
 # Documentation Update Analysis

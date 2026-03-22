@@ -16,7 +16,10 @@ Create a detailed implementation plan. NO code is implemented at this stage.
 8. Generate `plan.md` using the chosen format (see Plan Format Specs below).
 9. Store the chosen format in `state.yml` as `plan_format`.
 10. Update `state.yml` status to `planned`.
-11. Suggest `/task-execute` next.
+11. **Optional: Run localization analysis**
+    > "Would you like me to analyze file impact before execution? This helps identify potential conflicts. [yes/no]"
+    If yes, spawn the localization-agent to generate `localization.md`.
+12. Suggest `/task-execute` next.
 
 ---
 
