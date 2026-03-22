@@ -12,6 +12,30 @@ fi
 active_task=$(grep "^active_task:" "$STATE_FILE" | awk '{print $2}' | tr -d '"')
 status=$(grep "^status:" "$STATE_FILE" | awk '{print $2}' | tr -d '"')
 task_path=$(grep "^task_path:" "$STATE_FILE" | awk '{print $2}' | tr -d '"')
+plan_format=$(grep "^plan_format:" "$STATE_FILE" | awk '{print $2}' | tr -d '"')
+
+# Parse phase_files list for Format S
+phase_files_list=""
+if [[ "$plan_format" == "S" ]]; then
+  in_phase_files=0
+  while IFS= read -r line; do
+    if [[ "$line" == "phase_files:" ]]; then
+      in_phase_files=1
+      continue
+    fi
+    if [[ $in_phase_files -eq 1 ]]; then
+      if [[ "$line" =~ ^[a-zA-Z] ]]; then
+        break
+      fi
+      file=$(echo "$line" | sed 's/^[[:space:]]*- //')
+      if [[ -n "$phase_files_list" ]]; then
+        phase_files_list="${phase_files_list}, ${file}"
+      else
+        phase_files_list="${file}"
+      fi
+    fi
+  done < "$STATE_FILE"
+fi
 
 if [[ -z "$active_task" || "$active_task" == "null" || "$active_task" == "none" ]]; then
   exit 0
@@ -43,9 +67,15 @@ if [[ -n "$constraints_section" ]]; then
   constraints_block="\n\nCONSTRAINTS:\n${constraints_section}"
 fi
 
+# Build Format S phase files block
+phase_files_block=""
+if [[ "$plan_format" == "S" && -n "$phase_files_list" ]]; then
+  phase_files_block="\n- Plan Format: S (Simplified — read individual phase files)\n- Phase Files: ${phase_files_list}"
+fi
+
 # Emit context injection as JSON to stdout (Claude Code reads this)
 cat <<JSON
 {
-  "additionalContext": "ACTIVE TASK CONTEXT:\n- Task: ${active_task}\n- Status: ${status}\n- Path: ${task_path}\n- PRD: ${task_path}/prd.md\n- Plan: ${task_path}/plan.md\n- Context: ${task_path}/context.md${constraints_block}\nAlways read state.yml and relevant task files before acting on any /task-* command.\n\nIMPORTANT: Check constraints before making changes. Invariants must NEVER be violated."
+  "additionalContext": "ACTIVE TASK CONTEXT:\n- Task: ${active_task}\n- Status: ${status}\n- Path: ${task_path}\n- PRD: ${task_path}/prd.md\n- Plan: ${task_path}/plan.md\n- Context: ${task_path}/context.md${phase_files_block}${constraints_block}\nAlways read state.yml and relevant task files before acting on any /task-* command.\n\nIMPORTANT: Check constraints before making changes. Invariants must NEVER be violated."
 }
 JSON

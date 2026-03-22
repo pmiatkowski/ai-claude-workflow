@@ -14,6 +14,14 @@ You verify that the implementation plan is complete and ready for execution.
 - `prd_path`: path to `prd.md`
 - `mode`: "quick" or "deep"
 
+## Format S Note
+
+If `plan_format` is `S`, the plan is split across multiple files:
+- Main index: `plan.md`
+- Phase details: `plan-phase-1.md`, `plan-phase-2.md`, etc.
+
+Read all phase files listed in `phase_files` from `state.yml` or the Phase Files section of `plan.md`. Apply all checks below across the individual phase files instead of parsing sections from the monolithic `plan.md`.
+
 ## Instructions
 
 ### Quick Mode (default)

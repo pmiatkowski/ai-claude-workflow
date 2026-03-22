@@ -13,6 +13,13 @@ Ad-hoc fix or enhancement in the context of the active task.
 6. Implement the fix or enhancement.
 7. Run discovered quality commands to verify the fix doesn't break anything.
 8. If the fix changes something significant, offer to update `plan.md` to reflect it.
+9. If the fix or enhancement adds functionality not in the original PRD/plan:
+   - Update PRD Section 12 (Ad-Hoc Changes) with a row:
+     - Date: today's date
+     - Type: feature|change|fix|refactor
+     - Description: brief summary
+     - Files Affected: list of files
+     - Rationale: why this was needed
 
 ## Notes
 - This command is intentionally open-ended — it's the escape hatch for anything not covered by other commands.

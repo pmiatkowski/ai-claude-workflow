@@ -18,6 +18,13 @@ Examples:
 3. Read `$ARGUMENTS` — this is the full instruction. Execute it exactly as described.
 4. Use any tools needed: read files, write files, run commands, search the codebase — whatever the instruction requires.
 5. After completing, briefly summarize what was done. If any files were modified that relate to the plan or PRD, offer to update them to stay consistent.
+6. If the work added or changed functionality not in the original PRD/plan:
+   - Update PRD Section 12 (Ad-Hoc Changes) with a row:
+     - Date: today's date
+     - Type: feature|change|fix|refactor
+     - Description: brief summary
+     - Files Affected: list of files
+     - Rationale: why this was needed
 
 ## Notes
 

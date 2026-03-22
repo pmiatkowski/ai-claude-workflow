@@ -60,6 +60,11 @@ Create a new task. Usage: `/task-create <task-name> <brief description>`
 
 ## 11. Additional Context
 [Reserved — populated by /task-add-context]
+
+## 12. Ad-Hoc Changes
+[Populated during implementation — tracks changes made outside the original plan]
+| Date | Type | Description | Files Affected | Rationale |
+|------|------|-------------|----------------|-----------|
 ```
 
 ## state.yml Structure

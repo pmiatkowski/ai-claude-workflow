@@ -17,8 +17,10 @@ You verify that the implementation is complete, correct, and meets quality stand
 ## Instructions
 
 1. Read `prd.md` — understand all requirements.
-2. Read `plan.md` — understand all phases and tasks. Verify which tasks are marked `- [x]` (complete) vs `- [ ]` (incomplete).
-3. Read `state.yml` — check constraints section.
+2. Read `state.yml` — check constraints section, `plan_format`, and `quality_check_mode` (for Format S).
+3. Read the plan:
+   - For formats A/B/C/D/B+D: Read `plan.md` — understand all phases and tasks. Verify which tasks are marked `- [x]` (complete) vs `- [ ]` (incomplete).
+   - For format S: Read `plan.md` for overall progress, then read each `plan-phase-N.md` (from `phase_files` in `state.yml`) to verify TODO completion. A task is complete when its TODO shows `- [x]` in the phase file. Format S verification runs **once after all phases complete**.
 4. Verify implementation:
 
    **a. Completeness** — Is every planned task marked complete? Are all files created/modified?
@@ -27,7 +29,10 @@ You verify that the implementation is complete, correct, and meets quality stand
 
    **c. PRD compliance** — Does the implementation satisfy all functional and non-functional requirements?
 
-   **d. Quality** — Discover and run all quality commands (same discovery process as task-executors). All must pass.
+   **d. Quality** — Verify quality check status:
+   - For Format S with `quality_check_mode=final`: Check that "Phase Final: Verification" is marked complete in the plan. The Final Verification phase already ran all quality checks. Optionally re-run them to confirm they still pass.
+   - For Format S with `quality_check_mode=per_phase`: Quality checks were already run per phase; verify they still pass.
+   - For other formats: Discover and run all quality commands (same discovery process as task-executors). All must pass.
 
    **e. Coding standards** — Read `CLAUDE.md` for guidelines. Check that implementation follows them.
 

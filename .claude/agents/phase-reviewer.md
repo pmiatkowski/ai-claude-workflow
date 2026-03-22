@@ -16,7 +16,9 @@ You review a completed implementation phase for quality and correctness.
 
 ## Instructions
 
-1. Read the phase tasks from `plan.md`.
+1. Read the phase tasks:
+   - For formats A/B/C/D/B+D: Read from `plan.md`.
+   - For format S: Read from `plan-phase-N.md` (where N is the phase number).
 2. Read all files that were modified in this phase.
 3. Compare implementation against:
    - Plan requirements

@@ -8,6 +8,7 @@ Update project documentation based on the completed task implementation.
 
 2. Read the task artifacts:
    - `prd.md` - What was requested and why
+   - `prd.md` Section 12 - Ad-hoc changes made during implementation
    - `plan.md` - What was implemented (check for completed phases)
 
 3. Analyze what changed:
@@ -16,6 +17,7 @@ Update project documentation based on the completed task implementation.
    - Features/APIs removed
    - Configuration changes
    - New dependencies
+   - Ad-hoc changes from Section 12
 
 4. **Research existing documentation** (using docs-researcher patterns):
    - Search README.md for related content
@@ -59,6 +61,11 @@ Accepted
 
 ## Implementation Summary
 [Brief summary from PRD/plan]
+
+## Ad-Hoc Changes Detected
+[List any changes from PRD Section 12 that need documentation]
+| Date | Type | Description | Doc Impact |
+|------|------|-------------|------------|
 
 ## Related Existing Documentation
 | File | Section | Relevance |
