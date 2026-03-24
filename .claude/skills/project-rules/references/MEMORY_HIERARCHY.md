@@ -2,65 +2,130 @@
 
 ## Hierarchy Overview
 
-Claude Code loads memory from multiple sources in priority order. Higher priority sources override conflicting rules from lower priority sources.
+Claude Code loads memory from multiple sources. **More specific locations take precedence over broader ones.**
 
 ```
-┌─────────────────────────────────────┐
-│     1. Enterprise Policy            │  ← Highest Priority
-│   /etc/claude-code/CLAUDE.md        │
-│   C:\ProgramData\ClaudeCode\CLAUDE.md│
-├─────────────────────────────────────┤
-│     2. Project Memory               │
-│        ./CLAUDE.md                  │     ← Default for rules
-├─────────────────────────────────────┤
-│     3. User Memory                  │
-│     ~/.claude/CLAUDE.md             │
-├─────────────────────────────────────┤
-│     4. Project Memory Local         │  ← Deprecated
-│        ./CLAUDE.local.md            │     ← Lowest Priority
-└─────────────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│  1. Managed Policy (highest priority)         │
+│     macOS:   /Library/Application Support/    │
+│              ClaudeCode/CLAUDE.md             │
+│     Linux:   /etc/claude-code/CLAUDE.md       │
+│     Windows: C:\Program Files\ClaudeCode\     │
+│              CLAUDE.md                        │
+├──────────────────────────────────────────────┤
+│  2. Project Instructions (team-shared)        │
+│     ./CLAUDE.md  or  ./.claude/CLAUDE.md      │
+│     ./.claude/rules/*.md  (modular rules)     │  ← Default for rules
+├──────────────────────────────────────────────┤
+│  3. User Instructions (personal)              │
+│     ~/.claude/CLAUDE.md                       │
+│     ~/.claude/rules/*.md                      │
+└──────────────────────────────────────────────┘
+```
+
+> **Loading order vs priority:** User-level rules are loaded *before* project rules, but project rules have *higher priority* (they override conflicting user rules).
+
+> **Note:** `./CLAUDE.local.md` is deprecated. Use `@path` imports or `.claude/rules/` instead.
+
+## How CLAUDE.md Files Load
+
+### Directory Tree Walking
+
+Claude Code reads CLAUDE.md files by walking **up** the directory tree from your current working directory. If you run Claude Code in `foo/bar/`, it loads instructions from both `foo/bar/CLAUDE.md` and `foo/CLAUDE.md`.
+
+### On-Demand Loading for Subdirectories
+
+CLAUDE.md files in subdirectories **under** your current working directory are **not** loaded at launch. They load on-demand when Claude reads files in those subdirectories.
+
+### Additional Directories
+
+The `--add-dir` flag gives Claude access to directories outside your main working directory. By default, CLAUDE.md files from these directories are **not** loaded.
+
+To also load CLAUDE.md files from additional directories, set the environment variable:
+
+```bash
+CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 claude --add-dir ../shared-config
+```
+
+## The `.claude/rules/` Directory
+
+The preferred way to organize rules for non-trivial projects.
+
+- **All `.md` files** in `.claude/rules/` are discovered recursively
+- **No frontmatter** → loads unconditionally at launch (same priority as `.claude/CLAUDE.md`)
+- **With `paths:` frontmatter** → loads only when a matching file is opened (saves context)
+- Subdirectories are supported: `frontend/`, `backend/`, etc.
+- **Symlinks are supported** for shared rule sets (circular symlinks are handled gracefully)
+
+### Path-scoped Rule Format
+
+```markdown
+---
+paths:
+  - "src/api/**/*.ts"
+  - "src/**/*.{ts,tsx}"
+  - "tests/**/*.test.ts"
+---
+
+# API Development Rules
+
+- All API endpoints must include input validation
+- Return consistent error shapes: `{ error: string, code: number }`
+```
+
+### Symlinks for Shared Rules
+
+Link shared rule sets across projects:
+
+```bash
+# Link a shared directory
+ln -s ~/shared-claude-rules .claude/rules/shared
+
+# Link an individual file
+ln -s ~/company-standards/security.md .claude/rules/security.md
+```
+
+### Example Structure
+
+```
+project/
+├── CLAUDE.md                      # Main instructions (keep under 200 lines)
+└── .claude/
+    └── rules/
+        ├── code-style.md          # Loads unconditionally
+        ├── testing.md             # Loads unconditionally
+        ├── api.md                 # Path-scoped: src/api/**/*.ts only
+        ├── shared -> ~/shared-rules/  # Symlinked shared rules
+        └── frontend/
+            └── components.md      # Path-scoped: src/components/**/*.tsx
 ```
 
 ## When to Use Each Level
 
-### Enterprise Policy
-- **Scope:** All users, all projects on the machine
-- **Use for:** Company-wide coding standards, security policies, compliance rules
-- **Edited by:** System administrators only
-- **Example rules:**
-  - "Never commit secrets or credentials"
-  - "All code must pass security scan before merge"
-  - "Use approved library versions only"
+### Managed Policy (Enterprise)
 
-### Project Memory (./CLAUDE.md)
+- **Scope:** All users, all projects on the machine
+- **Use for:** Company-wide security policies, compliance rules
+- **Edited by:** System administrators only
+- **Cannot be excluded:** Managed policy CLAUDE.md files always apply
+
+### Project Instructions (`./CLAUDE.md` + `.claude/rules/`)
+
 - **Scope:** All users working on this project
 - **Use for:** Project-specific conventions, architecture decisions, team standards
-- **Edited by:** Anyone with write access to the repo
 - **Shared via:** Git (checked into repository)
-- **Example rules:**
-  - "Use React with TypeScript"
-  - "Tests go in __tests__ directory"
-  - "API routes follow RESTful conventions"
+- **Target size:** Keep each file under 200 lines
 
-### User Memory (~/.claude/CLAUDE.md)
+### User Instructions (`~/.claude/CLAUDE.md`)
+
 - **Scope:** Current user, all projects
-- **Use for:** Personal preferences, individual workflow, preferred tools
-- **Edited by:** The user only
+- **Use for:** Personal preferences, individual workflow
 - **Not shared:** Lives in home directory
-- **Example rules:**
-  - "Prefer functional components over class components"
-  - "Always add JSDoc comments to public functions"
-  - "Use descriptive variable names (no single letters except loops)"
-
-### Project Memory Local (./CLAUDE.local.md)
-- **Status:** Deprecated - avoid using
-- **Use instead:** Use `@import` syntax to include local overrides
+- **Priority:** Loaded before project rules, but project rules override conflicts
 
 ## Import Syntax
 
-Use `@path/to/import` to include additional files. This enables modular organization.
-
-### Syntax
+Use `@path/to/file` anywhere in a CLAUDE.md or rules file to inline another file.
 
 ```markdown
 # Project Memory
@@ -70,45 +135,9 @@ Use `@path/to/import` to include additional files. This enables modular organiza
 @./.claude/rules/testing.md
 ```
 
-### Import Resolution
-
-- `@~/.claude/...` - Resolves to user's home directory
-- `@./...` - Resolves relative to CLAUDE.md location
-- `@/absolute/path/...` - Resolves to absolute path
-
-### Best Practices for Imports
-
-1. **Group related rules** in separate files
-2. **Keep main CLAUDE.md concise** - use it as an index
-3. **Use descriptive filenames** - `testing.md`, `security.md`, `api.md`
-4. **Avoid deep nesting** - one level of imports is usually enough
-
-### Example Structure
-
-```
-project/
-├── CLAUDE.md                    # Main file with imports
-└── .claude/
-    └── rules/
-        ├── code-style.md        # Formatting rules
-        ├── testing.md           # Testing conventions
-        ├── architecture.md      # Architecture decisions
-        └── security.md          # Security guidelines
-```
-
-Main CLAUDE.md:
-```markdown
-# Project Memory
-
-## Overview
-Brief project description and key conventions.
-
-## Rules
-@./.claude/rules/code-style.md
-@./.claude/rules/testing.md
-@./.claude/rules/architecture.md
-@./.claude/rules/security.md
-```
+- `@~/.claude/...` — resolves to home directory
+- `@./...` — resolves relative to the file containing the import
+- Maximum import depth: 5 hops
 
 ## Decision Flow for Rule Placement
 
@@ -117,58 +146,68 @@ User wants to add a rule
          │
          ▼
 ┌────────────────────────┐
-│ Is it a company-wide   │──Yes──▶ Enterprise Policy
-│ security/compliance    │
-│ requirement?           │
+│ Company-wide security/ │──Yes──▶ Managed Policy
+│ compliance requirement?│
 └────────────────────────┘
          │ No
          ▼
 ┌────────────────────────┐
-│ Should all team        │──Yes──▶ Project Memory (./CLAUDE.md)
-│ members follow this    │         or imported file
-│ on this project?       │
+│ Should the whole team  │──Yes──▶ .claude/rules/<topic>.md
+│ follow this on this    │         (or ./CLAUDE.md if very short)
+│ project?               │
 └────────────────────────┘
          │ No
          ▼
 ┌────────────────────────┐
-│ Is this a personal     │──Yes──▶ User Memory (~/.claude/CLAUDE.md)
-│ preference that        │
-│ applies to all         │
-│ projects?              │
+│ Personal preference    │──Yes──▶ ~/.claude/CLAUDE.md
+│ across all projects?   │
 └────────────────────────┘
          │ No
          ▼
-    Project Memory
-    (team-specific)
+    .claude/rules/<topic>.md  (project-scoped, team-shared)
 ```
 
 ## Merging Behavior
 
-When multiple CLAUDE.md files exist, Claude Code merges them:
+When multiple CLAUDE.md / rules files exist, Claude Code merges them:
 
-1. **Conflicting rules**: Higher priority wins
+1. **Conflicting rules**: More specific location wins (project > user)
 2. **Non-conflicting rules**: All are included
-3. **Section merging**: Sections with same name are combined
+3. **Monorepos**: Use `claudeMdExcludes` to skip irrelevant CLAUDE.md files
 
-Example:
-- Enterprise: "Use 4-space indentation"
-- Project: "Use 2-space indentation"
-- **Result**: Uses 2-space indentation (project overrides enterprise for this project)
+### Excluding Files with `claudeMdExcludes`
+
+```json
+// .claude/settings.local.json
+{
+  "claudeMdExcludes": [
+    "**/monorepo/CLAUDE.md",
+    "/home/user/monorepo/other-team/.claude/rules/**"
+  ]
+}
+```
+
+Patterns are matched against absolute file paths using glob syntax. You can configure this at any settings layer. **Managed policy CLAUDE.md files cannot be excluded.**
 
 ## Common Patterns
 
 ### Pattern 1: Simple Project
-Just use `./CLAUDE.md` with everything inline.
+One `./CLAUDE.md` with everything inline.
 
 ### Pattern 2: Modular Project
-Use `./CLAUDE.md` as index with `@imports` for categories.
+`./CLAUDE.md` as a short overview; detailed rules split into `.claude/rules/*.md`.
 
-### Pattern 3: Personal + Team
+### Pattern 3: Path-scoped Efficiency
+Use `paths:` frontmatter so rules only load for relevant files, keeping the context window lean.
+
+### Pattern 4: Personal + Team
 - `./CLAUDE.md` for team rules
-- `~/.claude/CLAUDE.md` for personal preferences
-- Use `@~/.claude/CLAUDE.md` import in project if needed
+- `~/.claude/CLAUDE.md` for personal preferences (not checked in)
 
-### Pattern 4: Enterprise + Project
-- Enterprise CLAUDE.md for company policies
-- `./CLAUDE.md` for project-specific rules
-- Project rules override enterprise when conflicting
+### Pattern 5: Shared Rules Across Projects
+Use symlinks to share common rules:
+
+```bash
+# One shared rules directory, linked into multiple projects
+ln -s ~/company-standards/.claude/rules .claude/rules/company
+```

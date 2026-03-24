@@ -1,5 +1,31 @@
 # Rule Template Reference
 
+## File Placement
+
+Rules live in `.claude/rules/<topic>.md`. Two loading modes:
+
+- **No frontmatter** — loads unconditionally at launch alongside CLAUDE.md
+- **With `paths:` frontmatter** — loads only when a matching file is opened (saves context)
+
+### Path-scoped Rule File
+
+```markdown
+---
+paths:
+  - "src/api/**/*.ts"
+  - "src/**/*.{ts,tsx}"
+---
+
+# API Rules
+
+- All endpoints must validate input
+- Return `{ error: string, code: number }` shapes
+```
+
+Supported glob patterns: `**/*.ts`, `src/**/*`, `*.md`, `src/**/*.{ts,tsx}`
+
+---
+
 ## Rule Structure
 
 ### Basic Rule (Bullet Point)
@@ -22,7 +48,7 @@
 
 ### Rule with Example
 
-```markdown
+````markdown
 ## Category Name
 
 - Use named exports for components
@@ -34,7 +60,9 @@
   // Avoid
   export default function Button({ children }) { ... }
   ```
-```
+````
+
+````
 
 ### Rule with Constraints
 
@@ -45,7 +73,7 @@
   - Log errors with context
   - Return meaningful error messages to users
   - Never expose internal details in error messages
-```
+````
 
 ## Standard Categories
 
@@ -74,13 +102,13 @@ Before adding a rule, verify:
 
 ## Vague vs Specific Examples
 
-| Vague (Avoid) | Specific (Use) |
-|---------------|----------------|
-| Follow best practices | Use React Testing Library for component tests |
-| Write clean code | Functions should be under 50 lines |
+| Vague (Avoid)          | Specific (Use)                                           |
+| ---------------------- | -------------------------------------------------------- |
+| Follow best practices  | Use React Testing Library for component tests            |
+| Write clean code       | Functions should be under 50 lines                       |
 | Handle errors properly | Wrap async operations in try/catch, log to console.error |
-| Use good naming | Use camelCase for variables, PascalCase for components |
-| Format code correctly | Use 2-space indentation, single quotes for strings |
+| Use good naming        | Use camelCase for variables, PascalCase for components   |
+| Format code correctly  | Use 2-space indentation, single quotes for strings       |
 
 ## Using Imports for Large Rule Sets
 
@@ -95,3 +123,25 @@ When rules become extensive, split into separate files:
 ```
 
 This keeps CLAUDE.md readable and allows focused updates.
+
+## Target File Size
+
+Keep each CLAUDE.md or rules file **under 200 lines**. Longer files:
+- Consume more context tokens
+- Reduce adherence to instructions
+
+If a file grows large, split into topic-specific files in `.claude/rules/`.
+
+## Sharing Rules Across Projects
+
+Use symlinks to share common rule sets:
+
+```bash
+# Link a shared directory
+ln -s ~/shared-claude-rules .claude/rules/shared
+
+# Link an individual file
+ln -s ~/company-standards/security.md .claude/rules/security.md
+```
+
+Symlinks are resolved normally. Circular symlinks are detected and handled gracefully.

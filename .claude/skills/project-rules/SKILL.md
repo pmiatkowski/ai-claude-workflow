@@ -10,26 +10,29 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 
 # Rules Skill
 
-Manage Claude Code coding guidelines stored in CLAUDE.md files.
+Manage Claude Code coding guidelines stored in CLAUDE.md files and `.claude/rules/` directory.
 
 ## Memory Hierarchy
 
-When modifying rules, understand the target location:
+When modifying rules, understand the target location. **More specific locations take precedence over broader ones.**
 
-| Priority | Location | Scope | Path |
-|----------|----------|-------|------|
-| 1 (highest) | Enterprise Policy | All users, all projects | `/etc/claude-code/CLAUDE.md` or `C:\ProgramData\ClaudeCode\CLAUDE.md` |
-| 2 | Project Memory | All users, this project | `./CLAUDE.md` |
-| 3 | User Memory | Current user, all projects | `~/.claude/CLAUDE.md` |
-| 4 (lowest) | Project Memory Local | Current user, this project | `./CLAUDE.local.md` (deprecated) |
+| Priority    | Location           | Scope                      | Path                                                                                         |
+| ----------- | ------------------ | -------------------------- | -------------------------------------------------------------------------------------------- |
+| 1 (highest) | Managed Policy     | All users, all projects    | macOS: `/Library/Application Support/ClaudeCode/CLAUDE.md`<br>Linux: `/etc/claude-code/CLAUDE.md`<br>Windows: `C:\Program Files\ClaudeCode\CLAUDE.md` |
+| 2           | Project Rules      | All users, this project    | `./CLAUDE.md` or `./.claude/CLAUDE.md`<br>`./.claude/rules/*.md` (modular, path-scoped)     |
+| 3           | User Instructions  | Current user, all projects | `~/.claude/CLAUDE.md`<br>`~/.claude/rules/*.md`                                              |
 
-**Default assumption**: Unless specified otherwise, modify `./CLAUDE.md` (project memory).
+> **Loading order vs priority:** User-level rules are loaded *before* project rules, but project rules have *higher priority* (they override conflicting user rules).
+
+> `./CLAUDE.local.md` is **deprecated** — use `.claude/rules/` or `@path` imports instead.
+
+**Default assumption**: Unless specified otherwise, add rules to `.claude/rules/<topic>.md` (project memory). Use `./CLAUDE.md` only for short, project-overview-level instructions.
 
 ## Actions
 
 ### ADD Rules
 
-Add new rules to a CLAUDE.md file.
+Add new rules to a CLAUDE.md file or `.claude/rules/*.md` file.
 
 **Input sources:**
 
@@ -39,13 +42,17 @@ Add new rules to a CLAUDE.md file.
 
 **Process:**
 
-1. Determine target CLAUDE.md file (ask if unclear)
+1. Determine target file (ask if unclear):
+   - Broad project overview → `./CLAUDE.md`
+   - Topic-specific or path-scoped → `.claude/rules/<topic>.md` (preferred for modularity)
+   - Personal preference → `~/.claude/CLAUDE.md`
 2. Read existing content to understand structure
 3. Parse new rules and categorize them
 4. Find appropriate section or create new one
 5. Format rules according to template (see references/RULE_TEMPLATE.md)
-6. Insert maintaining markdown structure
-7. Consider using `@import` for large rule sets
+6. If path-scoped (e.g. only applies to `src/api/**`), add `paths:` frontmatter
+7. Insert maintaining markdown structure
+8. For large rule sets, split across `.claude/rules/*.md` files and reference via `@path` imports in CLAUDE.md
 
 **Example insertion:**
 
@@ -59,11 +66,11 @@ Add new rules to a CLAUDE.md file.
 
 ### CHANGE Rules
 
-Modify existing rules in a CLAUDE.md file.
+Modify existing rules in a CLAUDE.md or `.claude/rules/*.md` file.
 
 **Process:**
 
-1. Search CLAUDE.md for rules matching the query using Grep/Read
+1. Search CLAUDE.md and `.claude/rules/` for rules matching the query using Grep/Read
 2. Present all matching rules with context (section, surrounding rules)
 3. Ask user to confirm which rule(s) to modify
 4. Accept the modification (full replacement or guided edit)
@@ -86,11 +93,11 @@ Change to: "- Use 2-space indentation"
 
 ### DELETE Rules
 
-Remove rules from a CLAUDE.md file.
+Remove rules from a CLAUDE.md or `.claude/rules/*.md` file.
 
 **Process:**
 
-1. Search CLAUDE.md for rules matching the query
+1. Search CLAUDE.md and `.claude/rules/` for rules matching the query
 2. Present all matching rules with context
 3. Ask user to confirm deletion
 4. Remove rule cleanly
@@ -108,7 +115,7 @@ Delete this rule? [Y/n]
 
 ### ANALYZE Rules
 
-Analyze current CLAUDE.md rules for quality issues.
+Analyze current CLAUDE.md and `.claude/rules/*.md` rules for quality issues.
 
 **Analysis dimensions:**
 
@@ -139,19 +146,22 @@ Analyze current CLAUDE.md rules for quality issues.
 **Score:** X/10
 
 ## Coverage Summary
-| Category | Rules | Gaps |
-|----------|-------|------|
-| Code Style | 5 | - |
-| Testing | 2 | Missing: test naming, coverage threshold |
-| ... | ... | ... |
+
+| Category   | Rules | Gaps                                     |
+| ---------- | ----- | ---------------------------------------- |
+| Code Style | 5     | -                                        |
+| Testing    | 2     | Missing: test naming, coverage threshold |
+| ...        | ...   | ...                                      |
 
 ## Issues Found
-| # | Type | Location | Issue | Recommendation |
-|---|------|----------|-------|----------------|
-| 1 | VAGUE | Style | "Follow best practices" | Be specific: define what practices |
-| 2 | CONFLICT | Formatting | Conflicting indent rules | Consolidate to one rule |
+
+| #   | Type     | Location   | Issue                    | Recommendation                     |
+| --- | -------- | ---------- | ------------------------ | ---------------------------------- |
+| 1   | VAGUE    | Style      | "Follow best practices"  | Be specific: define what practices |
+| 2   | CONFLICT | Formatting | Conflicting indent rules | Consolidate to one rule            |
 
 ## Suggestions
+
 1. Add testing naming convention rule
 2. Specify error handling patterns
 3. Remove redundant "clean code" rule
@@ -194,31 +204,36 @@ Scan codebase to discover existing conventions and suggest rules.
 # Discovered Conventions
 
 ## Tech Stack
+
 - **Language:** TypeScript
 - **Framework:** React
 - **Testing:** Jest + React Testing Library
 - **Build:** Vite
 
 ## File Naming Patterns
-| Type | Pattern | Examples |
-|------|---------|----------|
+
+| Type       | Pattern        | Examples                    |
+| ---------- | -------------- | --------------------------- |
 | Components | PascalCase.tsx | Button.tsx, UserProfile.tsx |
-| Tests | *.test.tsx | Button.test.tsx |
-| Utilities | camelCase.ts | formatDate.ts |
-| Styles | *.module.css | Button.module.css |
+| Tests      | \*.test.tsx    | Button.test.tsx             |
+| Utilities  | camelCase.ts   | formatDate.ts               |
+| Styles     | \*.module.css  | Button.module.css           |
 
 ## Directory Structure
+
 - `src/components/` - React components
 - `src/hooks/` - Custom hooks
 - `src/lib/` - Utility functions
 - `src/__tests__/` - Test files
 
 ## Import Patterns
+
 - Path alias: `@/` for src/
 - Named exports preferred for utilities
 - Default exports for page components
 
 ## Existing Configs
+
 - ESLint: .eslintrc.json (airbnb base)
 - Prettier: .prettierrc (2 spaces, single quotes)
 - TypeScript: strict mode enabled
@@ -226,25 +241,30 @@ Scan codebase to discover existing conventions and suggest rules.
 ## Suggested Rules
 
 ### Code Style
+
 - Use 2-space indentation (from Prettier config)
 - Use single quotes for strings (from Prettier config)
 - Use path alias `@/` for imports from src/
 
 ### Naming Conventions
+
 - Components: PascalCase.tsx
-- Test files: colocated with source, *.test.tsx suffix
+- Test files: colocated with source, \*.test.tsx suffix
 - Utilities: camelCase.ts
 
 ### Architecture
+
 - Components in src/components/
 - Custom hooks in src/hooks/
 - Utilities in src/lib/
 
 ### Testing
+
 - Use Jest + React Testing Library
 - Test files colocated with source files
 
 ---
+
 Add these rules to CLAUDE.md? [all/selective/none]
 ```
 
@@ -263,3 +283,6 @@ Add these rules to CLAUDE.md? [all/selective/none]
 5. **Use Imports**: For large rule sets, use `@path/to/import` syntax
 6. **Avoid Redundancy**: Don't duplicate rules across sections
 7. **One Concept Per Rule**: Keep rules focused and atomic
+8. **Target 200 Lines**: Keep each CLAUDE.md or rules file under 200 lines for better adherence
+9. **Use Symlinks**: Share common rules across projects with symlinks: `ln -s ~/shared-rules .claude/rules/shared`
+10. **Path-Scoped Rules**: Use `paths:` frontmatter to load rules only for relevant files, saving context

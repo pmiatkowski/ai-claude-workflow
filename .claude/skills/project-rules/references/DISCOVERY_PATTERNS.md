@@ -4,16 +4,16 @@
 
 ### Language Detection
 
-| File | Language |
-|------|----------|
-| package.json | JavaScript/TypeScript |
-| tsconfig.json | TypeScript |
-| pyproject.toml, setup.py, requirements.txt | Python |
-| Cargo.toml | Rust |
-| go.mod | Go |
-| Gemfile | Ruby |
-| pom.xml, build.gradle | Java |
-| *.csproj | C# |
+| File                                       | Language              |
+| ------------------------------------------ | --------------------- |
+| package.json                               | JavaScript/TypeScript |
+| tsconfig.json                              | TypeScript            |
+| pyproject.toml, setup.py, requirements.txt | Python                |
+| Cargo.toml                                 | Rust                  |
+| go.mod                                     | Go                    |
+| Gemfile                                    | Ruby                  |
+| pom.xml, build.gradle                      | Java                  |
+| \*.csproj                                  | C#                    |
 
 ### Framework Detection (from package.json)
 
@@ -34,14 +34,14 @@
 
 ### Test Framework Detection
 
-| File/Pattern | Framework |
-|--------------|-----------|
-| jest.config.* | Jest |
-| vitest.config.* | Vitest |
-| pytest.ini, conftest.py | pytest |
-| *_test.go | Go test |
-| *.spec.ts, *.test.ts | Jest/Vitest |
-| *.spec.tsx, *.test.tsx | Jest/Vitest (React) |
+| File/Pattern            | Framework           |
+| ----------------------- | ------------------- |
+| jest.config.\*          | Jest                |
+| vitest.config.\*        | Vitest              |
+| pytest.ini, conftest.py | pytest              |
+| \*\_test.go             | Go test             |
+| _.spec.ts, _.test.ts    | Jest/Vitest         |
+| _.spec.tsx, _.test.tsx  | Jest/Vitest (React) |
 
 ## File Naming Pattern Detection
 
@@ -109,7 +109,7 @@ patterns: use*.ts
 1. Collect all file names in category
 2. Extract base names (without extension)
 3. Detect case: PascalCase, camelCase, kebab-case, snake_case
-4. Detect prefixes/suffixes: use*, *.test, *.spec, *.config
+4. Detect prefixes/suffixes: use*, *.test, _.spec, _.config
 5. Report dominant pattern
 
 ## Directory Structure Detection
@@ -197,6 +197,7 @@ pattern: throw (new )?(Error|TypeError)
 ### ESLint (.eslintrc.json)
 
 Extract rules that define conventions:
+
 - indent (indentation)
 - quotes (quote style)
 - semi (semicolons)
@@ -205,6 +206,7 @@ Extract rules that define conventions:
 ### Prettier (.prettierrc)
 
 Extract formatting rules:
+
 - tabWidth (indentation size)
 - useTabs (tabs vs spaces)
 - singleQuote (quote style)
@@ -214,6 +216,7 @@ Extract formatting rules:
 ### TypeScript (tsconfig.json)
 
 Extract strictness:
+
 - strict mode
 - noImplicitAny
 - strictNullChecks
@@ -221,6 +224,7 @@ Extract strictness:
 ### EditorConfig (.editorconfig)
 
 Extract:
+
 - indent_style
 - indent_size
 - end_of_line
@@ -234,22 +238,28 @@ After discovery, format findings as:
 # Discovered Conventions
 
 ## Tech Stack
+
 [Language, framework, test framework, build tool]
 
 ## File Naming Patterns
-| Type | Pattern | Examples |
-|------|---------|----------|
+
+| Type   | Pattern   | Examples   |
+| ------ | --------- | ---------- |
 | [type] | [pattern] | [examples] |
 
 ## Directory Structure
+
 [Directory tree with purposes]
 
 ## Import/Export Patterns
+
 [Import style, path aliases, export preferences]
 
 ## Existing Configs
+
 [Linting, formatting, TypeScript configs]
 
 ## Suggested Rules
+
 [Categorized list of rules based on findings]
 ```
