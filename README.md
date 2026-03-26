@@ -15,6 +15,8 @@ The core idea is a **task** — a self-contained unit of work with its own PRD, 
                                                                                           /task-update-docs
                                                                          (at any point) → /task-fix
                                                                          (at any point) → /task-run
+                                                                         (at any point) → /task-checkpoint
+                                                                         (at any point) → /task-constraints
 ```
 
 No abstractions to memorize beyond the commands. No configuration required to start.
@@ -35,6 +37,20 @@ task_path: .temp/tasks/my-feature
 prd: .temp/tasks/my-feature/prd.md
 plan: .temp/tasks/my-feature/plan.md
 context: .temp/tasks/my-feature/context.md
+plan_format: C
+phase_files:                    # Only for Format S
+  - plan-phase-1.md
+  - plan-phase-2.md
+constraints:
+  invariants:
+    - id: I1
+      constraint: "All API calls must be authenticated"
+      added_at: 2024-01-15T10:00:00Z
+  decisions:
+    - id: D1-1
+      from_decision: D1
+      constraint: "Must use OAuth2, not custom auth"
+      added_at: 2024-01-15T10:05:00Z
 ```
 
 A `UserPromptSubmit` hook reads this file at the start of every Claude Code session and injects the active task context automatically. You'll see a banner:
@@ -51,46 +67,28 @@ Each task lives in its own directory:
 
 ```
 .temp/tasks/
-  state.yml                        ← active task pointer
+  state.yml                        ← active task pointer + constraints
   my-feature/
     prd.md                         ← requirements document (AI-generated + clarified)
-    plan.md                        ← implementation plan with actual code
+    plan.md                        ← implementation plan (or index for Format S)
+    plan-phase-1.md                ← phase details (Format S only)
+    plan-phase-2.md                ← phase details (Format S only)
     context.md                     ← additional context from files, URLs, discovery
+    localization.md                ← file impact analysis (Phase 0)
+    constraint-report.md           ← constraint compliance audit
     verify-report.md               ← written by task-verificator agent
+    checkpoints/                   ← saved task states
+      before-refactor/
+        state.yml
+        prd.md
+        plan.md
+    reviews/                       ← phase review reports
+      phase-1-review.md
 ```
 
 ---
 
 ## Commands
-
-### `/rules <action> [args]`
-
-Manage Claude Code coding guidelines (CLAUDE.md rules). Actions:
-
-| Action | Description | Example |
-|--------|-------------|---------|
-| `add` | Add new rules from file or inline text | `/rules add path/to/rules.md` |
-| `change` | Modify existing rules matching query | `/rules change indentation` |
-| `delete` | Remove rules matching query | `/rules delete jquery` |
-| `analyze` | Analyze current rules for quality issues | `/rules analyze` |
-| `discover` | Scan codebase to discover conventions | `/rules discover` |
-
-The `discover` action scans the codebase to detect:
-
-- Tech stack (from package.json, Cargo.toml, pyproject.toml, etc.)
-- File naming conventions (PascalCase, camelCase, kebab-case)
-- Directory structure patterns
-- Import/export patterns
-- Existing linting and formatting configs
-
-The `analyze` action checks rules for:
-
-- Coverage gaps (what's missing)
-- Conflicts (contradictory rules)
-- Specificity (vague vs actionable)
-- Organization (structure quality)
-
----
 
 ### `/task-create <name> <description>`
 
@@ -109,6 +107,7 @@ Claude synthesizes the brief into a structured PRD with these sections:
 | **Gaps & Ambiguities** | **Things you didn't mention that will need decisions** |
 | Open Questions | Blockers that must be resolved before implementation |
 | Additional Context | Reserved — populated by `/task-add-context` |
+| **Constraints** | **Invariants and decision-derived rules (Section 10)** |
 
 The Gaps & Ambiguities section is the most important — it's what feeds the clarification step.
 
@@ -159,7 +158,7 @@ you need remote logout across all devices.
 
 Claude asks questions one at a time without asking if you want to continue between them. When the session is complete, it asks whether you want another round or to update the PRD.
 
-After your answers are confirmed, the PRD is updated in place.
+After your answers are confirmed, the PRD is updated in place. **Decision-derived constraints** are automatically added to Section 10 and `state.yml`.
 
 ---
 
@@ -214,11 +213,14 @@ clear when reading the actual files. Detailed todos keep the task-executor groun
 | C      | Hybrid — full code for mechanical phases, todos for complex logic       | Most real-world features                             |
 | D      | Skeleton + signatures — interfaces and function signatures; no bodies   | When type contracts must be locked in early          |
 | B+D    | Todos with signatures — detailed todos plus typed contracts; no bodies  | Large tasks where type safety matters from the start |
+| S      | Simplified — split across multiple files (plan-phase-N.md)              | Large plans; easier agent consumption                |
 
-What format would you like? (A, B, C, D, or B+D)
+What format would you like? (A, B, C, D, B+D, or S)
 ```
 
 You pick the format. Then Claude asks for any final notes (TDD, patterns to follow, etc.) and generates `plan.md`.
+
+**Format S** creates an index in `plan.md` and separate files for each phase (`plan-phase-1.md`, `plan-phase-2.md`, etc.). This is useful for large plans where agents need focused context.
 
 Every phase in the plan follows the same outer structure — goal, dependencies, tasks, quality checks — with the **task block** varying by format:
 
@@ -292,30 +294,26 @@ Executes the plan by spawning sub-agents. Claude asks two questions:
 - `parallel` — all selected phases simultaneously (for independent phases)
 - `sequential` — one after another in order
 
-Claude spawns **Task-Executor agents** via the Task tool. Each task-executor:
+#### Execution Flow
 
-1. Reads `state.yml` to determine `plan_format`
-2. Reads the full plan but implements only its assigned phase
-3. Interprets tasks according to the plan format:
-   - **A**: copies and applies the provided code directly
-   - **B**: reads constraints, patterns, and edge cases — writes implementation guided by the todos
-   - **C**: applies A or B rules per phase based on each phase's `**Format:**` header
-   - **D**: implements function bodies respecting the signatures as fixed contracts
-   - **B+D**: honours signatures as contracts, implements guided by detailed todos
-4. Discovers quality commands from `package.json`, `Makefile`, `CLAUDE.md`
-5. Runs all quality commands — fixes errors before finishing
-6. Updates `plan.md` — marks every completed task `- [x]` and the phase entry in Overall Progress
-
-After all task-executors finish, a **Task-Verificator agent** runs automatically.
-
-The Task-Verificator:
-
-- Checks every planned task is marked complete
-- Reads the actual implementation files and compares against the plan
-- Verifies all functional requirements from the PRD are satisfied
-- Runs all quality commands independently
-- Checks adherence to coding guidelines in `CLAUDE.md`
-- Writes a verification report to `.temp/tasks/<name>/verify-report.md`
+1. **Plan Verification** — A `plan-verificator` agent checks plan quality before execution
+2. **Localization (Phase 0)** — A `localization-agent` analyzes file impact and identifies conflicts
+3. **Task-Executor agents** — Each phase is implemented by a task-executor:
+   - Reads `state.yml` to determine `plan_format`
+   - Reads the full plan but implements only its assigned phase
+   - Interprets tasks according to the plan format
+   - Discovers quality commands from `package.json`, `Makefile`, `CLAUDE.md`
+   - Runs all quality commands — fixes errors before finishing
+   - Updates `plan.md` — marks every completed task `- [x]`
+4. **Phase Review (optional)** — A `phase-reviewer` agent reviews each phase for quality
+5. **Task-Verificator** — After all task-executors finish, runs automatically:
+   - Checks every planned task is marked complete
+   - Reads the actual implementation files and compares against the plan
+   - Verifies all functional requirements from the PRD are satisfied
+   - Runs all quality commands independently
+   - Checks adherence to coding guidelines in `CLAUDE.md`
+   - Checks against verification rules (quality, performance, security)
+   - Writes a verification report to `.temp/tasks/<name>/verify-report.md`
 
 ---
 
@@ -327,7 +325,7 @@ Manual verification at any stage.
 |--------|---------------|
 | `prd` | Requirement clarity, internal consistency, coverage of edge cases, alignment with existing project features |
 | `plan` | PRD coverage, phase ordering and dependencies, code consistency with repo patterns, quality check definitions |
-| `code` | Runs quality commands, compares implementation to plan, checks coding standards from `CLAUDE.md` |
+| `code` | Runs quality commands, compares implementation to plan, checks coding standards, runs verification rules |
 
 Produces a structured report:
 
@@ -342,6 +340,54 @@ Result: PARTIAL
 | 1 | HIGH     | src/auth/jwt.ts  | Missing error handling on verify() | Wrap in try/catch, return null |
 | 2 | LOW      | src/middleware   | Unused import 'lodash'             | Remove                      |
 ```
+
+---
+
+### `/task-constraints <action> [args]`
+
+Manage constraints for the active task. Constraints are rules that must never be violated.
+
+| Action | Description | Example |
+|--------|-------------|---------|
+| `add invariant "<text>"` | Add a fixed rule | `/task-constraints add invariant "All API calls must be authenticated"` |
+| `add decision <D-id> "<text>"` | Add constraint from a decision | `/task-constraints add decision D1 "Must use OAuth2"` |
+| `list` | List all constraints | `/task-constraints list` |
+| `check` | Verify implementation respects constraints | `/task-constraints check` |
+| `remove <id>` | Remove a constraint | `/task-constraints remove I1` |
+
+**Constraint Types:**
+
+| Type | Source | Example |
+|------|--------|---------|
+| **Invariant** | Fixed project requirements | "All API calls must be authenticated" |
+| **Decision-derived** | Follows from clarification answers | "Must use OAuth2, not custom auth" (from D1) |
+
+Constraints are:
+- Stored in `state.yml` under `constraints:`
+- Documented in PRD Section 10
+- Injected into context by the hook
+- Checked by task-executor before implementation
+- Verified by task-verificator after implementation
+- Can be audited on-demand via `constraint-tracker` agent
+
+---
+
+### `/task-checkpoint <action> [name]`
+
+Create or restore checkpoints of task state. Useful before risky changes.
+
+| Action | Description | Example |
+|--------|-------------|---------|
+| `create [name]` | Save current state | `/task-checkpoint create before-refactor` |
+| `restore <name>` | Restore from checkpoint | `/task-checkpoint restore before-refactor` |
+| `list` | List all checkpoints | `/task-checkpoint list` |
+
+**What gets saved:**
+- `state.yml`, `prd.md`, `plan.md`, `context.md`
+- All handoff files, review files
+- Constraint reports
+
+**Storage:** `.temp/tasks/<task-name>/checkpoints/<name>/`
 
 ---
 
@@ -386,7 +432,83 @@ Generic task-scoped freeform command. Loads the full task context (state, PRD, p
 /task-run the build is failing with TS2345 — investigate and fix
 ```
 
-The difference from `/task-fix`: `/task-fix` is repair-oriented and always runs quality checks afterwards. `/task-run` has no assumed intent — it does exactly what the instruction says, nothing more. Use it when you know what you want but it doesn't fit any of the structured commands.
+The difference from `/task-fix`: `/task-fix` is repair-oriented and always runs quality checks afterwards. `/task-run` has no assumed intent — it does exactly what the instruction says, nothing more.
+
+---
+
+## Additional Skills
+
+### `/project-docs <action> [args]`
+
+Manage project documentation (README.md, ./docs/*.md).
+
+| Action | Description | Example |
+|--------|-------------|---------|
+| `init` | Initialize docs structure with templates | `/project-docs init` |
+| `research <query>` | Find information in docs/codebase | `/project-docs research authentication` |
+| `add <topic>` | Add new documentation | `/project-docs add API endpoints` |
+| `change <topic>` | Update existing documentation | `/project-docs change installation` |
+| `delete <topic>` | Remove documentation | `/project-docs delete legacy-api` |
+| `scan` | Scan codebase and suggest doc updates | `/project-docs scan` |
+
+---
+
+### `/rules <action> [args]`
+
+Manage Claude Code coding guidelines (CLAUDE.md rules).
+
+| Action | Description | Example |
+|--------|-------------|---------|
+| `add` | Add new rules from file or inline text | `/rules add path/to/rules.md` |
+| `change` | Modify existing rules matching query | `/rules change indentation` |
+| `delete` | Remove rules matching query | `/rules delete jquery` |
+| `analyze` | Analyze current rules for quality issues | `/rules analyze` |
+| `discover` | Scan codebase to discover conventions | `/rules discover` |
+
+---
+
+### `/prd [brief]`
+
+Create comprehensive Product Requirements Documents through iterative discovery. A 13-phase Socratic process that surfaces assumptions, validates thinking, and builds genuine understanding.
+
+**Phases:**
+1. Discovery & Challenge
+2. Problem Validation
+3. User Deep-Dive
+4. Business Viability
+5. Solution Definition
+6-8. Requirements & Architecture
+9. Risk Assessment
+10. Go-to-Market
+11. Success Metrics
+12-13. Execution & Alignment
+
+---
+
+## Verification Rules
+
+Task-verificator checks against rules in `.claude/verification/`:
+
+### Quality (`quality.md`)
+- Code readability (function size, naming, comments)
+- Complexity (cyclomatic complexity, nesting depth)
+- Duplication (DRY principle)
+- Dead code detection
+- Testing (coverage, quality, patterns)
+- Error handling
+- Documentation
+
+### Performance (`performance.md`)
+- Database (N+1 queries, indexing, query optimization)
+- API (response time, rate limiting, payload size)
+- Memory management (leaks, caching)
+- Frontend (bundle size, rendering, assets)
+- Concurrency (parallelization, resource limits)
+
+### Security (`security.md`)
+- OWASP Top 10 checks
+- Language-specific security patterns
+- Severity levels (CRITICAL → LOW)
 
 ---
 
@@ -397,8 +519,7 @@ The difference from `/task-fix`: `/task-fix` is repair-oriented and always runs 
 /task-create user-auth Add email + password auth with JWT and refresh token rotation
 
 # Claude creates .temp/tasks/user-auth/prd.md
-# Sections include: Goals, Requirements, and a Gaps & Ambiguities section
-# with questions like: token storage strategy, expiry durations, refresh rotation policy
+# Sections include: Goals, Requirements, Gaps & Ambiguities, and Constraints (Section 10)
 
 # 2. Clarify the gaps
 /task-clarify
@@ -409,7 +530,7 @@ The difference from `/task-fix`: `/task-fix` is repair-oriented and always runs 
 # Q3: Refresh token rotation → answered: rotate on every use
 # Q4: Rate limiting on login → answered: yes, 5 attempts per 15 min
 # Q5: Remember me → answered: extend refresh token to 30 days
-# Claude updates prd.md with answers
+# Claude updates prd.md with answers and adds decision-derived constraints
 
 # 3. Add context from the repo
 /task-add-context discover
@@ -422,15 +543,21 @@ The difference from `/task-fix`: `/task-fix` is repair-oriented and always runs 
 # 4. Plan the implementation
 /task-plan
 
+# Claude recommends Format C (Hybrid)
 # Claude asks for notes → "TDD please, failing tests first"
 # Generates plan.md with 3 phases:
 # Phase 1: JWT utilities + token storage (with failing tests first)
 # Phase 2: Auth endpoints (register, login, refresh, logout)
 # Phase 3: Auth middleware + route protection
 
-# 5. Execute
+# 5. Create a checkpoint before execution
+/task-checkpoint create before-execute
+
+# 6. Execute
 /task-execute
 
+# Plan-verificator runs: checks coverage, dependencies, quality commands
+# Localization-agent runs (Phase 0): identifies file conflicts
 # Claude asks: all phases, sequential or parallel?
 # → "phases 1,2 parallel, then phase 3 sequential"
 #
@@ -439,13 +566,18 @@ The difference from `/task-fix`: `/task-fix` is repair-oriented and always runs 
 # All finish → verificator runs automatically
 # Task-Verificator report: PASS ✓
 
-# 6. Verify docs
+# 7. Check constraints
+/task-constraints check
+
+# Constraint-tracker verifies all invariants and decision-derived constraints
+
+# 8. Verify docs
 /task-update-docs
 
 # Claude finds: README.md needs auth section, CLAUDE.md needs env var docs
 # Updates both after confirmation
 
-# 7. Ad-hoc fix during review
+# 9. Ad-hoc fix during review
 /task-fix the login endpoint returns 500 when email doesn't exist instead of 401
 # Claude reads the prd (auth must return 401 for invalid credentials, not 500)
 # Fixes root cause, runs quality commands, confirms PASS
@@ -453,54 +585,74 @@ The difference from `/task-fix`: `/task-fix` is repair-oriented and always runs 
 
 ---
 
-## Installation
-
-Download `install-task-workflow.sh` and run it from your project root:
-
-```bash
-bash install-task-workflow.sh
-```
-
-The script is safe to run on existing projects — it merges into existing `CLAUDE.md` and `settings.json` rather than overwriting them. Re-running is idempotent.
-
-### What gets installed
+## Architecture
 
 ```
 .claude/
-  commands/
-    task-create.md
-    task-clarify.md
-    task-add-context.md
-    task-plan.md
-    task-execute.md
-    task-verify.md
-    task-update-docs.md
-    task-fix.md
-    task-run.md
+  commands/                  # Slash command prompts
+    task-create.md           # Creates PRD from brief
+    task-clarify.md          # Structured Q&A for ambiguities
+    task-add-context.md      # Adds files/URLs/repo context
+    task-plan.md             # Generates implementation plan (6 formats)
+    task-execute.md          # Spawns Task-Executor agents
+    task-verify.md           # Quality verification at any stage
+    task-update-docs.md      # Updates documentation
+    task-fix.md              # Ad-hoc fixes in task context
+    task-run.md              # Generic task-scoped command
+    task-checkpoint.md       # Create/restore task checkpoints
+    task-constraints.md      # Manage invariants and decision constraints
+    project-docs.md          # Documentation management
+    project-rules.md         # CLAUDE.md rules management
+  skills/                    # Skills (model-invoked capabilities)
+    docs/                    # Documentation skill
+      SKILL.md
+      references/
+    prd/                     # PRD creation skill
+      SKILL.md
+      references/
+    project-rules/           # Rules management skill
+      SKILL.md
+      references/
+    new-skill/               # Skill creation reference
+      skill-creation-guidelines.md
   agents/
-    task-executor.md
-    task-verificator.md
+    task-executor.md         # Implements one plan phase
+    task-verificator.md      # Verifies full implementation
+    plan-verificator.md      # Verifies plan quality before execution
+    localization-agent.md    # Analyzes file impact (Phase 0)
+    phase-reviewer.md        # Reviews completed phases
+    constraint-tracker.md    # Monitors constraint compliance
+    docs-initializer.md      # Initializes doc structure
+    docs-researcher.md       # Searches docs/codebase
+    docs-manager.md          # CRUD operations on docs
   hooks/
-    inject-task-context.sh     ← runs on every session start
-  settings.json                ← hook registered here
-
-CLAUDE.md                      ← workflow reference + project overrides
-.temp/tasks/                   ← task artifacts (gitignored)
-  state.yml
-.gitignore                     ← .temp/ added
+    inject-task-context.sh   # UserPromptSubmit hook for context injection
+  verification/              # Verification rules
+    quality.md               # Code quality rules
+    performance.md           # Performance rules
+    security.md              # Security rules (OWASP)
+  settings.json              # Registers the hook
 ```
 
-### Requirements
+### Key Concepts
 
-- Claude Code with slash commands enabled
-- Bash (macOS / Linux / WSL)
-- Python 3 (used during install only, to merge `settings.json`)
+1. **Flat command files**: Each command is standalone — no dispatcher. This keeps prompts focused and enables tab-autocomplete for `/task-*`.
+
+2. **Plan formats (A/B/C/D/B+D/S)**: Task-Executors interpret plans differently based on `plan_format` in `state.yml`.
+
+3. **Task-Executor → Task-Verificator flow**: After all task-executors complete, the task-verificator runs automatically.
+
+4. **Constraints system**: Invariants and decision-derived rules that must never be violated. Tracked in `state.yml` and PRD Section 10.
+
+5. **Context injection via hook**: The `inject-task-context.sh` runs on every `UserPromptSubmit`, reading `state.yml` and injecting active task context and constraints.
+
+6. **Verification rules**: Quality, performance, and security checks stored in `.claude/verification/`.
 
 ---
 
 ## Project Customization
 
-After installation, open `CLAUDE.md`. Two sections control project-specific behavior:
+Open `CLAUDE.md` to customize project-specific behavior:
 
 ### Quality Commands Override
 
@@ -517,7 +669,7 @@ quality_commands:
 
 ### Coding Guidelines
 
-Agents read this section before generating plans and verifying code. Add anything you want enforced:
+Agents read this section before generating plans and verifying code:
 
 ```markdown
 ### Coding Guidelines
@@ -546,13 +698,18 @@ Writing full implementation code into a plan works well for small, isolated task
 
 Detailed todos (Format B) solve this by making the task-executor reason through the implementation with full file context — it reads the existing code, follows referenced patterns, and handles edge cases with real knowledge of the codebase. The plan provides *what* and *why*, not *how*.
 
-The hybrid and signature formats cover the middle ground: lock in the contracts (types, interfaces, signatures) at planning time when context is richest, but leave implementation bodies to the task-executor. Format B+D is particularly useful for TypeScript-heavy codebases where type safety is non-negotiable but implementation flexibility is needed.
+Format S (Simplified) splits large plans across multiple files, making it easier for agents to consume focused context without loading the entire plan.
 
-The chosen format is stored in `state.yml` so task-executor agents always know how to interpret their tasks without ambiguity.
+### Why constraints are tracked separately
+
+Constraints come from two sources: fixed invariants (project requirements) and decisions (from clarification). Tracking them separately in `state.yml` enables:
+- Automatic injection into agent context
+- Compliance checking at multiple stages
+- Clear traceability from decisions to derived constraints
 
 ### Why a separate task-verificator agent
 
-Task-Executors are incentivized to finish their phase — they will rationalize partial compliance. The verificator runs after all execution is complete, with no investment in any particular phase, and checks the full picture: completeness, correctness, PRD compliance, and quality.
+Task-Executors are incentivized to finish their phase — they will rationalize partial compliance. The verificator runs after all execution is complete, with no investment in any particular phase, and checks the full picture: completeness, correctness, PRD compliance, constraints, and quality.
 
 ---
 
@@ -560,8 +717,13 @@ Task-Executors are incentivized to finish their phase — they will rationalize 
 
 | File | Purpose | Modified by |
 |------|---------|-------------|
-| `state.yml` | Active task pointer | Every command |
+| `state.yml` | Active task pointer + constraints | Every command |
 | `prd.md` | Requirements document | `/task-create`, `/task-clarify`, `/task-add-context` |
-| `plan.md` | Implementation plan (format varies: A/B/C/D/B+D) | `/task-plan`, task-executor agents |
+| `plan.md` | Implementation plan (or index for Format S) | `/task-plan`, task-executor agents |
+| `plan-phase-N.md` | Phase details (Format S only) | `/task-plan`, task-executor agents |
 | `context.md` | Additional gathered context | `/task-add-context` |
-| `verify-report.md` | Full verification report | Verificator agent, `/task-verify` |
+| `localization.md` | File impact analysis | localization-agent |
+| `constraint-report.md` | Constraint compliance audit | constraint-tracker |
+| `verify-report.md` | Full verification report | verificator agent, `/task-verify` |
+| `checkpoints/` | Saved task states | `/task-checkpoint` |
+| `reviews/` | Phase review reports | phase-reviewer |
