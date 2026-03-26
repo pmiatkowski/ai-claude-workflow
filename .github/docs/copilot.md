@@ -70,24 +70,24 @@ GitHub Copilot provides a rich ecosystem of customization primitives that work t
 
 ### Key Concepts
 
-| Concept | Description |
-|---------|-------------|
-| **Agent Loop** | The execution cycle: Understand → Act → Validate → Self-correct |
-| **Context Injection** | Automatic inclusion of project context in AI interactions |
-| **Progressive Loading** | 3-level skill loading (Discovery → Instructions → Resources) |
-| **Lifecycle Hooks** | Deterministic code execution at specific agent events |
-| **Subagent Delegation** | Isolated worker agents for focused tasks |
+| Concept                 | Description                                                     |
+| ----------------------- | --------------------------------------------------------------- |
+| **Agent Loop**          | The execution cycle: Understand → Act → Validate → Self-correct |
+| **Context Injection**   | Automatic inclusion of project context in AI interactions       |
+| **Progressive Loading** | 3-level skill loading (Discovery → Instructions → Resources)    |
+| **Lifecycle Hooks**     | Deterministic code execution at specific agent events           |
+| **Subagent Delegation** | Isolated worker agents for focused tasks                        |
 
 ### Activation Patterns
 
-| Primitive | Activation Pattern | Scope |
-|-----------|-------------------|-------|
-| Custom Instructions | **Automatic** - always included | Project-wide or file-specific |
-| Prompt Files | **Manual** - invoked via `/` command | Task-specific |
-| Agent Skills | **Semi-automatic** - loaded when relevant | Task-specific |
-| Custom Agents | **Selection** - chosen from dropdown | Persona-specific |
-| Subagents | **Delegation** - spawned by main agent | Task-isolated |
-| Hooks | **Event-driven** - fire at lifecycle points | Session-scoped |
+| Primitive           | Activation Pattern                          | Scope                         |
+| ------------------- | ------------------------------------------- | ----------------------------- |
+| Custom Instructions | **Automatic** - always included             | Project-wide or file-specific |
+| Prompt Files        | **Manual** - invoked via `/` command        | Task-specific                 |
+| Agent Skills        | **Semi-automatic** - loaded when relevant   | Task-specific                 |
+| Custom Agents       | **Selection** - chosen from dropdown        | Persona-specific              |
+| Subagents           | **Delegation** - spawned by main agent      | Task-isolated                 |
+| Hooks               | **Event-driven** - fire at lifecycle points | Session-scoped                |
 
 ---
 
@@ -97,13 +97,13 @@ GitHub Copilot supports multiple agent execution environments, each suited for d
 
 ### Agent Types Comparison
 
-| Agent Type | Execution | Interaction | Tools Access | Best For |
-|------------|-----------|-------------|--------------|----------|
-| **Ask** | VS Code process | Real-time Q&A | Full | Answering questions, exploring codebase |
-| **Agent** | VS Code process | Real-time autonomous | Full | Interactive coding, feature implementation |
-| **Plan** | VS Code process | Interactive planning | Read-only | Complex planning, clarification |
-| **Copilot CLI** | Background CLI | Async/background | Limited | Autonomous background work, worktree isolation |
-| **Cloud Agent** | GitHub cloud | Async/PR-based | Cloud-configured | Team collaboration, PR workflows |
+| Agent Type      | Execution       | Interaction          | Tools Access     | Best For                                       |
+| --------------- | --------------- | -------------------- | ---------------- | ---------------------------------------------- |
+| **Ask**         | VS Code process | Real-time Q&A        | Full             | Answering questions, exploring codebase        |
+| **Agent**       | VS Code process | Real-time autonomous | Full             | Interactive coding, feature implementation     |
+| **Plan**        | VS Code process | Interactive planning | Read-only        | Complex planning, clarification                |
+| **Copilot CLI** | Background CLI  | Async/background     | Limited          | Autonomous background work, worktree isolation |
+| **Cloud Agent** | GitHub cloud    | Async/PR-based       | Cloud-configured | Team collaboration, PR workflows               |
 
 ### Built-in Local Agents
 
@@ -140,10 +140,10 @@ Runs independently in background using Git worktrees for isolation.
 
 **Isolation Modes:**
 
-| Mode | How It Works | Permission Levels |
-|------|--------------|-------------------|
-| **Worktree** | Creates separate Git worktree folder | Bypass Approvals only (auto-set) |
-| **Workspace** | Operates directly in current workspace | Default, Bypass, or Autopilot |
+| Mode          | How It Works                           | Permission Levels                |
+| ------------- | -------------------------------------- | -------------------------------- |
+| **Worktree**  | Creates separate Git worktree folder   | Bypass Approvals only (auto-set) |
+| **Workspace** | Operates directly in current workspace | Default, Bypass, or Autopilot    |
 
 **Limitations:**
 
@@ -165,13 +165,13 @@ Run on GitHub's remote infrastructure for team collaboration.
 
 **When to Use:**
 
-| Use Case | Recommended Agent |
-|----------|-------------------|
-| Interactive iteration, brainstorming | Local Agent |
-| Questions about codebase | Ask Agent |
-| Structured implementation planning | Plan Agent |
-| Background work while you continue | Copilot CLI |
-| Team collaboration via PRs | Cloud Agent |
+| Use Case                             | Recommended Agent |
+| ------------------------------------ | ----------------- |
+| Interactive iteration, brainstorming | Local Agent       |
+| Questions about codebase             | Ask Agent         |
+| Structured implementation planning   | Plan Agent        |
+| Background work while you continue   | Copilot CLI       |
+| Team collaboration via PRs           | Cloud Agent       |
 
 ---
 
@@ -181,21 +181,21 @@ Permission levels control how much autonomy the agent has during a session.
 
 ### Permission Levels Overview
 
-| Level | Behavior | Use Case |
-|-------|----------|----------|
-| **Default Approvals** | Tools requiring approval show confirmation dialog | Normal development with oversight |
-| **Bypass Approvals** | Auto-approves all tool calls, auto-retries on errors | Trusted environments, faster iteration |
-| **Autopilot** | Auto-approves, auto-retries, auto-responds, continues autonomously | Fully autonomous task completion |
+| Level                 | Behavior                                                           | Use Case                               |
+| --------------------- | ------------------------------------------------------------------ | -------------------------------------- |
+| **Default Approvals** | Tools requiring approval show confirmation dialog                  | Normal development with oversight      |
+| **Bypass Approvals**  | Auto-approves all tool calls, auto-retries on errors               | Trusted environments, faster iteration |
+| **Autopilot**         | Auto-approves, auto-retries, auto-responds, continues autonomously | Fully autonomous task completion       |
 
 ### Autopilot Mode (Preview)
 
 When **Autopilot** is selected:
 
-| Behavior | Description |
-|----------|-------------|
-| **Continuous iteration** | Agent works autonomously until task is complete |
-| **Auto-approve all tools** | All tool calls approved automatically |
-| **Auto-retry on errors** | Agent automatically retries when encountering errors |
+| Behavior                      | Description                                           |
+| ----------------------------- | ----------------------------------------------------- |
+| **Continuous iteration**      | Agent works autonomously until task is complete       |
+| **Auto-approve all tools**    | All tool calls approved automatically                 |
+| **Auto-retry on errors**      | Agent automatically retries when encountering errors  |
 | **Auto-respond to questions** | Tools that normally block for user input auto-respond |
 
 **Enable:** `chat.autopilot.enabled` setting (on by default)
@@ -206,12 +206,12 @@ When **Autopilot** is selected:
 
 When approving tools, you can approve for:
 
-| Scope | Description |
-|-------|-------------|
-| **Single use** | One-time approval |
-| **Current session** | Until chat session ends |
-| **Current workspace** | For this project |
-| **All future invocations** | Global approval |
+| Scope                      | Description             |
+| -------------------------- | ----------------------- |
+| **Single use**             | One-time approval       |
+| **Current session**        | Until chat session ends |
+| **Current workspace**      | For this project        |
+| **All future invocations** | Global approval         |
 
 ---
 
@@ -221,24 +221,24 @@ GitHub Copilot has **two complementary memory systems** for retaining context ac
 
 ### Memory Systems Comparison
 
-| Feature | Memory Tool (Local) | Copilot Memory (Remote) |
-|---------|---------------------|-------------------------|
-| **Storage** | Local (on your machine) | GitHub-hosted (remote) |
-| **Scopes** | User, Repository, Session | Repository only |
-| **Shared across Copilot surfaces** | No (VS Code only) | Yes (coding agent, code review, CLI) |
-| **Created by** | You or agent during chat | Copilot agents automatically |
-| **Enabled by default** | Yes | No (opt-in) |
-| **Expiration** | Manual management | Automatic (28 days) |
+| Feature                            | Memory Tool (Local)       | Copilot Memory (Remote)              |
+| ---------------------------------- | ------------------------- | ------------------------------------ |
+| **Storage**                        | Local (on your machine)   | GitHub-hosted (remote)               |
+| **Scopes**                         | User, Repository, Session | Repository only                      |
+| **Shared across Copilot surfaces** | No (VS Code only)         | Yes (coding agent, code review, CLI) |
+| **Created by**                     | You or agent during chat  | Copilot agents automatically         |
+| **Enabled by default**             | Yes                       | No (opt-in)                          |
+| **Expiration**                     | Manual management         | Automatic (28 days)                  |
 
 ### Memory Tool (Local)
 
 A built-in tool that stores notes locally in three scopes:
 
-| Scope | Path | Persists Across | Use For |
-|-------|------|-----------------|---------|
-| **User** | `/memories/` | All workspaces & conversations | Preferences, patterns, frequently used commands |
-| **Repository** | `/memories/repo/` | Conversations in workspace | Codebase conventions, project structure |
-| **Session** | `/memories/session/` | Current conversation only | Task-specific context, in-progress plans |
+| Scope          | Path                 | Persists Across                | Use For                                         |
+| -------------- | -------------------- | ------------------------------ | ----------------------------------------------- |
+| **User**       | `/memories/`         | All workspaces & conversations | Preferences, patterns, frequently used commands |
+| **Repository** | `/memories/repo/`    | Conversations in workspace     | Codebase conventions, project structure         |
+| **Session**    | `/memories/session/` | Current conversation only      | Task-specific context, in-progress plans        |
 
 **User Memory Details:**
 
@@ -247,10 +247,10 @@ A built-in tool that stores notes locally in three scopes:
 
 **Commands:**
 
-| Command | Function |
-|---------|----------|
-| `Chat: Show Memory Files` | Opens list of all memory files |
-| `Chat: Clear All Memory Files` | Removes all memory files |
+| Command                        | Function                       |
+| ------------------------------ | ------------------------------ |
+| `Chat: Show Memory Files`      | Opens list of all memory files |
+| `Chat: Clear All Memory Files` | Removes all memory files       |
 
 **Storing Memories:**
 
@@ -297,31 +297,31 @@ Custom instructions are Markdown files that define coding standards and project 
 
 Automatically included in every chat request.
 
-| File | Purpose | Scope |
-|------|---------|-------|
-| `.github/copilot-instructions.md` | Primary workspace instructions | Workspace |
-| `AGENTS.md` | Multi-agent compatibility (supports subfolders) | Workspace/Subfolder |
-| `CLAUDE.md` | Claude Code compatibility | Workspace |
-| Organization-level | Share across GitHub organization | Organization |
+| File                              | Purpose                                         | Scope               |
+| --------------------------------- | ----------------------------------------------- | ------------------- |
+| `.github/copilot-instructions.md` | Primary workspace instructions                  | Workspace           |
+| `AGENTS.md`                       | Multi-agent compatibility (supports subfolders) | Workspace/Subfolder |
+| `CLAUDE.md`                       | Claude Code compatibility                       | Workspace           |
+| Organization-level                | Share across GitHub organization                | Organization        |
 
 #### File-Based Instructions
 
 Applied conditionally based on file patterns.
 
-| Location | Scope |
-|----------|-------|
-| `.github/instructions/*.instructions.md` | Workspace |
-| `.claude/rules/*.md` | Workspace (Claude format) |
-| `~/.copilot/instructions/` | User profile |
-| `~/.claude/rules/` | User profile (Claude format) |
+| Location                                 | Scope                        |
+| ---------------------------------------- | ---------------------------- |
+| `.github/instructions/*.instructions.md` | Workspace                    |
+| `.claude/rules/*.md`                     | Workspace (Claude format)    |
+| `~/.copilot/instructions/`               | User profile                 |
+| `~/.claude/rules/`                       | User profile (Claude format) |
 
 ### File Format
 
 ```markdown
 ---
-applyTo: "**/*.ts"
-name: "TypeScript Standards"
-description: "Coding conventions for TypeScript files"
+applyTo: '**/*.ts'
+name: 'TypeScript Standards'
+description: 'Coding conventions for TypeScript files'
 ---
 
 # TypeScript Guidelines
@@ -333,11 +333,11 @@ description: "Coding conventions for TypeScript files"
 
 ### Frontmatter Properties
 
-| Property | Required | Description |
-|----------|----------|-------------|
-| `applyTo` | No* | Glob pattern for file matching (*required for auto-application) |
-| `name` | No | Display name in UI |
-| `description` | No | Short description of the instruction's purpose |
+| Property      | Required | Description                                                      |
+| ------------- | -------- | ---------------------------------------------------------------- |
+| `applyTo`     | No\*     | Glob pattern for file matching (\*required for auto-application) |
+| `name`        | No       | Display name in UI                                               |
+| `description` | No       | Short description of the instruction's purpose                   |
 
 ### Priority Order
 
@@ -347,12 +347,12 @@ description: "Coding conventions for TypeScript files"
 
 ### When to Use
 
-| Scenario | Use Custom Instructions |
-|----------|------------------------|
-| Project-wide coding standards | ✅ Always-on instructions |
+| Scenario                                 | Use Custom Instructions    |
+| ---------------------------------------- | -------------------------- |
+| Project-wide coding standards            | ✅ Always-on instructions  |
 | Different rules for different file types | ✅ File-based instructions |
-| Repeatable tasks | ❌ Use Prompt Files |
-| Complex workflows with scripts | ❌ Use Agent Skills |
+| Repeatable tasks                         | ❌ Use Prompt Files        |
+| Complex workflows with scripts           | ❌ Use Agent Skills        |
 
 ---
 
@@ -379,20 +379,20 @@ Your prompt content here...
 
 ### Frontmatter Properties
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `description` | No | Short description of the prompt |
-| `name` | No | Name for `/` invocation (defaults to filename) |
-| `argument-hint` | No | Hint text shown in chat input field |
-| `agent` | No | Agent to use: `ask`, `agent`, `plan`, or custom agent name |
-| `model` | No | Language model override |
-| `tools` | No | List of available tools |
+| Field           | Required | Description                                                |
+| --------------- | -------- | ---------------------------------------------------------- |
+| `description`   | No       | Short description of the prompt                            |
+| `name`          | No       | Name for `/` invocation (defaults to filename)             |
+| `argument-hint` | No       | Hint text shown in chat input field                        |
+| `agent`         | No       | Agent to use: `ask`, `agent`, `plan`, or custom agent name |
+| `model`         | No       | Language model override                                    |
+| `tools`         | No       | List of available tools                                    |
 
 ### File Locations
 
-| Scope | Location |
-|-------|----------|
-| Workspace | `.github/prompts/*.prompt.md` |
+| Scope        | Location                          |
+| ------------ | --------------------------------- |
+| Workspace    | `.github/prompts/*.prompt.md`     |
 | User profile | VS Code profile `prompts/` folder |
 
 ### Usage Methods
@@ -403,11 +403,11 @@ Your prompt content here...
 
 ### When to Use
 
-| Use Case | Recommended |
-|----------|-------------|
-| Lightweight, single-task prompts | ✅ Prompt Files |
+| Use Case                                  | Recommended      |
+| ----------------------------------------- | ---------------- |
+| Lightweight, single-task prompts          | ✅ Prompt Files  |
 | Persistent persona with tool restrictions | ❌ Custom Agents |
-| Portable, multi-file capability | ❌ Agent Skills |
+| Portable, multi-file capability           | ❌ Agent Skills  |
 
 ---
 
@@ -419,21 +419,21 @@ Agent Skills are folders containing instructions, scripts, and resources that Gi
 
 ### Key Benefits
 
-| Benefit | Description |
-|---------|-------------|
-| **Specialize Copilot** | Tailor capabilities for domain-specific tasks |
-| **Reduce repetition** | Create once, use automatically across conversations |
-| **Compose capabilities** | Combine multiple skills for complex workflows |
-| **Efficient loading** | Only relevant content loads when needed |
-| **Cross-platform** | Works across VS Code, CLI, and coding agent |
+| Benefit                  | Description                                         |
+| ------------------------ | --------------------------------------------------- |
+| **Specialize Copilot**   | Tailor capabilities for domain-specific tasks       |
+| **Reduce repetition**    | Create once, use automatically across conversations |
+| **Compose capabilities** | Combine multiple skills for complex workflows       |
+| **Efficient loading**    | Only relevant content loads when needed             |
+| **Cross-platform**       | Works across VS Code, CLI, and coding agent         |
 
 ### File Locations
 
-| Type | Project Skills | Personal Skills |
-|------|----------------|-----------------|
+| Type    | Project Skills    | Personal Skills      |
+| ------- | ----------------- | -------------------- |
 | Copilot | `.github/skills/` | `~/.copilot/skills/` |
-| Claude | `.claude/skills/` | `~/.claude/skills/` |
-| Generic | `.agents/skills/` | `~/.agents/skills/` |
+| Claude  | `.claude/skills/` | `~/.claude/skills/`  |
+| Generic | `.agents/skills/` | `~/.agents/skills/`  |
 
 ### Directory Structure
 
@@ -451,7 +451,7 @@ my-skill/
 ---
 name: webapp-testing
 description: Guide for testing web applications using Playwright. Use this when asked to create or run browser-based tests.
-argument-hint: "[test file] [options]"
+argument-hint: '[test file] [options]'
 user-invocable: true
 disable-model-invocation: false
 ---
@@ -459,23 +459,25 @@ disable-model-invocation: false
 # Web Application Testing with Playwright
 
 ## When to use this skill
+
 - Create new Playwright tests
 - Debug failing browser tests
 
 ## Creating tests
+
 1. Review [test template](./test-template.js)
 2. Identify user flow to test
 ```
 
 ### Frontmatter Properties
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `name` | Yes | Unique identifier (lowercase, hyphens, max 64 chars, must match directory name) |
-| `description` | Yes | What skill does AND when to use it (max 1024 chars) |
-| `argument-hint` | No | Hint text shown in chat input field |
-| `user-invocable` | No | Show in `/` menu (default: `true`) |
-| `disable-model-invocation` | No | Prevent auto-loading (default: `false`) |
+| Field                      | Required | Description                                                                     |
+| -------------------------- | -------- | ------------------------------------------------------------------------------- |
+| `name`                     | Yes      | Unique identifier (lowercase, hyphens, max 64 chars, must match directory name) |
+| `description`              | Yes      | What skill does AND when to use it (max 1024 chars)                             |
+| `argument-hint`            | No       | Hint text shown in chat input field                                             |
+| `user-invocable`           | No       | Show in `/` menu (default: `true`)                                              |
+| `disable-model-invocation` | No       | Prevent auto-loading (default: `false`)                                         |
 
 ### 3-Level Progressive Loading
 
@@ -492,12 +494,12 @@ Level 3: Resource Access
 
 ### Slash Command Configuration Matrix
 
-| Configuration | Slash Command | Auto-loaded | Use Case |
-|---------------|---------------|-------------|----------|
-| Default (`user-invocable: true`, `disable-model-invocation: false`) | Yes | Yes | General-purpose skills |
-| `user-invocable: false` | No | Yes | Background knowledge only |
-| `disable-model-invocation: true` | Yes | No | On-demand only |
-| Both set to restrict | No | No | Disabled |
+| Configuration                                                       | Slash Command | Auto-loaded | Use Case                  |
+| ------------------------------------------------------------------- | ------------- | ----------- | ------------------------- |
+| Default (`user-invocable: true`, `disable-model-invocation: false`) | Yes           | Yes         | General-purpose skills    |
+| `user-invocable: false`                                             | No            | Yes         | Background knowledge only |
+| `disable-model-invocation: true`                                    | Yes           | No          | On-demand only            |
+| Both set to restrict                                                | No            | No          | Disabled                  |
 
 ---
 
@@ -509,20 +511,20 @@ Custom agents are specialized AI configurations that provide tailored chat exper
 
 ### Components
 
-| Component | Description |
-|-----------|-------------|
-| **Instructions** | Specific guidelines the AI follows |
-| **Tools** | Restricted or expanded tool sets |
+| Component             | Description                               |
+| --------------------- | ----------------------------------------- |
+| **Instructions**      | Specific guidelines the AI follows        |
+| **Tools**             | Restricted or expanded tool sets          |
 | **Model Preferences** | Specific AI models optimized for the task |
-| **Handoffs** | Guided transitions to other agents |
+| **Handoffs**          | Guided transitions to other agents        |
 
 ### File Locations
 
-| Scope | Location |
-|-------|----------|
-| Workspace | `.github/agents/*.agent.md` |
-| Workspace (Claude) | `.claude/agents/*.md` |
-| User profile | `~/.copilot/agents/` or VS Code profile `agents/` folder |
+| Scope              | Location                                                 |
+| ------------------ | -------------------------------------------------------- |
+| Workspace          | `.github/agents/*.agent.md`                              |
+| Workspace (Claude) | `.claude/agents/*.md`                                    |
+| User profile       | `~/.copilot/agents/` or VS Code profile `agents/` folder |
 
 ### File Format
 
@@ -532,49 +534,52 @@ description: Generate an implementation plan for new features
 name: Planner
 tools: ['web/fetch', 'search/codebase', 'search/usages']
 model: ['Claude Opus 4.5', 'GPT-5.2']
-agents: ['Red', 'Green', 'Refactor']  # Allowed subagents
+agents: ['Red', 'Green', 'Refactor'] # Allowed subagents
 handoffs:
-- label: Implement Plan
-  agent: agent
-  prompt: Implement the plan outlined above.
-  send: false
+  - label: Implement Plan
+    agent: agent
+    prompt: Implement the plan outlined above.
+    send: false
 hooks:
   PostToolUse:
     - type: command
-      command: "./scripts/format.sh"
+      command: './scripts/format.sh'
 ---
-
 # Agent Instructions
 Your detailed instructions go here...
 ```
 
 ### Frontmatter Fields
 
-| Field | Description |
-|-------|-------------|
-| `description` | Brief description shown as placeholder text |
-| `name` | Agent name (defaults to filename) |
-| `argument-hint` | Hint text for chat input field |
-| `tools` | List of available tools/tool sets |
-| `agents` | List of available subagents (`*` for all, `[]` for none) |
-| `model` | AI model (single string or prioritized array) |
-| `user-invocable` | Show in agents dropdown (default: true) |
-| `disable-model-invocation` | Prevent subagent invocation (default: false) |
-| `target` | Target environment (`vscode` or `github-copilot`) |
-| `mcp-servers` | MCP server config for GitHub Copilot target |
-| `handoffs` | List of transition actions to other agents |
-| `hooks` | Agent-scoped hook commands (Preview) |
+| Field                      | Description                                              |
+| -------------------------- | -------------------------------------------------------- |
+| `description`              | Brief description shown as placeholder text              |
+| `name`                     | Agent name (defaults to filename)                        |
+| `argument-hint`            | Hint text for chat input field                           |
+| `tools`                    | List of available tools/tool sets                        |
+| `agents`                   | List of available subagents (`*` for all, `[]` for none) |
+| `model`                    | AI model (single string or prioritized array)            |
+| `user-invocable`           | Show in agents dropdown (default: true)                  |
+| `disable-model-invocation` | Prevent subagent invocation (default: false)             |
+| `target`                   | Target environment (`vscode` or `github-copilot`)        |
+| `mcp-servers`              | MCP server config for GitHub Copilot target              |
+| `handoffs`                 | List of transition actions to other agents               |
+| `hooks`                    | Agent-scoped hook commands (Preview)                     |
 
 ### Handoffs: Guided Workflows
 
 ```yaml
 handoffs:
-- label: Start Implementation    # Button text
-  agent: implementation          # Target agent
-  prompt: Now implement the plan outlined above.
-  send: false                    # Auto-submit (default: false)
-  model: GPT-5.2 (copilot)       # Optional model override
+  - label: Start Implementation # Button text
+    agent: Implementation Agent # Target agent's name field (NOT the filename)
+    prompt: Now implement the plan outlined above.
+    send: false # Auto-submit (default: false)
+    model: GPT-5.2 (copilot) # Optional model override
 ```
+
+> **Critical:** The `agent` value must exactly match the target agent's `name` frontmatter field — it is **not** the filename slug. For example, an agent in `my-agent.agent.md` with `name: My Agent` must be referenced as `agent: My Agent`.
+>
+> **Prerequisite:** The target agent must have `user-invocable: true` (the default). Setting `user-invocable: false` removes the agent from the valid handoff targets list. Similarly, `disable-model-invocation: true` on the target agent will prevent handoff invocation entirely.
 
 **Common workflow patterns:**
 
@@ -584,12 +589,12 @@ handoffs:
 
 ### Agent Types
 
-| Agent Type | Execution | Interaction | Use Case |
-|------------|-----------|-------------|----------|
-| **Local Agent** | VS Code process | Real-time | Interactive iteration |
-| **Plan Agent** | VS Code process | Interactive | Planning & clarification |
-| **Coding Agent** | Background (cloud) | Async | Autonomous background work |
-| **Cloud Agent** | GitHub cloud | Async/PR-based | Team collaboration |
+| Agent Type       | Execution          | Interaction    | Use Case                   |
+| ---------------- | ------------------ | -------------- | -------------------------- |
+| **Local Agent**  | VS Code process    | Real-time      | Interactive iteration      |
+| **Plan Agent**   | VS Code process    | Interactive    | Planning & clarification   |
+| **Coding Agent** | Background (cloud) | Async          | Autonomous background work |
+| **Cloud Agent**  | GitHub cloud       | Async/PR-based | Team collaboration         |
 
 ---
 
@@ -601,13 +606,13 @@ A **subagent** is an independent AI agent that performs focused, isolated work a
 
 ### Key Characteristics
 
-| Feature | Description |
-|---------|-------------|
-| **Context Isolation** | Operates in isolated context; doesn't pollute main conversation |
-| **Autonomous Operation** | Works independently and returns a summary |
-| **Parallel Execution** | Multiple subagents can run simultaneously |
+| Feature                  | Description                                                        |
+| ------------------------ | ------------------------------------------------------------------ |
+| **Context Isolation**    | Operates in isolated context; doesn't pollute main conversation    |
+| **Autonomous Operation** | Works independently and returns a summary                          |
+| **Parallel Execution**   | Multiple subagents can run simultaneously                          |
 | **Custom Configuration** | Can use custom agents with specific model, tools, and instructions |
-| **Tool Delegation** | Main agent passes only relevant subtask |
+| **Tool Delegation**      | Main agent passes only relevant subtask                            |
 
 ### How Subagents Work
 
@@ -624,11 +629,11 @@ A **subagent** is an independent AI agent that performs focused, isolated work a
 
 #### Control Properties
 
-| Property | Default | Description |
-|----------|---------|-------------|
-| `user-invocable` | `true` | Controls visibility in agents dropdown |
-| `disable-model-invocation` | `false` | Prevents invocation as subagent |
-| `agents` | `*` (all) | Restricts which custom agents can be used as subagents |
+| Property                   | Default   | Description                                            |
+| -------------------------- | --------- | ------------------------------------------------------ |
+| `user-invocable`           | `true`    | Controls visibility in agents dropdown                 |
+| `disable-model-invocation` | `false`   | Prevents invocation as subagent                        |
+| `agents`                   | `*` (all) | Restricts which custom agents can be used as subagents |
 
 #### Subagent-Only Agent
 
@@ -709,26 +714,26 @@ Hooks enable execution of custom shell commands at key lifecycle points during a
 
 ### Why Use Hooks
 
-| Use Case | Description | Example |
-|----------|-------------|---------|
-| **Enforce Security Policies** | Block dangerous commands | Prevent `rm -rf`, `DROP TABLE` |
-| **Automate Code Quality** | Run formatters, linters | Prettier after every file edit |
-| **Create Audit Trails** | Log tool invocations | Record all terminal commands |
-| **Inject Context** | Add project-specific info | Branch name, environment details |
-| **Control Approvals** | Auto-approve safe operations | Require confirmation for sensitive ones |
+| Use Case                      | Description                  | Example                                 |
+| ----------------------------- | ---------------------------- | --------------------------------------- |
+| **Enforce Security Policies** | Block dangerous commands     | Prevent `rm -rf`, `DROP TABLE`          |
+| **Automate Code Quality**     | Run formatters, linters      | Prettier after every file edit          |
+| **Create Audit Trails**       | Log tool invocations         | Record all terminal commands            |
+| **Inject Context**            | Add project-specific info    | Branch name, environment details        |
+| **Control Approvals**         | Auto-approve safe operations | Require confirmation for sensitive ones |
 
 ### Hook Lifecycle Events
 
-| Hook Event | When It Fires | Common Use Cases |
-|------------|---------------|------------------|
-| `SessionStart` | First prompt of new session | Initialize resources, log session start |
-| `UserPromptSubmit` | User submits a prompt | Audit user requests, inject system context |
-| `PreToolUse` | Before agent invokes any tool | Block dangerous operations, require approval |
-| `PostToolUse` | After tool completes successfully | Run formatters, log results |
-| `PreCompact` | Before conversation context compaction | Export important context |
-| `SubagentStart` | Subagent is spawned | Track nested agent usage |
-| `SubagentStop` | Subagent completes | Aggregate results, cleanup |
-| `Stop` | Agent session ends | Generate reports, cleanup resources |
+| Hook Event         | When It Fires                          | Common Use Cases                             |
+| ------------------ | -------------------------------------- | -------------------------------------------- |
+| `SessionStart`     | First prompt of new session            | Initialize resources, log session start      |
+| `UserPromptSubmit` | User submits a prompt                  | Audit user requests, inject system context   |
+| `PreToolUse`       | Before agent invokes any tool          | Block dangerous operations, require approval |
+| `PostToolUse`      | After tool completes successfully      | Run formatters, log results                  |
+| `PreCompact`       | Before conversation context compaction | Export important context                     |
+| `SubagentStart`    | Subagent is spawned                    | Track nested agent usage                     |
+| `SubagentStop`     | Subagent completes                     | Aggregate results, cleanup                   |
+| `Stop`             | Agent session ends                     | Generate reports, cleanup resources          |
 
 ### Event Sequence
 
@@ -766,13 +771,13 @@ Stop
 
 ### File Locations
 
-| Scope | Location |
-|-------|----------|
+| Scope               | Location                                                     |
+| ------------------- | ------------------------------------------------------------ |
 | Workspace (VS Code) | `.vscode/settings.json` with `github.copilot.chat.hooks` key |
-| Workspace (Claude) | `.claude/settings.json`, `.claude/settings.local.json` |
-| User | `~/.claude/settings.json` or VS Code user settings |
-| Custom agent | `hooks` field in `.agent.md` frontmatter |
-| Plugin | `hooks.json` or `hooks/hooks.json` within plugin directory |
+| Workspace (Claude)  | `.claude/settings.json`, `.claude/settings.local.json`       |
+| User                | `~/.claude/settings.json` or VS Code user settings           |
+| Custom agent        | `hooks` field in `.agent.md` frontmatter                     |
+| Plugin              | `hooks.json` or `hooks/hooks.json` within plugin directory   |
 
 ### Configuration Format
 
@@ -798,15 +803,15 @@ Stop
 
 ### Hook Command Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `type` | string | Must be `"command"` |
-| `command` | string | Default command (cross-platform) |
-| `windows` | string | Windows-specific command override |
-| `linux` | string | Linux-specific command override |
-| `osx` | string | macOS-specific command override |
-| `cwd` | string | Working directory (relative to repo root) |
-| `env` | object | Additional environment variables |
+| Property  | Type   | Description                               |
+| --------- | ------ | ----------------------------------------- |
+| `type`    | string | Must be `"command"`                       |
+| `command` | string | Default command (cross-platform)          |
+| `windows` | string | Windows-specific command override         |
+| `linux`   | string | Linux-specific command override           |
+| `osx`     | string | macOS-specific command override           |
+| `cwd`     | string | Working directory (relative to repo root) |
+| `env`     | object | Additional environment variables          |
 | `timeout` | number | Timeout in seconds (default: 30, max: 60) |
 
 ### Input/Output Protocol
@@ -849,19 +854,19 @@ Hooks communicate via stdin (input) and stdout (output) using JSON.
 }
 ```
 
-| `permissionDecision` Values | Effect |
-|----------------------------|--------|
-| `"allow"` | Proceed without prompting |
-| `"ask"` | Prompt user for approval |
-| `"deny"` | Block the operation |
+| `permissionDecision` Values | Effect                    |
+| --------------------------- | ------------------------- |
+| `"allow"`                   | Proceed without prompting |
+| `"ask"`                     | Prompt user for approval  |
+| `"deny"`                    | Block the operation       |
 
 ### Exit Codes
 
-| Exit Code | Behavior |
-|-----------|----------|
-| `0` | Success: parse stdout as JSON |
-| `2` | Blocking error: stop and show error to model |
-| Other | Non-blocking warning: continue processing |
+| Exit Code | Behavior                                     |
+| --------- | -------------------------------------------- |
+| `0`       | Success: parse stdout as JSON                |
+| `2`       | Blocking error: stop and show error to model |
+| Other     | Non-blocking warning: continue processing    |
 
 ### Agent-Scoped Hooks
 
@@ -869,11 +874,11 @@ Define hooks directly in custom agent frontmatter:
 
 ```yaml
 ---
-name: "Strict Formatter"
+name: 'Strict Formatter'
 hooks:
   PostToolUse:
     - type: command
-      command: "./scripts/format-changed-files.sh"
+      command: './scripts/format-changed-files.sh'
       timeout: 30
 ---
 ```
@@ -890,28 +895,28 @@ Model Context Protocol (MCP) is an open standard for connecting AI models to ext
 
 ### MCP Capabilities
 
-| Capability | Description | How to Use |
-|------------|-------------|------------|
-| **Tools** | Functions the AI can call | Automatically invoked when relevant |
-| **Resources** | Read-only data (files, tables, API responses) | Chat → Add Context → MCP Resources |
-| **Prompts** | Preconfigured prompt templates | Type `/.` in chat |
-| **MCP Apps** | Interactive UI (forms, visualizations) | Appear inline automatically |
+| Capability    | Description                                   | How to Use                          |
+| ------------- | --------------------------------------------- | ----------------------------------- |
+| **Tools**     | Functions the AI can call                     | Automatically invoked when relevant |
+| **Resources** | Read-only data (files, tables, API responses) | Chat → Add Context → MCP Resources  |
+| **Prompts**   | Preconfigured prompt templates                | Type `/.` in chat                   |
+| **MCP Apps**  | Interactive UI (forms, visualizations)        | Appear inline automatically         |
 
 ### When to Use
 
-| Use Case | Use MCP |
-|----------|---------|
-| Query databases | ✅ |
-| Access external APIs | ✅ |
-| Connect to cloud services | ✅ |
+| Use Case                      | Use MCP                    |
+| ----------------------------- | -------------------------- |
+| Query databases               | ✅                         |
+| Access external APIs          | ✅                         |
+| Connect to cloud services     | ✅                         |
 | Project-wide coding standards | ❌ Use Custom Instructions |
 
 ### Configuration Files
 
-| Scope | File |
-|-------|------|
-| Workspace | `.vscode/mcp.json` |
-| User profile | Run `MCP: Open User Configuration` |
+| Scope         | File                               |
+| ------------- | ---------------------------------- |
+| Workspace     | `.vscode/mcp.json`                 |
+| User profile  | Run `MCP: Open User Configuration` |
 | Dev Container | `devcontainer.json` customizations |
 
 ### Configuration Example
@@ -947,11 +952,11 @@ Model Context Protocol (MCP) is an open standard for connecting AI models to ext
 
 ### Adding MCP Servers
 
-| Method | Steps |
-|--------|-------|
-| **From Gallery** | Extensions view → Search `@mcp` → Install |
-| **Command Palette** | Run `MCP: Add Server` for guided flow |
-| **From Terminal** | `code --add-mcp '{"name":"my-server","command":"uvx","args":["mcp-server-fetch"]}'` |
+| Method              | Steps                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------- |
+| **From Gallery**    | Extensions view → Search `@mcp` → Install                                           |
+| **Command Palette** | Run `MCP: Add Server` for guided flow                                               |
+| **From Terminal**   | `code --add-mcp '{"name":"my-server","command":"uvx","args":["mcp-server-fetch"]}'` |
 
 ### Auto-Discovery
 
@@ -986,11 +991,11 @@ Restrict file system and network access for stdio MCP servers (macOS and Linux o
 
 ### Managing MCP Servers
 
-| Method | Actions |
-|--------|---------|
-| Extensions view | Right-click server or gear icon |
-| `mcp.json` editor | Inline code lens actions |
-| Command Palette | `MCP: List Servers` |
+| Method            | Actions                         |
+| ----------------- | ------------------------------- |
+| Extensions view   | Right-click server or gear icon |
+| `mcp.json` editor | Inline code lens actions        |
+| Command Palette   | `MCP: List Servers`             |
 
 ### Server Trust
 
@@ -1022,10 +1027,10 @@ When a tool requires approval:
 
 When a tool accesses a URL (e.g., `#web/fetch`), a two-step approval process is used:
 
-| Step | Purpose | Options |
-|------|---------|---------|
-| **Pre-approval (Request)** | Trust the domain being contacted | One-time or auto-approve future requests |
-| **Post-approval (Response)** | Review fetched content before adding to chat | Always requires review |
+| Step                         | Purpose                                      | Options                                  |
+| ---------------------------- | -------------------------------------------- | ---------------------------------------- |
+| **Pre-approval (Request)**   | Trust the domain being contacted             | One-time or auto-approve future requests |
+| **Post-approval (Response)** | Review fetched content before adding to chat | Always requires review                   |
 
 **Note:** Post-approval is not linked to "Trusted Domains" - always requires review to prevent prompt injection.
 
@@ -1103,18 +1108,18 @@ Tool sets group related tools for easier reference in prompts, prompt files, and
 
 ### Tool Set Properties
 
-| Property | Description |
-|----------|-------------|
-| `tools` | Array of tool names (built-in, MCP, or extension tools) |
-| `description` | Brief description displayed in the tools picker |
-| `icon` | Icon for the tool set (see Product Icon Reference) |
+| Property      | Description                                             |
+| ------------- | ------------------------------------------------------- |
+| `tools`       | Array of tool names (built-in, MCP, or extension tools) |
+| `description` | Brief description displayed in the tools picker         |
+| `icon`        | Icon for the tool set (see Product Icon Reference)      |
 
 ### Built-in Tool Sets
 
-| Tool Set | Tools Included |
-|----------|---------------|
-| `#edit` | Editing tools |
-| `#search` | Search tools |
+| Tool Set  | Tools Included |
+| --------- | -------------- |
+| `#edit`   | Editing tools  |
+| `#search` | Search tools   |
 
 ### Using Tool Sets
 
@@ -1134,7 +1139,6 @@ In the tools picker, tool sets appear as collapsible groups of related tools.
 ---
 tools: ['reader', 'vscode/askQuestions']
 ---
-
 # In custom agent
 ---
 tools: ['writer', 'search/codebase']
@@ -1153,13 +1157,13 @@ Agent plugins are pre-packaged bundles of customizations from plugin marketplace
 
 ### What Plugins Provide
 
-| Customization | Description |
-|---------------|-------------|
-| Slash commands | Additional `/` commands |
-| Skills | Agent skills with instructions, scripts, resources |
-| Agents | Custom agents with specialized personas |
-| Hooks | Shell commands at lifecycle points |
-| MCP servers | External tool integrations |
+| Customization  | Description                                        |
+| -------------- | -------------------------------------------------- |
+| Slash commands | Additional `/` commands                            |
+| Skills         | Agent skills with instructions, scripts, resources |
+| Agents         | Custom agents with specialized personas            |
+| Hooks          | Shell commands at lifecycle points                 |
+| MCP servers    | External tool integrations                         |
 
 ### Plugin Structure
 
@@ -1181,9 +1185,9 @@ my-testing-plugin/
 
 ### Hooks in Plugins
 
-| Format | Path |
-|--------|------|
-| Claude | `hooks/hooks.json` |
+| Format  | Path                       |
+| ------- | -------------------------- |
+| Claude  | `hooks/hooks.json`         |
 | Copilot | `hooks.json` (plugin root) |
 
 **Reference plugin paths:** Use `${CLAUDE_PLUGIN_ROOT}` token:
@@ -1211,11 +1215,11 @@ Place `.mcp.json` at plugin root:
 
 ### Discover and Install
 
-| Method | Steps |
-|--------|-------|
-| **Browse Plugins** | Extensions view (⇧⌘X) → Search `@agentPlugins` |
+| Method                  | Steps                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| **Browse Plugins**      | Extensions view (⇧⌘X) → Search `@agentPlugins`                                  |
 | **Install from Source** | Command Palette → `Chat: Install Plugin From Source` → Enter Git repository URL |
-| **View Installed** | Extensions view → Agent Plugins - Installed |
+| **View Installed**      | Extensions view → Agent Plugins - Installed                                     |
 
 ### Configure Marketplaces
 
@@ -1225,9 +1229,7 @@ Add custom marketplaces:
 
 ```json
 {
-  "chat.plugins.marketplaces": [
-    "anthropics/claude-code"
-  ]
+  "chat.plugins.marketplaces": ["anthropics/claude-code"]
 }
 ```
 
@@ -1257,16 +1259,16 @@ Supported formats: `owner/repo`, HTTPS git remote, SCP-style, or file URI.
 
 ### Decision Matrix
 
-| Goal | Use | When it activates |
-|------|-----|-------------------|
-| Apply coding standards everywhere | Always-on instructions | Automatically in every request |
-| Different rules for different files | File-based instructions | When files match pattern |
-| Reusable task I run repeatedly | Prompt files | When I invoke `/command` |
-| Multi-step workflow with scripts | Agent skills | When task matches description |
-| Specialized AI persona with tool restrictions | Custom agents | When selected or delegated |
-| Connect to external APIs | MCP servers | When task matches tool description |
-| Automate at lifecycle points | Hooks | When agent reaches lifecycle event |
-| Install pre-packaged customizations | Agent plugins | When plugin is installed |
+| Goal                                          | Use                     | When it activates                  |
+| --------------------------------------------- | ----------------------- | ---------------------------------- |
+| Apply coding standards everywhere             | Always-on instructions  | Automatically in every request     |
+| Different rules for different files           | File-based instructions | When files match pattern           |
+| Reusable task I run repeatedly                | Prompt files            | When I invoke `/command`           |
+| Multi-step workflow with scripts              | Agent skills            | When task matches description      |
+| Specialized AI persona with tool restrictions | Custom agents           | When selected or delegated         |
+| Connect to external APIs                      | MCP servers             | When task matches tool description |
+| Automate at lifecycle points                  | Hooks                   | When agent reaches lifecycle event |
+| Install pre-packaged customizations           | Agent plugins           | When plugin is installed           |
 
 ### Quick Selection Guide
 
@@ -1322,20 +1324,20 @@ Supported formats: `owner/repo`, HTTPS git remote, SCP-style, or file URI.
 
 ### Complete Location Matrix
 
-| Customization Type | Workspace Location | User Location |
-|-------------------|-------------------|---------------|
-| Always-on instructions (Copilot) | `.github/copilot-instructions.md` | — |
-| Always-on instructions (Multi-agent) | `AGENTS.md` | — |
-| Always-on instructions (Claude) | `CLAUDE.md` or `.claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
-| File-based instructions | `.github/instructions/*.instructions.md` | `~/.copilot/instructions/` |
-| Claude rules | `.claude/rules/*.md` | `~/.claude/rules/` |
-| Prompt files | `.github/prompts/*.prompt.md` | VS Code profile `prompts/` |
-| Custom agents | `.github/agents/*.agent.md` | `~/.copilot/agents/` |
-| Claude agents | `.claude/agents/*.md` | — |
-| Agent skills | `.github/skills/*/SKILL.md` | `~/.copilot/skills/` |
-| Claude skills | `.claude/skills/*/SKILL.md` | `~/.claude/skills/` |
-| Hooks | `.github/hooks/*.json` | `~/.copilot/hooks/` |
-| Claude hooks | `.claude/settings.json` | `~/.claude/settings.json` |
+| Customization Type                   | Workspace Location                       | User Location              |
+| ------------------------------------ | ---------------------------------------- | -------------------------- |
+| Always-on instructions (Copilot)     | `.github/copilot-instructions.md`        | —                          |
+| Always-on instructions (Multi-agent) | `AGENTS.md`                              | —                          |
+| Always-on instructions (Claude)      | `CLAUDE.md` or `.claude/CLAUDE.md`       | `~/.claude/CLAUDE.md`      |
+| File-based instructions              | `.github/instructions/*.instructions.md` | `~/.copilot/instructions/` |
+| Claude rules                         | `.claude/rules/*.md`                     | `~/.claude/rules/`         |
+| Prompt files                         | `.github/prompts/*.prompt.md`            | VS Code profile `prompts/` |
+| Custom agents                        | `.github/agents/*.agent.md`              | `~/.copilot/agents/`       |
+| Claude agents                        | `.claude/agents/*.md`                    | —                          |
+| Agent skills                         | `.github/skills/*/SKILL.md`              | `~/.copilot/skills/`       |
+| Claude skills                        | `.claude/skills/*/SKILL.md`              | `~/.claude/skills/`        |
+| Hooks                                | `.github/hooks/*.json`                   | `~/.copilot/hooks/`        |
+| Claude hooks                         | `.claude/settings.json`                  | `~/.claude/settings.json`  |
 
 ### Monorepo Support
 
@@ -1347,50 +1349,50 @@ Enable `chat.useCustomizationsInParentRepositories` to discover customizations f
 
 ### Key Settings
 
-| Setting | Purpose | Default |
-|---------|---------|---------|
-| `chat.useAgentsMdFile` | Enable AGENTS.md support | `true` |
-| `chat.useNestedAgentsMdFiles` | Enable nested AGENTS.md (experimental) | `false` |
-| `chat.useClaudeMdFile` | Enable CLAUDE.md support | `true` |
-| `chat.useCustomizationsInParentRepositories` | Monorepo parent discovery | `false` |
-| `chat.promptFilesLocations` | Custom prompt file locations | — |
-| `chat.agentSkillsLocations` | Custom skill locations | — |
-| `chat.agentFilesLocations` | Custom agent file locations | — |
-| `chat.hookFilesLocations` | Custom hook file locations | — |
-| `chat.useCustomAgentHooks` | Enable agent-scoped hooks | `false` |
-| `chat.agent.enabled` | Enable/disable agents | Varies |
-| `chat.autopilot.enabled` | Enable Autopilot mode | `true` |
-| `chat.plugins.enabled` | Enable/disable agent plugins | `true` |
-| `chat.mcp.discovery.enabled` | Auto-detect MCP configs from other apps | `false` |
-| `chat.mcp.autoStart` | Auto-restart MCP servers | `false` |
-| `chat.copilotMemory.enabled` | Enable Copilot Memory (remote) | `false` |
-| `chat.tools.memory.enabled` | Enable local memory tool | `true` |
+| Setting                                      | Purpose                                 | Default |
+| -------------------------------------------- | --------------------------------------- | ------- |
+| `chat.useAgentsMdFile`                       | Enable AGENTS.md support                | `true`  |
+| `chat.useNestedAgentsMdFiles`                | Enable nested AGENTS.md (experimental)  | `false` |
+| `chat.useClaudeMdFile`                       | Enable CLAUDE.md support                | `true`  |
+| `chat.useCustomizationsInParentRepositories` | Monorepo parent discovery               | `false` |
+| `chat.promptFilesLocations`                  | Custom prompt file locations            | —       |
+| `chat.agentSkillsLocations`                  | Custom skill locations                  | —       |
+| `chat.agentFilesLocations`                   | Custom agent file locations             | —       |
+| `chat.hookFilesLocations`                    | Custom hook file locations              | —       |
+| `chat.useCustomAgentHooks`                   | Enable agent-scoped hooks               | `false` |
+| `chat.agent.enabled`                         | Enable/disable agents                   | Varies  |
+| `chat.autopilot.enabled`                     | Enable Autopilot mode                   | `true`  |
+| `chat.plugins.enabled`                       | Enable/disable agent plugins            | `true`  |
+| `chat.mcp.discovery.enabled`                 | Auto-detect MCP configs from other apps | `false` |
+| `chat.mcp.autoStart`                         | Auto-restart MCP servers                | `false` |
+| `chat.copilotMemory.enabled`                 | Enable Copilot Memory (remote)          | `false` |
+| `chat.tools.memory.enabled`                  | Enable local memory tool                | `true`  |
 
 ### Tool Approval Settings
 
-| Setting | Purpose |
-|---------|---------|
-| `chat.tools.urls.autoApprove` | URL auto-approval patterns |
-| `chat.tools.terminal.autoApprove` | Terminal command auto-approval rules |
-| `chat.tools.terminal.sandbox.enabled` | Enable terminal sandboxing |
-| `chat.tools.eligibleForAutoApproval` | Disable auto-approval for specific tools |
-| `chat.tools.global.autoApprove` | Global auto-approve all tools |
+| Setting                               | Purpose                                  |
+| ------------------------------------- | ---------------------------------------- |
+| `chat.tools.urls.autoApprove`         | URL auto-approval patterns               |
+| `chat.tools.terminal.autoApprove`     | Terminal command auto-approval rules     |
+| `chat.tools.terminal.sandbox.enabled` | Enable terminal sandboxing               |
+| `chat.tools.eligibleForAutoApproval`  | Disable auto-approval for specific tools |
+| `chat.tools.global.autoApprove`       | Global auto-approve all tools            |
 
 ### Quick Access Commands
 
-| Command | Purpose |
-|---------|---------|
-| `/instructions` | Access instruction files |
-| `/prompts` | Access prompt files |
-| `/skills` | Access agent skills |
-| `/agents` | Access custom agents |
-| `/hooks` | Access hook configuration |
-| `/init` | Generate workspace instructions |
-| `/create-instruction` | AI-generate instruction file |
-| `/create-prompt` | AI-generate prompt file |
-| `/create-skill` | AI-generate skill |
-| `/create-agent` | AI-generate agent |
-| `/create-hook` | AI-generate hook |
+| Command               | Purpose                         |
+| --------------------- | ------------------------------- |
+| `/instructions`       | Access instruction files        |
+| `/prompts`            | Access prompt files             |
+| `/skills`             | Access agent skills             |
+| `/agents`             | Access custom agents            |
+| `/hooks`              | Access hook configuration       |
+| `/init`               | Generate workspace instructions |
+| `/create-instruction` | AI-generate instruction file    |
+| `/create-prompt`      | AI-generate prompt file         |
+| `/create-skill`       | AI-generate skill               |
+| `/create-agent`       | AI-generate agent               |
+| `/create-hook`        | AI-generate hook                |
 
 ---
 
@@ -1458,44 +1460,44 @@ Enable `chat.useCustomizationsInParentRepositories` to discover customizations f
 
 ### Primitive Comparison
 
-| Feature | Custom Instructions | Prompt Files | Agent Skills | Custom Agents | Hooks |
-|---------|---------------------|--------------|--------------|---------------|-------|
-| **Activation** | Automatic | Manual (`/`) | Semi-auto | Selection | Event-driven |
-| **Purpose** | Standards | Tasks | Capabilities | Personas | Automation |
-| **Content** | Instructions | Prompts | Multi-file | Instructions + Tools | Commands |
-| **Portability** | VS Code/GitHub | VS Code | Cross-platform | VS Code | VS Code |
-| **Complexity** | Low | Low | High | Medium | Medium |
+| Feature         | Custom Instructions | Prompt Files | Agent Skills   | Custom Agents        | Hooks        |
+| --------------- | ------------------- | ------------ | -------------- | -------------------- | ------------ |
+| **Activation**  | Automatic           | Manual (`/`) | Semi-auto      | Selection            | Event-driven |
+| **Purpose**     | Standards           | Tasks        | Capabilities   | Personas             | Automation   |
+| **Content**     | Instructions        | Prompts      | Multi-file     | Instructions + Tools | Commands     |
+| **Portability** | VS Code/GitHub      | VS Code      | Cross-platform | VS Code              | VS Code      |
+| **Complexity**  | Low                 | Low          | High           | Medium               | Medium       |
 
 ### File Extensions
 
-| Type | Extension |
-|------|-----------|
+| Type                | Extension                 |
+| ------------------- | ------------------------- |
 | Custom Instructions | `.md`, `.instructions.md` |
-| Prompt Files | `.prompt.md` |
-| Custom Agents | `.agent.md` |
-| Agent Skills | `SKILL.md` (in directory) |
-| Hooks | `.json` |
+| Prompt Files        | `.prompt.md`              |
+| Custom Agents       | `.agent.md`               |
+| Agent Skills        | `SKILL.md` (in directory) |
+| Hooks               | `.json`                   |
 
 ### Hook Events Quick Reference
 
-| Event | Blocks | Can Modify Input | Common Use |
-|-------|--------|------------------|------------|
-| `SessionStart` | No | No | Inject context |
-| `UserPromptSubmit` | No | No | Audit, inject |
-| `PreToolUse` | Yes | Yes | Block, approve, modify |
-| `PostToolUse` | Yes | No | Format, validate |
-| `PreCompact` | No | No | Save state |
-| `SubagentStart` | No | No | Track, init |
-| `SubagentStop` | No | No | Aggregate, cleanup |
-| `Stop` | Yes | No | Final validation |
+| Event              | Blocks | Can Modify Input | Common Use             |
+| ------------------ | ------ | ---------------- | ---------------------- |
+| `SessionStart`     | No     | No               | Inject context         |
+| `UserPromptSubmit` | No     | No               | Audit, inject          |
+| `PreToolUse`       | Yes    | Yes              | Block, approve, modify |
+| `PostToolUse`      | Yes    | No               | Format, validate       |
+| `PreCompact`       | No     | No               | Save state             |
+| `SubagentStart`    | No     | No               | Track, init            |
+| `SubagentStop`     | No     | No               | Aggregate, cleanup     |
+| `Stop`             | Yes    | No               | Final validation       |
 
 ### Permission Decision Values (PreToolUse)
 
-| Value | Effect |
-|-------|--------|
+| Value     | Effect                    |
+| --------- | ------------------------- |
 | `"allow"` | Proceed without prompting |
-| `"ask"` | Prompt user for approval |
-| `"deny"` | Block the operation |
+| `"ask"`   | Prompt user for approval  |
+| `"deny"`  | Block the operation       |
 
 **Priority:** `deny` > `ask` > `allow`
 
