@@ -23,7 +23,7 @@ bash -n .claude/hooks/inject-task-context.sh
     task-create.md           # Creates PRD from brief
     task-clarify.md          # Structured Q&A for ambiguities
     task-add-context.md      # Adds files/URLs/repo context
-    task-plan.md             # Generates implementation plan (6 formats)
+    task-plan.md             # Generates implementation plan
     task-execute.md          # Spawns Task-Executor agents
     task-verify.md           # Quality verification at any stage
     task-update-docs.md      # Updates documentation
@@ -76,7 +76,7 @@ bash -n .claude/hooks/inject-task-context.sh
 
 1. **Flat command files**: Each command is standalone — no dispatcher. This keeps prompts focused and enables tab-autocomplete for `/task-*`.
 
-2. **Plan formats (A/B/C/D/B+D/S)**: Task-Executors interpret plans differently based on `plan_format` in `state.yml`. Format A has full code; Format B has detailed todos; Format C is hybrid; D has signatures only; B+D combines todos with signatures; S splits across multiple files.
+2. **Multi-file plans**: Plans are split into an index `plan.md` and individual `plan-phase-N.md` files per phase. `verification_mode` in `state.yml` controls when quality checks run: `per_phase` (each phase), `final` (after all phases), or `none` (skip automated checks).
 
 3. **Task-Executor → Task-Verificator flow**: After all task-executors complete, the task-verificator runs automatically to check completeness, correctness, and quality.
 
@@ -92,8 +92,8 @@ Task state lives in `.temp/tasks/` (gitignored):
 
 - `state.yml` — active task pointer, status, paths, constraints
 - `<task-name>/prd.md` — requirements document
-- `<task-name>/plan.md` — implementation plan (or index for Format S)
-- `<task-name>/plan-phase-N.md` — phase details (Format S only)
+- `<task-name>/plan.md` — plan index (progress, dependencies)
+- `<task-name>/plan-phase-N.md` — phase details (TODOs, files, checks)
 - `<task-name>/context.md` — additional context
 - `<task-name>/localization.md` — file impact analysis
 - `<task-name>/constraint-report.md` — constraint compliance audit

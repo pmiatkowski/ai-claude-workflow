@@ -8,23 +8,58 @@ Create a detailed implementation plan. NO code is implemented at this stage.
 2. Read `prd.md` and `context.md` (if exists).
 3. Scan the repository for coding patterns, file structure, naming conventions.
 4. Read `CLAUDE.md` for project-specific guidelines.
-5. **Analyze complexity and suggest a plan format** (see Plan Format Selection below).
-6. Wait for the user to pick a format.
+5. Analyze complexity, then present TWO questions simultaneously:
+
+   > **Plan Configuration**
+   >
+   > I've analyzed the task. Here's my assessment:
+   >
+   > **Complexity signals:**
+   > - [e.g., "Touches 8+ files across 3 layers — high integration surface"]
+   > - [e.g., "Mostly CRUD scaffolding — mechanical and low-risk"]
+   >
+   > **Phase split:**
+   > - **A) Single phase** — All TODOs in one `plan-phase-1.md` file. Best for small, focused tasks.
+   > - **B) Split into phases** — Separate `plan-phase-N.md` files per phase with dependency tracking. Best for larger tasks or when phases can run in parallel.
+   >
+   > My recommendation: [A or B, with 1-2 sentences explaining why]
+   >
+   > **Verification timing:**
+   > - **1) After each phase** — Each phase executor runs quality checks before marking complete (catches issues early)
+   > - **2) After all phases** — Adds a Final Verification phase with all quality checks at the end (faster, issues may compound)
+   > - **3) None** — No quality checks during execution. Useful for config-only tasks or when you plan to verify manually later.
+   >
+   > Please answer both: Phase split (A or B) and Verification (1, 2, or 3).
+
+6. Wait for the user's answers.
 7. Ask:
    > "Any notes before I write the plan? (e.g., TDD approach, specific patterns to follow, phases to prioritize)"
    Wait for response (user can say "none" to skip).
-8. **If Format S was chosen**, ask about quality check timing:
-   > "For the Simplified format, when should quality checks (lint, test, etc.) run?"
-   > 1. **After every phase** — Each phase executor runs quality checks before marking complete (safer, catches issues early)
-   > 2. **After all phases complete** — Adds a Final Verification phase with all quality checks; runs once at the end (faster, but issues may compound)
-   >
-   > Which approach? (1 or 2)
-   Store the choice in `state.yml` as `quality_check_mode: per_phase | final`.
-9. Generate the plan using the chosen format (see Plan Format Specs below).
-   - For formats A/B/C/D/B+D: generate a single `plan.md`.
-   - For format S: generate an index `plan.md` plus individual `plan-phase-N.md` files in the task directory.
-10. Store the chosen format in `state.yml` as `plan_format`. For format S, also write a `phase_files` list and `quality_check_mode` to `state.yml`.
-11. Update `state.yml` status to `planned`.
+8. Generate the plan (see Plan Format Spec below).
+   - Always generate an index `plan.md` plus individual `plan-phase-N.md` files.
+   - For "single phase" (A): generate exactly one `plan-phase-1.md` with all TODOs.
+   - For "split into phases" (B): generate multiple phase files with dependency graph.
+   - For verification "none": no Quality Checks section in phase files, no Final Verification phase.
+   - For verification "after each phase": include Quality Checks section in each phase file.
+   - For verification "after all phases": no Quality Checks in phase files, generate `plan-phase-final.md`.
+9. Write to `state.yml`: `phase_files` list and `verification_mode: per_phase | final | none`.
+   Do NOT write `plan_format` (always multi-file, redundant).
+10. Update `state.yml` status to `planned`.
+11. **Auto-verify plan** — spawn the `plan-verificator` agent in quick mode:
+    - Pass: `task_name`, `plan_path` (to `plan.md`), `prd_path` (to `prd.md`), `mode: "quick"`
+    - Wait for the agent to produce `plan-verify-report.md`.
+    - If result is `PASS`: report success and continue to step 12.
+    - If result is `PARTIAL` or `FAIL`: read the Issues Found table. Attempt automatic fixes (max 3 iterations):
+      - For each issue, apply the Recommendation to the affected `plan-phase-N.md` or `plan.md`.
+      - Re-spawn `plan-verificator` in quick mode to re-check.
+      - If any iteration produces `PASS`: stop and continue.
+      - If after 3 iterations issues remain: report them and ask whether to proceed or fix manually.
+    - Report the verification result to the user:
+      > **Plan Verification: PASS** — All checks passed. Plan is ready for execution.
+      or
+      > **Plan Verification: PARTIAL** — <N> issues auto-fixed, <M> remaining. See `plan-verify-report.md`.
+      or
+      > **Plan Verification: FAIL** — <N> issues could not be auto-fixed. Review `plan-verify-report.md`.
 12. **Optional: Run localization analysis**
     > "Would you like me to analyze file impact before execution? This helps identify potential conflicts. [yes/no]"
     If yes, spawn the localization-agent to generate `localization.md`.
@@ -32,45 +67,22 @@ Create a detailed implementation plan. NO code is implemented at this stage.
 
 ---
 
-## Plan Format Selection
+## Plan Format Spec
 
-Before writing anything, analyze the PRD and codebase, then present this to the user:
+Plans always use a multi-file structure: an index `plan.md` plus individual `plan-phase-N.md` files.
 
-```markdown
-## Plan Format
+### Verification Modes
 
-I've analyzed the task. Here's my assessment:
+- `per_phase`: Quality Checks section appears in each phase file. Task-executors run checks after completing their phase.
+- `final`: No quality checks in phase files. A **Final Verification phase** (`plan-phase-final.md`) is generated as the last phase containing all quality check TODOs.
+- `none`: No quality checks in phase files and no Final Verification phase. No automated quality checks during execution.
 
-**Complexity signals:**
-- [e.g., "Touches 8+ files across 3 layers — high integration surface"]
-- [e.g., "2 external APIs with undocumented edge cases"]
-- [e.g., "Mostly CRUD scaffolding — mechanical and low-risk"]
+### When to use single phase vs. split
 
-**My recommendation: [Format name]**
-[2–3 sentences explaining why this format fits the task complexity and risk profile]
+- **Single phase**: Small tasks (3-10 TODOs), no natural phase boundaries, files are closely coupled
+- **Split into phases**: Larger tasks, natural boundaries exist (e.g., "models first, then API, then UI"), parallel execution opportunity
 
-| Format | Description | Best for |
-|--------|-------------|----------|
-| **A — Full code** | Every task contains complete, ready-to-run implementation code | Small, well-scoped tasks; isolated utilities; low ambiguity |
-| **B — Detailed todos** | Each task has thorough description of what, why, constraints, patterns — no code | Large features; complex integrations; anything touching many files |
-| **C — Hybrid** | Per-phase decision: mechanical phases get full code, complex logic phases get detailed todos | Most real-world features |
-| **D — Skeleton + signatures** | Function/component signatures and interfaces only; bodies described not written | When type contracts must be locked in early |
-| **B+D — Todos with signatures** | Detailed todos plus typed signatures — no implementation bodies | Large tasks where type safety matters from the start |
-| **S — Simplified** | Separate file per phase with clean TODO lists and dependency info; plan.md is an index | Any task size; focused executor context; dependency-heavy workflows |
-
-What format would you like? (A, B, C, D, B+D, or S)
-```
-
-Wait for the user's choice. Accept single options or combinations.
-Record the chosen format in `state.yml` as `plan_format`.
-
----
-
-## Plan Format Specs
-
-All formats share the same outer structure. The **task block** content differs per format.
-
-### Shared Outer Structure
+### Main `plan.md` (index — no phase details)
 
 ```markdown
 # Implementation Plan: <task-name>
@@ -78,171 +90,28 @@ All formats share the same outer structure. The **task block** content differs p
 **Status:** Ready
 **Created:** <date>
 **Based on PRD:** <prd path>
-**Plan Format:** <A | B | C | D | B+D | S>
+**Verification:** per_phase | final | none
 
 ## Overall Progress
 - [ ] Phase 1: <name>
 - [ ] Phase 2: <name>
 - [ ] Phase N: <name>
-
----
-
-## Phase N: <name>
-
-**Goal:** [What this phase achieves]
-**Format:** <Full code | Detailed todos | Hybrid — [which phases get what] | Skeleton | Todos+Signatures>
-**Dependencies:** [Prior phases or external deps, or "None"]
-
-### Tasks
-[Task blocks — format depends on chosen format, see specs below]
-
-### Quality Checks After This Phase
-- [ ] [e.g., `npm run lint:fix`]
-- [ ] [e.g., `npm run type-check`]
-- [ ] [e.g., `npm run test`]
-```
-
----
-
-### Format A — Full Code
-
-```markdown
-- [ ] N.N [Task name]
-  - **File:** `path/to/file.ts`
-  - **Action:** create | modify | delete
-  - **What:** [One sentence summary]
-  - **Implementation:**
-    ```typescript
-    // Complete, working implementation — not pseudocode
-    // Include imports, error handling, edge cases
-    ```
-```
-
----
-
-### Format B — Detailed Todos
-
-```markdown
-- [ ] N.N [Task name]
-  - **File:** `path/to/file.ts`
-  - **Action:** create | modify | delete
-  - **What:** [Clear description of what needs to be built]
-  - **Why:** [How this fits into the phase goal and overall task]
-  - **Constraints:**
-    - [e.g., "Must use existing `useAuth` hook, not create a new one"]
-    - [e.g., "Return type must match `ApiResponse<T>` generic"]
-  - **Patterns to follow:** [Reference to existing file, e.g., "Follow `src/hooks/useUser.ts`"]
-  - **Edge cases to handle:**
-    - [e.g., "Empty array response — return empty state, not error"]
-    - [e.g., "Network timeout — surface user-facing message"]
-  - **Do NOT:** [Anything the task-executor must avoid]
-```
-
----
-
-### Format C — Hybrid
-
-Apply Format A or B per phase based on complexity.
-Each phase must declare its format in the `**Format:**` header.
-
-Typical split:
-
-- Scaffolding, config, file creation → Format A (mechanical, low risk)
-- Business logic, integrations, state → Format B (complex, needs reasoning)
-
----
-
-### Format D — Skeleton + Signatures
-
-```markdown
-- [ ] N.N [Task name]
-  - **File:** `path/to/file.ts`
-  - **Action:** create | modify | delete
-  - **Interfaces / Types:**
-    ```typescript
-    export interface TokenPayload {
-      userId: string;
-      role: UserRole;
-    }
-    ```
-  - **Signatures:**
-    ```typescript
-    export async function signToken(payload: TokenPayload, expiresIn?: string): Promise<string>
-    export async function verifyToken(token: string): Promise<TokenPayload | null>
-    ```
-  - **Implementation notes:** [What the body should do — prose, no code]
-  - **Edge cases:** [List]
-```
-
----
-
-### Format B+D — Todos with Signatures
-
-Combine Format B and Format D: full detailed todos AND typed signatures. No implementation bodies.
-
-```markdown
-- [ ] N.N [Task name]
-  - **File:** `path/to/file.ts`
-  - **Action:** create | modify | delete
-  - **Interfaces / Types:**
-    ```typescript
-    // All types this task introduces or depends on
-    ```
-  - **Signatures:**
-    ```typescript
-    // All function/component signatures — no bodies
-    ```
-  - **What:** [Clear description]
-  - **Why:** [Context]
-  - **Constraints:** [List]
-  - **Patterns to follow:** [Reference]
-  - **Edge cases:** [List]
-  - **Do NOT:** [Restrictions]
-```
-
----
-
-### Format S — Simplified
-
-Format S generates **separate files per phase** instead of a single monolithic plan. The main `plan.md` serves as an index only.
-
-**Quality Check Modes:**
-- `per_phase`: Quality checks section appears in each phase file. Task-executors run checks after completing their phase.
-- `final`: No quality checks in phase files. A **Final Verification phase** is generated as the last phase containing all quality check TODOs. This phase runs after all implementation phases complete.
-
-**When `quality_check_mode=final`:** Automatically generate a Final Verification phase as the last phase. This phase runs all quality checks and verification steps.
-
-**Main `plan.md`** (index — no phase details):
-
-```markdown
-# Implementation Plan: <task-name>
-
-**Status:** Ready
-**Created:** <date>
-**Based on PRD:** <prd path>
-**Plan Format:** S
-**Quality Checks:** per_phase | final
-
-## Overall Progress
-- [ ] Phase 1: <name>
-- [ ] Phase 2: <name>
-- [ ] Phase N: <name>
-- [ ] Phase Final: Verification *(only when quality_check_mode=final)*
+- [ ] Phase Final: Verification *(only when verification_mode=final)*
 
 ## Dependency Graph
 Phase 1: (none)
 Phase 2: Phase 1
 Phase 3: Phase 1, Phase 2
-Phase Final: All previous phases *(only when quality_check_mode=final)*
+Phase Final: All previous phases *(only when verification_mode=final)*
 
 ## Phase Files
 - `plan-phase-1.md` — <one-line description>
 - `plan-phase-2.md` — <one-line description>
 - `plan-phase-N.md` — <one-line description>
-- `plan-phase-final.md` — Final verification with quality checks *(only when quality_check_mode=final)*
+- `plan-phase-final.md` — Final verification with quality checks *(only when verification_mode=final)*
 ```
 
-**Per-phase file** (`plan-phase-N.md` in the task directory):
+### Per-phase file (`plan-phase-N.md` in the task directory)
 
 ```markdown
 # Phase N: <Phase Name>
@@ -259,12 +128,14 @@ Phase Final: All previous phases *(only when quality_check_mode=final)*
 - [ ] <verb-first actionable item, e.g., "Write unit tests for UserService.create and UserService.update">
 
 ## Quality Checks
-<!-- Include this section ONLY if quality_check_mode is "per_phase" -->
+<!-- Include this section ONLY if verification_mode is "per_phase" -->
 - [ ] <quality command, e.g., npm run lint>
 - [ ] <quality command, e.g., npm test>
 ```
 
-**Final Verification Phase File** (`plan-phase-final.md` — generated ONLY when `quality_check_mode=final`):
+### Final Verification Phase File (`plan-phase-final.md`)
+
+Generated ONLY when `verification_mode=final`:
 
 ```markdown
 # Phase Final: Verification
@@ -282,15 +153,17 @@ Phase Final: All previous phases *(only when quality_check_mode=final)*
 - [ ] Verify implementation matches plan specifications (read key files, compare to plan)
 ```
 
-Format S rules:
-- TODO items must be **single-line, verb-first** — no nested sub-fields (no What/Why/Constraints structure).
+### Rules
+
+- TODO items must be **single-line, verb-first** — no nested sub-fields.
 - Each TODO is one logical unit of work. Typically 3–10 items per phase.
 - Generate one `plan-phase-N.md` per phase in the task directory alongside `plan.md`.
 - Write a `phase_files` list to `state.yml` so agents can discover phase files without globbing.
-- Write `quality_check_mode` to `state.yml` so task-executors know whether to run checks per-phase.
+- Write `verification_mode` to `state.yml` so task-executors know whether to run checks per-phase.
 - The main `plan.md` contains **no phase details** — only progress tracking, dependency graph, and file list.
-- Quality Checks section in phase files is only included when `quality_check_mode: per_phase`.
-- When `quality_check_mode=final`: Generate a `plan-phase-final.md` file as the last phase containing quality check TODOs (type-check, lint, test, verification against plan).
+- Quality Checks section in phase files is only included when `verification_mode: per_phase`.
+- When `verification_mode=final`: generate `plan-phase-final.md` as the last phase.
+- When `verification_mode=none`: no Quality Checks section in phase files, no Final Verification phase.
 
 ---
 
@@ -299,6 +172,8 @@ Format S rules:
 - Every task must specify exact file path and action (create / modify / delete).
 - Quality checks must list commands actually discovered from the project.
 - If TDD was requested: each phase lists failing test signatures/stubs first, then implementation tasks.
-- Format C: always declare the format in each phase header so task-executors know how to interpret tasks.
-- Always write `plan_format` to `state.yml` — task-executor agents read it to know how to work with the plan.
-- Format S: generate separate `plan-phase-N.md` files and write `phase_files` and `quality_check_mode` to `state.yml`. The main `plan.md` is an index only. Include Quality Checks section in phase files only when `quality_check_mode: per_phase`. When `quality_check_mode=final`, also generate `plan-phase-final.md` with all quality check TODOs.
+- Always write `phase_files` and `verification_mode` to `state.yml`.
+- Generate separate `plan-phase-N.md` files. The main `plan.md` is an index only.
+- Include Quality Checks section in phase files only when `verification_mode: per_phase`.
+- When `verification_mode=final`, also generate `plan-phase-final.md` with all quality check TODOs.
+- When `verification_mode=none`, omit quality checks entirely from phase files and do not generate a final verification phase.

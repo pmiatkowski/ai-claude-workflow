@@ -1,6 +1,6 @@
 ---
 name: plan-verificator
-description: Verifies plan quality before execution. Checks coverage, dependencies, and quality commands. Spawned by /task-execute.
+description: Verifies plan quality before execution. Checks coverage, dependencies, quality commands, and guideline consistency. Spawned by /task-plan and /task-execute.
 ---
 
 # Plan Verificator Agent
@@ -13,14 +13,15 @@ You verify that the implementation plan is complete and ready for execution.
 - `plan_path`: path to `plan.md`
 - `prd_path`: path to `prd.md`
 - `mode`: "quick" or "deep"
+- `claude_md_path`: (optional) path to `CLAUDE.md` for guideline checks. Defaults to `CLAUDE.md` at repo root.
 
-## Format S Note
+## Plan Structure
 
-If `plan_format` is `S`, the plan is split across multiple files:
+Plans are split across multiple files:
 - Main index: `plan.md`
 - Phase details: `plan-phase-1.md`, `plan-phase-2.md`, etc.
 
-Read all phase files listed in `phase_files` from `state.yml` or the Phase Files section of `plan.md`. Apply all checks below across the individual phase files instead of parsing sections from the monolithic `plan.md`.
+Read all phase files listed in `phase_files` from `state.yml` or the Phase Files section of `plan.md`. Apply all checks below across the individual phase files.
 
 ## Instructions
 
@@ -30,15 +31,19 @@ Run these checks:
 
 1. **Coverage Check**: Every PRD functional requirement maps to at least one plan task
 2. **Dependency Check**: Phase dependencies form a DAG (no cycles)
-3. **Quality Command Check**: Each phase has quality commands defined
+3. **Quality Command Check**: When `verification_mode` is `per_phase`, each phase must have quality commands defined. Skip this check when `verification_mode` is `final` or `none`.
+4. **Guideline Consistency Check**: Read `CLAUDE.md` (at repo root or as provided via `claude_md_path`). Extract coding guidelines, naming conventions, and structural rules. For each phase file, verify:
+   - File paths follow naming conventions specified in CLAUDE.md
+   - Planned actions (create/modify/delete) are consistent with project structure rules
+   - Quality commands referenced in phases match those defined in CLAUDE.md
+   - No planned tasks violate explicit coding standards stated in CLAUDE.md
 
 ### Deep Mode
 
 In addition to quick checks:
 
-4. **Constraint Traceability**: Every constraint in PRD Section 10 is addressed in the plan
-5. **File Conflict Analysis**: Identify any file touched by multiple phases without handoff
-6. **Signature Consistency** (for Format D/B+D): Verify signatures are consistent across phases
+5. **Constraint Traceability**: Every constraint in PRD Section 10 is addressed in the plan
+6. **File Conflict Analysis**: Identify any file touched by multiple phases without handoff
 7. **Edge Case Coverage**: Check that PRD edge cases are handled in tasks
 
 ## Output
@@ -69,6 +74,12 @@ Write a verification report to `.temp/tasks/<task_name>/plan-verify-report.md`:
 |-------|-----------------|--------|
 | 1 | npm run lint, npm test | OK |
 | 2 | - | MISSING |
+
+## Guideline Consistency Check
+| Guideline (from CLAUDE.md) | Phase(s) Affected | Status | Notes |
+|----------------------------|-------------------|--------|-------|
+| Naming convention: ... | Phase 1, Phase 2 | OK | - |
+| Structure rule: ... | Phase 3 | VIOLATION | Plan creates file outside allowed dirs |
 
 ## Issues Found
 | # | Severity | Issue | Recommendation |

@@ -12,30 +12,27 @@ fi
 active_task=$(grep "^active_task:" "$STATE_FILE" | awk '{print $2}' | tr -d '"')
 status=$(grep "^status:" "$STATE_FILE" | awk '{print $2}' | tr -d '"')
 task_path=$(grep "^task_path:" "$STATE_FILE" | awk '{print $2}' | tr -d '"')
-plan_format=$(grep "^plan_format:" "$STATE_FILE" | awk '{print $2}' | tr -d '"')
 
-# Parse phase_files list for Format S
+# Parse phase_files list
 phase_files_list=""
-if [[ "$plan_format" == "S" ]]; then
-  in_phase_files=0
-  while IFS= read -r line; do
-    if [[ "$line" == "phase_files:" ]]; then
-      in_phase_files=1
-      continue
+in_phase_files=0
+while IFS= read -r line; do
+  if [[ "$line" == "phase_files:" ]]; then
+    in_phase_files=1
+    continue
+  fi
+  if [[ $in_phase_files -eq 1 ]]; then
+    if [[ "$line" =~ ^[a-zA-Z] ]]; then
+      break
     fi
-    if [[ $in_phase_files -eq 1 ]]; then
-      if [[ "$line" =~ ^[a-zA-Z] ]]; then
-        break
-      fi
-      file=$(echo "$line" | sed 's/^[[:space:]]*- //')
-      if [[ -n "$phase_files_list" ]]; then
-        phase_files_list="${phase_files_list}, ${file}"
-      else
-        phase_files_list="${file}"
-      fi
+    file=$(echo "$line" | sed 's/^[[:space:]]*- //')
+    if [[ -n "$phase_files_list" ]]; then
+      phase_files_list="${phase_files_list}, ${file}"
+    else
+      phase_files_list="${file}"
     fi
-  done < "$STATE_FILE"
-fi
+  fi
+done < "$STATE_FILE"
 
 if [[ -z "$active_task" || "$active_task" == "null" || "$active_task" == "none" ]]; then
   exit 0
@@ -67,10 +64,10 @@ if [[ -n "$constraints_section" ]]; then
   constraints_block="\n\nCONSTRAINTS:\n${constraints_section}"
 fi
 
-# Build Format S phase files block
+# Build phase files block
 phase_files_block=""
-if [[ "$plan_format" == "S" && -n "$phase_files_list" ]]; then
-  phase_files_block="\n- Plan Format: S (Simplified — read individual phase files)\n- Phase Files: ${phase_files_list}"
+if [[ -n "$phase_files_list" ]]; then
+  phase_files_block="\n- Phase Files: ${phase_files_list}"
 fi
 
 # Emit context injection as JSON to stdout (Claude Code reads this)

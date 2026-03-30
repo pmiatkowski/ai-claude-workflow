@@ -37,8 +37,8 @@ task_path: .temp/tasks/my-feature
 prd: .temp/tasks/my-feature/prd.md
 plan: .temp/tasks/my-feature/plan.md
 context: .temp/tasks/my-feature/context.md
-plan_format: C
-phase_files:                    # Only for Format S
+verification_mode: per_phase     # per_phase | final | none
+phase_files:
   - plan-phase-1.md
   - plan-phase-2.md
 constraints:
@@ -70,9 +70,9 @@ Each task lives in its own directory:
   state.yml                        ← active task pointer + constraints
   my-feature/
     prd.md                         ← requirements document (AI-generated + clarified)
-    plan.md                        ← implementation plan (or index for Format S)
-    plan-phase-1.md                ← phase details (Format S only)
-    plan-phase-2.md                ← phase details (Format S only)
+    plan.md                        ← plan index (progress, dependency graph, file list)
+    plan-phase-1.md                ← phase details (TODOs, files, quality checks)
+    plan-phase-2.md                ← phase details
     context.md                     ← additional context from files, URLs, discovery
     localization.md                ← file impact analysis (Phase 0)
     constraint-report.md           ← constraint compliance audit
@@ -189,93 +189,59 @@ After gathering context, Claude asks whether to add more or incorporate into the
 
 Generates a detailed implementation plan. **No code is executed at this stage.**
 
-Before writing anything, Claude analyzes the PRD and codebase complexity, then proposes a plan format:
+Before writing anything, Claude analyzes the PRD and codebase complexity, then asks two questions:
 
 ```
-## Plan Format
+## Plan Configuration
 
 I've analyzed the task. Here's my assessment:
 
 Complexity signals:
 - Touches 6 files across auth, middleware, and API layers — moderate integration surface
 - One external library (jsonwebtoken) with well-documented API — low ambiguity
-- Phase 1 is pure scaffolding; Phases 2–3 contain business logic with edge cases
 
-My recommendation: C — Hybrid
-Phase 1 (scaffolding) → Full code. Phase 2–3 (logic + middleware) → Detailed todos.
-Writing full code for business logic upfront tends to miss edge cases that only become
-clear when reading the actual files. Detailed todos keep the task-executor grounded in context.
+**Phase split:**
+- **A) Single phase** — All TODOs in one `plan-phase-1.md` file. Best for small, focused tasks.
+- **B) Split into phases** — Separate `plan-phase-N.md` files per phase with dependency tracking.
 
-| Format | Description                                                             | Best for                                             |
-|--------|-------------------------------------------------------------------------|------------------------------------------------------|
-| A      | Full code — complete implementation in the plan                         | Small, isolated tasks; low ambiguity                 |
-| B      | Detailed todos — what, why, constraints, patterns; no code              | Large features; complex integrations                 |
-| C      | Hybrid — full code for mechanical phases, todos for complex logic       | Most real-world features                             |
-| D      | Skeleton + signatures — interfaces and function signatures; no bodies   | When type contracts must be locked in early          |
-| B+D    | Todos with signatures — detailed todos plus typed contracts; no bodies  | Large tasks where type safety matters from the start |
-| S      | Simplified — split across multiple files (plan-phase-N.md)              | Large plans; easier agent consumption                |
+My recommendation: B — Split into 3 phases
+Natural boundaries exist between utilities, endpoints, and middleware. Splitting enables
+parallel execution of independent phases.
 
-What format would you like? (A, B, C, D, B+D, or S)
+**Verification timing:**
+- **1) After each phase** — Each phase executor runs quality checks before marking complete
+- **2) After all phases** — Adds a Final Verification phase with all quality checks at the end
+- **3) None** — No quality checks during execution
+
+Please answer both: Phase split (A or B) and Verification (1, 2, or 3).
 ```
 
-You pick the format. Then Claude asks for any final notes (TDD, patterns to follow, etc.) and generates `plan.md`.
-
-**Format S** creates an index in `plan.md` and separate files for each phase (`plan-phase-1.md`, `plan-phase-2.md`, etc.). This is useful for large plans where agents need focused context.
-
-Every phase in the plan follows the same outer structure — goal, dependencies, tasks, quality checks — with the **task block** varying by format:
-
-**Format A — Full code**
+Plans are always split into an index `plan.md` plus individual `plan-phase-N.md` files. Each phase file contains:
 
 ```markdown
-- [ ] 1.1 Create JWT utility module
-  - **File:** `src/lib/jwt.ts`
-  - **Action:** create
-  - **What:** JWT sign/verify utilities using RS256
-  - **Implementation:**
-    ```typescript
-    export const signToken = (payload: TokenPayload, expiresIn = '15m') =>
-      jwt.sign(payload, process.env.JWT_PRIVATE_KEY!, { algorithm: 'RS256', expiresIn });
-    ```
+# Phase 1: JWT Utilities
+
+**Goal:** Create token sign/verify utilities and token storage module
+**Dependencies:** None
+**Files:**
+- `src/lib/jwt.ts` (create)
+- `src/types/auth.ts` (create)
+
+## TODO
+- [ ] Create the TokenPayload and TokenPair interfaces in src/types/auth.ts
+- [ ] Implement signToken utility with RS256 algorithm
+- [ ] Implement verifyToken utility with null return on error
+- [ ] Write unit tests for sign and verify functions
+
+## Quality Checks
+- [ ] npm run lint
+- [ ] npm run type-check
+- [ ] npm test
 ```
 
-**Format B — Detailed todos**
+The main `plan.md` is an index — it tracks overall progress, dependency graph, and lists all phase files.
 
-```markdown
-- [ ] 2.1 Implement login endpoint
-  - **File:** `src/routes/auth.ts`
-  - **Action:** modify
-  - **What:** POST /auth/login — validate credentials, issue access + refresh tokens
-  - **Why:** Core auth flow; tokens must be issued atomically or not at all
-  - **Constraints:**
-    - Use existing `UserRepository.findByEmail()` — do not query DB directly
-    - Refresh token must be stored in httpOnly cookie, not response body
-  - **Patterns to follow:** `src/routes/user.ts` for error handling pattern
-  - **Edge cases:** wrong password → 401 (not 403); unverified email → 403 with specific message
-  - **Do NOT:** return the refresh token in the JSON response body
-```
-
-**Format D — Skeleton + signatures**
-
-```markdown
-- [ ] 1.2 Define token types
-  - **File:** `src/types/auth.ts`
-  - **Action:** create
-  - **Interfaces:**
-    ```typescript
-    export interface TokenPayload { userId: string; role: UserRole; }
-    export interface TokenPair { accessToken: string; refreshToken: string; }
-    ```
-  - **Signatures:**
-    ```typescript
-    export async function signToken(payload: TokenPayload, expiresIn?: string): Promise<string>
-    export async function verifyToken(token: string): Promise<TokenPayload | null>
-    ```
-  - **Implementation notes:** signToken wraps jsonwebtoken.sign with RS256; verifyToken catches all errors and returns null
-```
-
-**Format B+D** combines both: typed signatures as contracts plus full detailed todos for the implementation body.
-
-The chosen format is stored in `state.yml` as `plan_format` so task-executor agents know how to interpret their tasks.
+`verification_mode` is stored in `state.yml` as `per_phase`, `final`, or `none`.
 
 ---
 
@@ -299,9 +265,9 @@ Executes the plan by spawning sub-agents. Claude asks two questions:
 1. **Plan Verification** — A `plan-verificator` agent checks plan quality before execution
 2. **Localization (Phase 0)** — A `localization-agent` analyzes file impact and identifies conflicts
 3. **Task-Executor agents** — Each phase is implemented by a task-executor:
-   - Reads `state.yml` to determine `plan_format`
-   - Reads the full plan but implements only its assigned phase
-   - Interprets tasks according to the plan format
+   - Reads `state.yml` to determine `verification_mode`
+   - Reads the plan index and its assigned phase file
+   - Implements only its assigned phase
    - Discovers quality commands from `package.json`, `Makefile`, `CLAUDE.md`
    - Runs all quality commands — fixes errors before finishing
    - Updates `plan.md` — marks every completed task `- [x]`
@@ -543,7 +509,7 @@ Task-verificator checks against rules in `.claude/verification/`:
 # 4. Plan the implementation
 /task-plan
 
-# Claude recommends Format C (Hybrid)
+# Claude recommends splitting into 3 phases with per-phase verification
 # Claude asks for notes → "TDD please, failing tests first"
 # Generates plan.md with 3 phases:
 # Phase 1: JWT utilities + token storage (with failing tests first)
@@ -593,7 +559,7 @@ Task-verificator checks against rules in `.claude/verification/`:
     task-create.md           # Creates PRD from brief
     task-clarify.md          # Structured Q&A for ambiguities
     task-add-context.md      # Adds files/URLs/repo context
-    task-plan.md             # Generates implementation plan (6 formats)
+    task-plan.md             # Generates implementation plan
     task-execute.md          # Spawns Task-Executor agents
     task-verify.md           # Quality verification at any stage
     task-update-docs.md      # Updates documentation
@@ -638,7 +604,7 @@ Task-verificator checks against rules in `.claude/verification/`:
 
 1. **Flat command files**: Each command is standalone — no dispatcher. This keeps prompts focused and enables tab-autocomplete for `/task-*`.
 
-2. **Plan formats (A/B/C/D/B+D/S)**: Task-Executors interpret plans differently based on `plan_format` in `state.yml`.
+2. **Multi-file plans**: Plans are split into an index `plan.md` and individual `plan-phase-N.md` files per phase. `verification_mode` in `state.yml` controls when quality checks run: `per_phase` (each phase), `final` (after all phases), or `none` (skip automated checks).
 
 3. **Task-Executor → Task-Verificator flow**: After all task-executors complete, the task-verificator runs automatically.
 
@@ -692,13 +658,11 @@ Each command (`task-create.md`, `task-plan.md`, etc.) is a standalone prompt fil
 
 Without the `UserPromptSubmit` hook, you'd need to re-establish task context at the start of every session. The hook reads `state.yml` and injects context before any message is processed — so `/task-clarify` just works, regardless of when you last worked on the task.
 
-### Why plan format is a choice, not a fixed rule
+### Why the plan uses separate files per phase
 
-Writing full implementation code into a plan works well for small, isolated tasks — the code is stable by the time it's executed. But for larger features, it's actively harmful: the AI writes code without seeing the actual files, misses project-specific patterns, and produces output that's already stale or subtly wrong by execution time.
+A single monolithic plan forces every agent to load the entire plan even when implementing only one phase. Splitting into `plan-phase-N.md` files gives each task-executor focused context. The main `plan.md` serves as an index for progress tracking and dependency resolution.
 
-Detailed todos (Format B) solve this by making the task-executor reason through the implementation with full file context — it reads the existing code, follows referenced patterns, and handles edge cases with real knowledge of the codebase. The plan provides *what* and *why*, not *how*.
-
-Format S (Simplified) splits large plans across multiple files, making it easier for agents to consume focused context without loading the entire plan.
+The verification mode (`per_phase`, `final`, or `none`) lets you trade safety for speed: `per_phase` catches issues early, `final` runs one big verification pass, and `none` skips automated quality checks entirely.
 
 ### Why constraints are tracked separately
 
@@ -719,8 +683,8 @@ Task-Executors are incentivized to finish their phase — they will rationalize 
 |------|---------|-------------|
 | `state.yml` | Active task pointer + constraints | Every command |
 | `prd.md` | Requirements document | `/task-create`, `/task-clarify`, `/task-add-context` |
-| `plan.md` | Implementation plan (or index for Format S) | `/task-plan`, task-executor agents |
-| `plan-phase-N.md` | Phase details (Format S only) | `/task-plan`, task-executor agents |
+| `plan.md` | Plan index (progress, dependencies, file list) | `/task-plan`, task-executor agents |
+| `plan-phase-N.md` | Phase details (TODOs, files, quality checks) | `/task-plan`, task-executor agents |
 | `context.md` | Additional gathered context | `/task-add-context` |
 | `localization.md` | File impact analysis | localization-agent |
 | `constraint-report.md` | Constraint compliance audit | constraint-tracker |
