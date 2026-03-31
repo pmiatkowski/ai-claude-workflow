@@ -111,22 +111,8 @@ Remove a constraint by ID (use with caution).
 
 ### Check Constraints
 
-1. Read all constraints
-2. Read implemented files (from plan.md)
-3. For each constraint:
-   - Analyze if code respects it
-   - Flag any violations
-4. Output report:
-   ```
-   Constraint Check Report
-
-   | Constraint | Status | Evidence |
-   |------------|--------|----------|
-   | I1: All API calls authenticated | PASS | All routes use authMiddleware |
-   | D1-1: Must use OAuth2 | PASS | OAuth2Strategy used in auth.ts |
-
-   Result: ALL PASS
-   ```
+Follow the constraint check protocol from `.claude/references/shared-patterns.md#constraint-check-protocol`.
+Then output the report using the constraint-compliance format from `.claude/references/report-formats.md#constraint-compliance`.
 
 ### Remove Constraint
 

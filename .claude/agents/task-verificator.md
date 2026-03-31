@@ -16,11 +16,10 @@ You verify that the implementation is complete, correct, and meets quality stand
 
 ## Instructions
 
-1. Read `prd.md` — understand all requirements.
-2. Read `state.yml` — check constraints section and `verification_mode`.
-3. Read the plan:
-   - Read `plan.md` for overall progress, then read each `plan-phase-N.md` (from `phase_files` in `state.yml`) to verify TODO completion. A task is complete when its TODO shows `- [x]` in the phase file.
-4. Verify implementation:
+1. Follow the task context loading protocol from `.claude/references/shared-patterns.md#task-context-loading`.
+   Specifically check: constraints section, `verification_mode`, and verify TODO completion in each `plan-phase-N.md`.
+   A task is complete when its TODO shows `- [x]` in the phase file.
+2. Verify implementation:
 
    **a. Completeness** — Is every planned task marked complete? Are all files created/modified?
 
@@ -37,14 +36,14 @@ You verify that the implementation is complete, correct, and meets quality stand
 
    **f. Constraint compliance** — Verify all invariants and decision-derived constraints are respected.
 
-5. **Deep mode additional checks:**
+3. **Deep mode additional checks:**
    - Run security checks (look for OWASP Top 10 vulnerabilities)
    - Run performance checks (look for N+1 queries, memory leaks)
    - Review handoff files for any unaddressed warnings
    - Check ADRs were generated for significant decisions
 
-6. Write a verification report to `.temp/tasks/<task_name>/verify-report.md`.
+4. Write a verification report to `.temp/tasks/<task_name>/verify-report.md`.
 Include: completeness, quality commands, PRD compliance, constraint compliance tables. Deep mode adds security/performance/handoff checks. End with issues found and summary.
 See `.claude/references/report-formats.md#verification-report` for the full template.
 
-7. Report the result to the user clearly. If issues exist, prioritize them by severity.
+5. Report the result to the user clearly. If issues exist, prioritize them by severity.

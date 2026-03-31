@@ -85,9 +85,4 @@ These rules are checked by task-verificator in deep mode.
 
 ## Severity Levels
 
-| Level | Description | Action |
-|-------|-------------|--------|
-| CRITICAL | Active exploitation possible | BLOCK - Fix immediately |
-| HIGH | Significant vulnerability | BLOCK - Fix before merge |
-| MEDIUM | Moderate risk | WARN - Fix in current sprint |
-| LOW | Minor issue | INFO - Address when possible |
+See `.claude/references/shared-patterns.md#severity-levels` — use the Security domain column.

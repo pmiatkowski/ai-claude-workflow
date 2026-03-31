@@ -110,12 +110,7 @@ These rules are checked by task-verificator in deep mode.
 
 ## Severity Levels
 
-| Level | Description | Action |
-|-------|-------------|--------|
-| CRITICAL | Blocks release | BLOCK - Fix immediately |
-| HIGH | Significant quality issue | BLOCK - Fix before merge |
-| MEDIUM | Quality concern | WARN - Fix in current sprint |
-| LOW | Minor improvement | INFO - Address when possible |
+See `.claude/references/shared-patterns.md#severity-levels` — use the Quality domain column.
 
 ## Quality Commands
 

@@ -4,30 +4,29 @@ Execute the implementation plan by spawning task-executor agents.
 
 ## Steps
 
-1. Read `.temp/tasks/state.yml`.
-2. Read `plan.md` and `state.yml` — identify all phases, their status, and `verification_mode`.
-   `plan.md` is an index. Read each `plan-phase-N.md` listed in `phase_files` from `state.yml` to get phase details.
-3. **Pre-Execution Verification Gate:**
+1. Follow the task context loading protocol from `.claude/references/shared-patterns.md#task-context-loading`.
+   Specifically extract: all phases, their status, `verification_mode`, and `phase_files`.
+2. **Pre-Execution Verification Gate:**
    Spawn the plan-verificator agent (see `.claude/agents/plan-verificator.md`) in **quick** mode with `task_name`, `plan_path`, and `prd_path`.
-   - **PASS** → proceed to step 4.
-   - **PARTIAL** → warn the user with the issues found, then proceed to step 4.
+   - **PASS** → proceed to step 3.
+   - **PARTIAL** → warn the user with the issues found, then proceed to step 3.
    - **FAIL** → BLOCK execution and suggest `/task-verify plan deep`.
-4. Ask the user:
+3. Ask the user:
 
    > **What would you like to execute?**
    > - `all` — all phases
    > - `phase <N>` — a specific phase
    > - `phases <N,M>` — specific phases
 
-5. **Determine orchestration strategy** (see Orchestration Strategy below).
-6. Spawn task-executor agents using the Task tool based on the strategy.
-6.5. **Update plan.md Overall Progress:**
+4. **Determine orchestration strategy** (see Orchestration Strategy below).
+5. Spawn task-executor agents using the Task tool based on the strategy.
+5.5. **Update plan.md Overall Progress:**
    After all task-executors complete, read each `plan-phase-N.md` to check if all TODOs are marked `- [x]`.
    For each phase where all TODOs passed, update the corresponding line in `plan.md` Overall Progress from `- [ ]` to `- [x]`.
    This centralizes progress updates and avoids parallel write conflicts.
-7. After all task-executors complete, automatically spawn the **task-verificator agent** (unless `verification_mode=none`).
-8. Run auto-remediation loop (see Auto-Remediation Loop section below).
-9. Report final status to user.
+6. After all task-executors complete, automatically spawn the **task-verificator agent** (unless `verification_mode=none`).
+7. Run auto-remediation loop (see Auto-Remediation Loop section below).
+8. Report final status to user.
 
 ## Orchestration Strategy
 

@@ -66,12 +66,7 @@ See `.claude/references/report-formats.md#constraint-compliance` for the full te
 
 ## Severity Levels for Violations
 
-| Severity | Description | Action |
-|----------|-------------|--------|
-| CRITICAL | Invariant violated | BLOCK - Must fix immediately |
-| HIGH | Decision constraint violated | BLOCK - Must fix before proceeding |
-| MEDIUM | Constraint partially met | WARN - Should address |
-| LOW | Minor concern | INFO - Consider addressing |
+See `.claude/references/shared-patterns.md#severity-levels` — use the Constraints domain column.
 
 ## Integration Points
 

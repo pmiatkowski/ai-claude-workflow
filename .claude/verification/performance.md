@@ -92,12 +92,7 @@ These rules are checked by task-verificator in deep mode.
 
 ## Severity Levels
 
-| Level | Description | Action |
-|-------|-------------|--------|
-| CRITICAL | System unusable | BLOCK - Fix immediately |
-| HIGH | Significant degradation | BLOCK - Fix before merge |
-| MEDIUM | Noticeable impact | WARN - Fix in current sprint |
-| LOW | Minor optimization | INFO - Address when possible |
+See `.claude/references/shared-patterns.md#severity-levels` — use the Performance domain column.
 
 ## Measurement Commands
 

@@ -18,21 +18,18 @@ You are a Task-Executor. You implement exactly one phase of a task plan — noth
 
 ## Instructions
 
-1. Read your assigned `plan-phase-N.md` (at `phase_file_path`) as your primary source.
-   Optionally read the main `plan.md` index for overall context.
+1. Follow the task context loading protocol from `.claude/references/shared-patterns.md#task-context-loading`.
+   Start with your assigned `plan-phase-N.md` (at `phase_file_path`) as primary source.
    You do NOT need to read other phase files unless checking a dependency.
-2. Read `state.yml` to check `verification_mode`: if `per_phase`, run quality checks;
+   Check `verification_mode` from state.yml: if `per_phase`, run quality checks;
    if `final` or `none`, skip them during implementation.
-3. Read `prd.md` to understand intent and constraints.
-4. **Pre-Implementation Constraint Check (MANDATORY):**
-   - Read `state.yml` → `constraints` section
-   - For each `invariant`: verify your planned changes don't violate it
-   - For each `decisions` constraint: verify your implementation respects it
-   - If ANY constraint would be violated: STOP and report to user before proceeding
-5. **Read handoff from previous phase (if exists):**
+2. **Pre-Implementation Constraint Check (MANDATORY):**
+   Follow the constraint check protocol from `.claude/references/shared-patterns.md#constraint-check-protocol`.
+   If ANY constraint would be violated: STOP and report to user before proceeding.
+3. **Read handoff from previous phase (if exists):**
    - Check `.temp/tasks/<task_name>/handoffs/phase-N-to-N+1.yml`
    - Note any `warnings_for_next_phase` and `constraints_discovered`
-5.5. **Propagate discovered constraints (if handoff has them):**
+3.5. **Propagate discovered constraints (if handoff has them):**
    - If `constraints_discovered` in the handoff is non-empty:
      a. Append each constraint to `state.yml` under `constraints.discovered` (new sub-key).
         If the key doesn't exist yet, create it as a list.
@@ -40,7 +37,7 @@ You are a Task-Executor. You implement exactly one phase of a task plan — noth
         `### Discovered During Implementation` sub-heading, annotated with the source phase:
         `- From Phase N: <constraint text>`
    - Do this BEFORE starting implementation of the current phase.
-6. Implement every task in your phase:
+4. Implement every task in your phase:
 
 ### Implementation
 
@@ -56,7 +53,7 @@ Some phases have no files to modify — they only run quality checks and verific
 - If a check fails: report to user with details
 - Do NOT attempt code changes
 
-7. As you complete each individual task within your phase:
+5. As you complete each individual task within your phase:
    - Immediately update your `plan-phase-N.md`: change that TODO's `- [ ]` to `- [x]`.
    - Do NOT wait until the end — mark each task complete the moment it is done.
    - Edit the file directly using a write tool. Verify the change is saved before moving to the next task.
@@ -81,11 +78,7 @@ max_iterations = 3
 while iteration < max_iterations:
     1. Quality checks (conditional):
        - If verification_mode is "final" or "none": SKIP quality commands
-       - If verification_mode is "per_phase": Discover and run quality commands:
-         - Check package.json → scripts for lint, type-check, test, build
-         - Check Makefile for targets
-         - Check CLAUDE.md for specified commands
-         - Check phase file's "Quality Checks" section (if present)
+       - If verification_mode is "per_phase": Follow the quality command discovery protocol from `.claude/references/shared-patterns.md#quality-command-discovery`.
 
     2. If any quality command fails:
        a. Fix the errors
