@@ -8,10 +8,10 @@ Execute the implementation plan by spawning task-executor agents.
 2. Read `plan.md` and `state.yml` — identify all phases, their status, and `verification_mode`.
    `plan.md` is an index. Read each `plan-phase-N.md` listed in `phase_files` from `state.yml` to get phase details.
 3. **Pre-Execution Verification Gate:**
-   - Verify every PRD requirement maps to at least one task
-   - Verify phase dependencies have no cycles
-   - Verify quality commands are defined for each phase (when verification_mode is `per_phase`)
-   - If any fail: BLOCK and suggest `/task-verify plan deep`
+   Spawn the plan-verificator agent (see `.claude/agents/plan-verificator.md`) in **quick** mode with `task_name`, `plan_path`, and `prd_path`.
+   - **PASS** → proceed to step 4.
+   - **PARTIAL** → warn the user with the issues found, then proceed to step 4.
+   - **FAIL** → BLOCK execution and suggest `/task-verify plan deep`.
 4. Ask the user:
 
    > **What would you like to execute?**
@@ -21,8 +21,13 @@ Execute the implementation plan by spawning task-executor agents.
 
 5. **Determine orchestration strategy** (see Orchestration Strategy below).
 6. Spawn task-executor agents using the Task tool based on the strategy.
+6.5. **Update plan.md Overall Progress:**
+   After all task-executors complete, read each `plan-phase-N.md` to check if all TODOs are marked `- [x]`.
+   For each phase where all TODOs passed, update the corresponding line in `plan.md` Overall Progress from `- [ ]` to `- [x]`.
+   This centralizes progress updates and avoids parallel write conflicts.
 7. After all task-executors complete, automatically spawn the **task-verificator agent** (unless `verification_mode=none`).
-8. Report final status to user.
+8. Run auto-remediation loop (see Auto-Remediation Loop section below).
+9. Report final status to user.
 
 ## Orchestration Strategy
 
@@ -57,8 +62,7 @@ After implementation:
 1. Discover quality commands from the phase file's Quality Checks section plus project config.
 2. Run self-refine loop (max 3 iterations).
 3. Mark TODO items complete in plan-phase-<N>.md (change `- [ ]` to `- [x]`).
-4. Mark Phase <N> complete in the main plan.md Overall Progress section.
-5. Generate handoff file if next phase exists.
+4. Generate handoff file if next phase exists.
 
 Do NOT implement anything outside Phase <N>.
 ```
@@ -90,3 +94,34 @@ For phases marked as "high risk" or touching core architecture:
 3. Reviewer checks implementation against plan, PRD, and constraints
 4. If reviewer rejects: spawn task-executor again with feedback
 5. Repeat until approved or max retries (2) reached
+
+## Auto-Remediation Loop
+
+After the task-verificator completes:
+
+1. Read verify-report.md from `<task_path>/verify-report.md`.
+2. Check the result line: `**Task-Verificator result:** PASS | PARTIAL | FAIL`.
+3. If **PASS** → report success to user (done).
+4. If **FAIL** or **PARTIAL**:
+   a. Parse the "Issues Found" table to count issues.
+   b. Determine which phases are affected by mapping issue file paths back to the file lists in each `plan-phase-N.md`.
+   c. Ask the user:
+
+   > Verificator returned [FAIL|PARTIAL] with N issues. Auto-fix and re-verify? [yes/no]
+
+   d. If **no** → report issues and stop.
+   e. If **yes** → enter remediation loop (max 2 iterations):
+      i. Spawn task-executor agents for affected phases. Append this to their standard instructions:
+
+      ```
+      REMEDIATION CONTEXT:
+      The following issues were found by verification. Fix ONLY these issues — do not change unrelated code.
+
+      <paste Issues Found table from verify-report.md>
+      ```
+
+      ii. After remediation executors complete, re-spawn the task-verificator agent.
+      iii. Read the new verify-report.md result.
+      iv. If **PASS** → report success (done).
+      v. If still **FAIL/PARTIAL** and iterations remain → loop back to step e.i.
+      vi. If still **FAIL** after 2 iterations → stop and report all remaining issues to the user.

@@ -32,6 +32,14 @@ You are a Task-Executor. You implement exactly one phase of a task plan — noth
 5. **Read handoff from previous phase (if exists):**
    - Check `.temp/tasks/<task_name>/handoffs/phase-N-to-N+1.yml`
    - Note any `warnings_for_next_phase` and `constraints_discovered`
+5.5. **Propagate discovered constraints (if handoff has them):**
+   - If `constraints_discovered` in the handoff is non-empty:
+     a. Append each constraint to `state.yml` under `constraints.discovered` (new sub-key).
+        If the key doesn't exist yet, create it as a list.
+     b. Append each constraint to `prd.md` Section 10 (Constraints) under a new
+        `### Discovered During Implementation` sub-heading, annotated with the source phase:
+        `- From Phase N: <constraint text>`
+   - Do this BEFORE starting implementation of the current phase.
 6. Implement every task in your phase:
 
 ### Implementation
@@ -62,7 +70,7 @@ After all tasks in the phase are implemented, run the self-refine loop:
 2. Mark each TODO `- [x]` as it passes
 3. If a check fails: report to user with details (cannot auto-fix without code scope)
 4. Skip the standard self-refine loop — no code to iterate on
-5. Mark the phase complete in `plan.md` Overall Progress section
+5. Verify all TODOs in your `plan-phase-N.md` are marked `- [x]`
 
 **For standard phases with files to modify:**
 
@@ -85,16 +93,10 @@ while iteration < max_iterations:
        c. continue to next iteration
 
     3. If all quality commands pass (or were skipped):
-       a. Self-critique: "What could be improved in this implementation?"
-          - Check for code duplication
-          - Check for edge cases not handled
-          - Check for performance concerns
-          - Check for readability/maintainability
-       b. If no meaningful improvements identified: BREAK (phase complete)
-       c. If improvements identified:
-          - Apply the improvements
-          - iteration++
-          - continue to next iteration
+       BREAK (phase complete). The loop exits deterministically:
+       - When quality commands are enabled (per_phase): exit after all pass.
+       - When quality commands are skipped (final/none): exit after one iteration.
+       - Max iterations (3) remains a hard safety cap.
 
 Result: Phase is complete only when self-refine loop exits cleanly.
 ```
@@ -103,10 +105,8 @@ Result: Phase is complete only when self-refine loop exits cleanly.
 
 Once the self-refine loop exits cleanly:
 
-1. Mark the phase itself complete:
-   - In the main `plan.md` Overall Progress section, change the phase entry from `- [ ]` to `- [x]`.
-   - Also verify all TODOs in your `plan-phase-N.md` are marked `- [x]`.
-   - Edit the file directly using a write tool. Verify the change is saved.
+1. Verify all TODOs in your `plan-phase-N.md` are marked `- [x]`.
+   The orchestrator will update `plan.md` Overall Progress centrally after all executors complete.
 
 ### Handoff Generation (for sequential execution)
 
@@ -156,5 +156,5 @@ If there is no next phase (this is the last phase), skip handoff generation.
 - Do NOT mark a task complete if its implementation has not been saved to disk.
 - Do NOT mark the phase complete if quality checks are still failing (when they are required).
 - MANDATORY: Mark each task `- [x]` immediately after completing it in `plan-phase-N.md` — never batch at the end.
-- MANDATORY: Mark the phase `- [x]` in the Overall Progress section of `plan.md` after all tasks pass quality checks (or when skipped per verification_mode).
+- Do NOT write to `plan.md` Overall Progress — the orchestrator updates it centrally after all executors complete.
 - Do not add scope beyond what the TODO items describe. Use the PRD for additional context.

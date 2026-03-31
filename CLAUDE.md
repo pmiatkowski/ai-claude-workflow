@@ -29,6 +29,7 @@ bash -n .claude/hooks/inject-task-context.sh
     task-update-docs.md      # Updates documentation
     task-fix.md              # Ad-hoc fixes in task context
     task-run.md              # Generic task-scoped command
+    task-complete.md         # Close out a finished task
     task-checkpoint.md       # Create/restore task checkpoints
     task-constraints.md      # Manage invariants and decision constraints
     project-docs.md          # Documentation management
@@ -109,7 +110,7 @@ This project itself uses the task workflow. Active task context is injected auto
 
 | Command | Purpose |
 |---------|---------|
-| `/task-create <name> <description>` | Create a new task with a PRD |
+| `/task-create <name> <description> [--quick]` | Create a new task with a PRD. Add `--quick` for minimal PRD + inline plan (skips clarify/plan questions) |
 | `/task-clarify [N questions] [topic]` | Run structured clarification Q&A on active task |
 | `/task-add-context [files\|url\|discover]` | Add context from files, URLs, or repo scan |
 | `/task-plan` | Generate detailed implementation plan (no code runs yet) |
@@ -118,6 +119,7 @@ This project itself uses the task workflow. Active task context is injected auto
 | `/task-update-docs` | Update project documentation based on implementation |
 | `/task-fix [description]` | Ad-hoc fix or enhancement in task context |
 | `/task-run <anything>` | Generic task-scoped freeform command |
+| `/task-complete [--archive]` | Close out a finished task, optionally archive artifacts |
 | `/task-checkpoint <create\|restore\|list>` | Manage task checkpoints |
 | `/task-constraints <add\|list\|check\|remove>` | Manage constraints for active task |
 | `/project-docs <action>` | Manage project documentation |
