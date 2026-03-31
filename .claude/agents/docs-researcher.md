@@ -70,49 +70,12 @@ Only proceed if documentation search yielded insufficient results AND scope is "
 ### Phase 3: Result Compilation
 
 **If results found:**
-
-```markdown
-# Research Results: "<query>"
-
-## Summary
-[Direct answer synthesized from found information ONLY - no assumptions]
-
-## Sources
-
-### Documentation
-| File | Line | Excerpt |
-|------|------|---------|
-| README.md | 45 | "To configure authentication..." |
-| ./docs/auth.md | 12-18 | "Authentication supports OAuth2..." |
-
-### Codebase (if applicable)
-| File | Line | Context |
-|------|------|---------|
-| src/auth.ts | 23 | export function authenticate() |
-
-## Related Topics
-[Links to related documentation sections if found]
-```
+Include: summary, sources tables (Documentation + Codebase with file/line/excerpt), related topics.
+See `.claude/references/report-formats.md#research-results-found` for the full format.
 
 **If NO results found:**
-
-```markdown
-# Research Results: "<query>"
-
-**Result:** NO RESULTS for "<query>"
-
-## Locations Searched
-- README.md
-- ./docs/*.md (X files)
-- Source files (if scope allowed)
-- Configuration files (if scope allowed)
-
-## Suggestions
-1. Try different search terms: [list 2-3 alternatives]
-2. The topic may not be documented yet
-3. Run `/project-docs scan` to identify documentation gaps
-4. Run `/project-docs add <topic>` to create this documentation
-```
+Include: result statement, locations searched, alternative search suggestions.
+See `.claude/references/report-formats.md#research-results-not-found` for the full format.
 
 ## Search Patterns
 

@@ -47,25 +47,7 @@ Execute the implementation plan by spawning task-executor agents.
 
 ## task-executor Agent Instructions
 
-Pass this to each Task invocation:
-
-```
-You are a Task-Executor agent for task: <task-name>, Phase <N>: <phase-name>.
-
-Read your phase file at: <task_path>/plan-phase-<N>.md
-Read the plan index at: <task_path>/plan.md (for overall context only)
-Implement ONLY Phase <N>. Do not touch other phases.
-
-Handoff from previous phase (if sequential): <handoff_path or "none">
-
-After implementation:
-1. Discover quality commands from the phase file's Quality Checks section plus project config.
-2. Run self-refine loop (max 3 iterations).
-3. Mark TODO items complete in plan-phase-<N>.md (change `- [ ]` to `- [x]`).
-4. Generate handoff file if next phase exists.
-
-Do NOT implement anything outside Phase <N>.
-```
+Spawn task-executor with: `task_name`, `phase_number`, `plan_path`, `phase_file_path`, `prd_path`, `handoff_path` (if sequential). The agent file (`.claude/agents/task-executor.md`) contains full instructions.
 
 **Note:** When `verification_mode=final`, the last phase will be "Phase Final: Verification". This phase has no files to modify — it only runs quality checks. The executor should handle this gracefully by skipping file operations and running only the TODO checks (type-check, lint, test, verify against plan).
 
@@ -87,41 +69,13 @@ Pass it: task name, plan.md path, list of phase summaries, and the `phase_files`
 
 ## Builder-Reviewer Pattern (for complex phases)
 
-For phases marked as "high risk" or touching core architecture:
-
-1. Spawn task-executor agent for the phase
-2. After completion, spawn phase-reviewer agent
-3. Reviewer checks implementation against plan, PRD, and constraints
-4. If reviewer rejects: spawn task-executor again with feedback
-5. Repeat until approved or max retries (2) reached
+For high-risk phases: spawn task-executor, then phase-reviewer. If rejected, re-spawn executor with feedback (max 2 retries).
 
 ## Auto-Remediation Loop
 
 After the task-verificator completes:
 
-1. Read verify-report.md from `<task_path>/verify-report.md`.
-2. Check the result line: `**Task-Verificator result:** PASS | PARTIAL | FAIL`.
-3. If **PASS** → report success to user (done).
-4. If **FAIL** or **PARTIAL**:
-   a. Parse the "Issues Found" table to count issues.
-   b. Determine which phases are affected by mapping issue file paths back to the file lists in each `plan-phase-N.md`.
-   c. Ask the user:
-
-   > Verificator returned [FAIL|PARTIAL] with N issues. Auto-fix and re-verify? [yes/no]
-
-   d. If **no** → report issues and stop.
-   e. If **yes** → enter remediation loop (max 2 iterations):
-      i. Spawn task-executor agents for affected phases. Append this to their standard instructions:
-
-      ```
-      REMEDIATION CONTEXT:
-      The following issues were found by verification. Fix ONLY these issues — do not change unrelated code.
-
-      <paste Issues Found table from verify-report.md>
-      ```
-
-      ii. After remediation executors complete, re-spawn the task-verificator agent.
-      iii. Read the new verify-report.md result.
-      iv. If **PASS** → report success (done).
-      v. If still **FAIL/PARTIAL** and iterations remain → loop back to step e.i.
-      vi. If still **FAIL** after 2 iterations → stop and report all remaining issues to the user.
+1. Read `verify-report.md` result (`PASS | PARTIAL | FAIL`).
+2. If **PASS** → done.
+3. If **FAIL/PARTIAL** → ask user to auto-fix.
+4. If yes: spawn executors for affected phases with the Issues Found table from verify-report as remediation context (fix ONLY those issues). Re-verify. Max 2 iterations. Report remaining issues if still failing.

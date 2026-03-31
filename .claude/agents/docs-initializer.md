@@ -28,22 +28,8 @@ You are a documentation initialization specialist. You set up the documentation 
    - Find existing configuration files
 
 3. Report findings to user:
-
-```markdown
-# Documentation Discovery
-
-## Existing Documentation
-[List found files with brief description, or "None found"]
-
-## Project Type
-[Detected language/framework]
-
-## Key Components
-[Directories/modules identified]
-
-## Current State
-[Assessment of documentation coverage]
-```
+Include: existing documentation list, project type, key components, current state assessment.
+See `.claude/references/report-formats.md#documentation-discovery` for the format.
 
 ### Phase 2: User Decision
 
@@ -113,28 +99,8 @@ Based on findings, ask user:
 
 1. Write all files
 2. Present summary:
-
-```markdown
-# Documentation Initialized
-
-## Created Files
-- README.md (project overview + feature index)
-- ./docs/installation.md
-- ./docs/configuration.md
-- [other files]
-
-## README Structure
-- Overview
-- Quick Start
-- Features (with links to ./docs/)
-- Architecture
-- Documentation links
-
-## Next Steps
-1. Fill in [TODO] placeholders
-2. Add project-specific details
-3. Run `/project-docs scan` to find undocumented features
-```
+Include: created files list, README structure overview, next steps.
+See `.claude/references/report-formats.md#documentation-initialized` for the format.
 
 ## Template Reference
 

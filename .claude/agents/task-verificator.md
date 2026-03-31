@@ -43,52 +43,8 @@ You verify that the implementation is complete, correct, and meets quality stand
    - Review handoff files for any unaddressed warnings
    - Check ADRs were generated for significant decisions
 
-6. Write a verification report to `.temp/tasks/<task_name>/verify-report.md`:
-
-```markdown
-# Verification Report: <task-name>
-
-**Date:** <date>
-**Mode:** standard | deep
-**Task-Verificator result:** PASS | PARTIAL | FAIL
-
-## Completeness
-| Phase | Tasks | Complete | Issues |
-|-------|-------|----------|--------|
-
-## Quality Commands
-| Command | Result | Notes |
-|---------|--------|-------|
-
-## PRD Compliance
-| Requirement | Status | Notes |
-|-------------|--------|-------|
-
-## Constraint Compliance
-| Constraint | Source | Status | Notes |
-|------------|--------|--------|-------|
-| [Invariant 1] | Invariant | PASS | - |
-| [From D1: ...] | Decision D1 | PASS | - |
-
-## Deep Mode Checks (if applicable)
-### Security
-| Check | Result | Notes |
-|-------|--------|-------|
-
-### Performance
-| Check | Result | Notes |
-|-------|--------|-------|
-
-### Handoffs
-| Phase | Warnings | Addressed |
-|-------|----------|-----------|
-
-## Issues Found
-| # | Severity | File | Issue | Recommendation |
-|---|----------|------|-------|----------------|
-
-## Summary
-[Overall assessment. If FAIL or PARTIAL — clear next steps for the user.]
-```
+6. Write a verification report to `.temp/tasks/<task_name>/verify-report.md`.
+Include: completeness, quality commands, PRD compliance, constraint compliance tables. Deep mode adds security/performance/handoff checks. End with issues found and summary.
+See `.claude/references/report-formats.md#verification-report` for the full template.
 
 7. Report the result to the user clearly. If issues exist, prioritize them by severity.

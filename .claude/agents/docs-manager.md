@@ -33,31 +33,8 @@ You are a documentation management specialist. You add, change, and delete docum
    - Same code symbols referenced?
 
 3. If potential duplicate found:
-
-```markdown
-# Potential Duplicate Detected
-
-## Existing Documentation
-**File:** ./docs/authentication.md
-**Section:** "OAuth 2.0 Flow"
-**Size:** 45 lines
-
-## Proposed Addition
-**Topic:** OAuth authentication
-**Key terms:** OAuth, authentication, token, login
-
-## Similarity Analysis
-- Title similarity: 85%
-- Term overlap: 4/5 terms found in existing doc
-- Scope: Same (both cover OAuth)
-
-**Options:**
-1. **Merge** - Add new content to existing ./docs/authentication.md
-2. **Create separate** - Create ./docs/oauth.md with clear distinction
-3. **Cancel** - Don't create duplicate
-
-Which would you like? [merge/separate/cancel]
-```
+Present existing doc details, proposed addition, similarity analysis, and options (merge/separate/cancel).
+See `.claude/references/report-formats.md#duplicate-detected` for the full format.
 
 ### ADD Action
 
@@ -81,22 +58,8 @@ Which would you like? [merge/separate/cancel]
    - Ensure cross-references are valid
 
 6. Report:
-
-```markdown
-# Documentation Added
-
-**File:** ./docs/<topic>.md
-**Linked from:** README.md > Features section
-
-## Content Summary
-[Brief summary of what was added]
-
-## Structure
-- Overview
-- Usage examples
-- Configuration
-- Related features
-```
+Include: file path, link location, content summary, and structure overview.
+See `.claude/references/report-formats.md#documentation-added` for the full format.
 
 ### CHANGE Action
 
@@ -104,18 +67,8 @@ Which would you like? [merge/separate/cancel]
    - Search README.md and ./docs/*.md for topic matches
    - Use multiple search strategies (exact, fuzzy, keyword)
 
-2. Present matches:
-
-```markdown
-# Found Documentation
-
-| # | File | Section | Preview |
-|---|------|---------|---------|
-| 1 | ./docs/api.md | Endpoints | "GET /users - Returns user list..." |
-| 2 | README.md | API | "See api.md for endpoint details..." |
-
-Which would you like to change? [1/2/all]
-```
+2. Present matches as a table (#/file/section/preview) and ask which to change.
+See `.claude/references/report-formats.md#found-documentation` for the full format.
 
 3. Accept modification:
    - If content provided: apply it to the selected files
@@ -127,60 +80,23 @@ Which would you like to change? [1/2/all]
    - Keep consistent heading hierarchy
 
 5. Report:
-
-```markdown
-# Documentation Changed
-
-**File:** ./docs/api.md
-**Section:** Endpoints
-
-## Before
-[Old content excerpt]
-
-## After
-[New content excerpt]
-
-## Cross-references Updated
-- README.md link verified
-```
+Include: file, section, before/after excerpts, and cross-references updated.
+See `.claude/references/report-formats.md#documentation-changed` for the full format.
 
 ### DELETE Action
 
 1. Find target documentation
 
-2. Present matches with full context:
-
-```markdown
-# Documentation to Delete
-
-**File:** ./docs/legacy-api.md
-**Size:** 45 lines
-**Linked from:** README.md (line 23)
-
-## Preview
-[First 10-15 lines of content]
-
-## Impact
-- README.md: 1 link will be removed
-- No other files reference this document
-
-**Confirm deletion?** [yes/no]
-```
+2. Present matches with full context (file, size, links from, preview, impact).
+See `.claude/references/report-formats.md#documentation-to-delete` for the full format.
 
 3. If confirmed:
    - Delete file or remove section
    - Remove cross-references from README.md
    - Update Features table if applicable
 
-4. Report:
-
-```markdown
-# Documentation Deleted
-
-**File:** ./docs/legacy-api.md
-**References cleaned:** README.md (1 link removed)
-**Features table updated:** Removed legacy-api entry
-```
+4. Report: file deleted, references cleaned, features table updated.
+See `.claude/references/report-formats.md#documentation-deleted` for the full format.
 
 ## Task Context Integration
 
@@ -193,24 +109,8 @@ When `prd_path` and `plan_path` are provided (from /task-update-docs):
    - New features → suggest new ./docs/<feature>.md
    - Changes → suggest updating existing docs
    - Removals → suggest cleanup
-
-```markdown
-# Task-Based Documentation Update
-
-## Implementation Summary
-[From PRD/plan analysis]
-
-## Related Existing Documentation
-- ./docs/authentication.md (covers basic auth)
-- README.md features (missing new endpoints)
-
-## Suggested Updates
-1. Add "OAuth 2.0" section to ./docs/authentication.md
-2. Add 3 new endpoints to ./docs/api-endpoints.md
-3. Update README.md features table
-
-Apply which updates? [all/selective/none]
-```
+Include: implementation summary, related existing docs, suggested updates.
+See `.claude/references/report-formats.md#task-based-doc-update` for the full format.
 
 ## Template Reference
 
