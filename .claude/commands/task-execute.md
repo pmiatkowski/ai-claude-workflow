@@ -26,27 +26,21 @@ Execute the implementation plan by spawning task-executor agents.
 4. **Determine orchestration strategy** (see Orchestration Strategy below).
 5. Spawn task-executor agents using the Task tool based on the strategy.
 5.5. **Validate executor exit contracts (MANDATORY):**
-   After each task-executor completes, parse its exit contract from the agent's final response.
+   After each task-executor completes:
 
-   a. **Check contract exists.** If no exit contract block found in the agent's output:
-      - Report warning: "Executor for phase N did not produce an exit contract."
-      - Fall back to file-based validation: check if `plan-phase-N.md` has all TODOs marked `- [x]`.
+   a. **Check for exit summary line.** Parse the agent's last response line for `EXIT: Phase N <status>`.
+      If not found: report warning, fall back to file-based validation.
 
-   b. **Check contract status.** If `status: PARTIAL` or `status: FAILED`:
-      - Report the error to the user.
-      - Ask: "Phase N reported [status]. Retry this phase, skip it, or stop execution?"
-      - If retry: re-spawn executor for that phase (max 2 retries).
-      - If skip: proceed to next phase, note the skip in plan.md.
-      - If stop: halt execution and report partial progress.
+   b. **Read exit file.** Read `.temp/tasks/<task_name>/exit-phase-<N>.yml`.
+      If file missing: report warning, fall back to TODO count validation.
+      Parse YAML. Validate all required fields present.
 
-   c. **Check handoff file exists.** If executor reported `handoff_written: true`:
-      - Verify `.temp/tasks/<task_name>/handoffs/phase-N-to-N+1.yml` actually exists on disk.
-      - If missing: warn user, ask whether to proceed without handoff or retry.
+   c. **Check status.** If `status: PARTIAL` or `status: FAILED`:
+      - Report error, ask user: retry / skip / stop.
 
-   d. **Check TODO consistency.** Read `plan-phase-N.md` and verify:
-      - Count of `- [x]` items matches `todos_done` from exit contract.
-      - Count of total items matches `todos_total`.
-      - If mismatch: warn user with specific discrepancy.
+   d. **Check handoff.** If `handoff_written: true`, verify file exists on disk.
+
+   e. **Check TODO consistency.** Compare `todos_done` against actual `- [x]` count in `plan-phase-N.md`.
 
 5.6. **Update plan.md Overall Progress:**
    For each phase where validation passed (all TODOs marked `- [x]`), update the corresponding line in `plan.md` Overall Progress from `- [ ]` to `- [x]`.

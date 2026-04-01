@@ -1,10 +1,10 @@
 ---
 name: project-rules
 description: |
-  Manage coding guidelines and CLAUDE.md rules. Use when the user wants to
-  add, change, delete, analyze, or discover coding conventions. Triggers
-  include: "add rule", "coding guidelines", "convention", "CLAUDE.md",
-  "coding standard", "project rules", "discover patterns".
+  Manage coding guidelines and CLAUDE.md rules. Use when the user explicitly asks to
+  add, change, delete, analyze, or discover coding conventions and rules.
+  Trigger ONLY on: "add rule", "add coding rule", "change coding guidelines",
+  "analyze rules", "discover coding conventions", "coding standards review".
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 ---
 
@@ -136,36 +136,7 @@ Analyze current CLAUDE.md and `.claude/rules/*.md` rules for quality issues.
    - Logical grouping
    - Appropriate section ordering
 
-**Output format:**
-
-```markdown
-# Rules Analysis Report
-
-**Target:** ./CLAUDE.md
-**Date:** <date>
-**Score:** X/10
-
-## Coverage Summary
-
-| Category   | Rules | Gaps                                     |
-| ---------- | ----- | ---------------------------------------- |
-| Code Style | 5     | -                                        |
-| Testing    | 2     | Missing: test naming, coverage threshold |
-| ...        | ...   | ...                                      |
-
-## Issues Found
-
-| #   | Type     | Location   | Issue                    | Recommendation                     |
-| --- | -------- | ---------- | ------------------------ | ---------------------------------- |
-| 1   | VAGUE    | Style      | "Follow best practices"  | Be specific: define what practices |
-| 2   | CONFLICT | Formatting | Conflicting indent rules | Consolidate to one rule            |
-
-## Suggestions
-
-1. Add testing naming convention rule
-2. Specify error handling patterns
-3. Remove redundant "clean code" rule
-```
+**Output:** Score (X/10), coverage table by category with gaps, issues table (type, location, issue, recommendation), suggestions list.
 
 ### DISCOVER Rules
 
@@ -198,81 +169,11 @@ Scan codebase to discover existing conventions and suggest rules.
    - Formatting: .prettierrc, .editorconfig
    - CI/CD: .github/workflows/, .gitlab-ci.yml
 
-**Output format:**
-
-```markdown
-# Discovered Conventions
-
-## Tech Stack
-
-- **Language:** TypeScript
-- **Framework:** React
-- **Testing:** Jest + React Testing Library
-- **Build:** Vite
-
-## File Naming Patterns
-
-| Type       | Pattern        | Examples                    |
-| ---------- | -------------- | --------------------------- |
-| Components | PascalCase.tsx | Button.tsx, UserProfile.tsx |
-| Tests      | \*.test.tsx    | Button.test.tsx             |
-| Utilities  | camelCase.ts   | formatDate.ts               |
-| Styles     | \*.module.css  | Button.module.css           |
-
-## Directory Structure
-
-- `src/components/` - React components
-- `src/hooks/` - Custom hooks
-- `src/lib/` - Utility functions
-- `src/__tests__/` - Test files
-
-## Import Patterns
-
-- Path alias: `@/` for src/
-- Named exports preferred for utilities
-- Default exports for page components
-
-## Existing Configs
-
-- ESLint: .eslintrc.json (airbnb base)
-- Prettier: .prettierrc (2 spaces, single quotes)
-- TypeScript: strict mode enabled
-
-## Suggested Rules
-
-### Code Style
-
-- Use 2-space indentation (from Prettier config)
-- Use single quotes for strings (from Prettier config)
-- Use path alias `@/` for imports from src/
-
-### Naming Conventions
-
-- Components: PascalCase.tsx
-- Test files: colocated with source, \*.test.tsx suffix
-- Utilities: camelCase.ts
-
-### Architecture
-
-- Components in src/components/
-- Custom hooks in src/hooks/
-- Utilities in src/lib/
-
-### Testing
-
-- Use Jest + React Testing Library
-- Test files colocated with source files
-
----
-
-Add these rules to CLAUDE.md? [all/selective/none]
-```
+**Output:** Sections for tech stack, file naming patterns (table), directory structure, import patterns, existing configs, and suggested rules by category. End with "Add these rules to CLAUDE.md? [all/selective/none]"
 
 ## Reference Files
 
 - `references/RULE_TEMPLATE.md` - Template for writing rules
-- `references/DISCOVERY_PATTERNS.md` - Detailed discovery patterns
-- `references/MEMORY_HIERARCHY.md` - CLAUDE.md hierarchy reference
 
 ## Best Practices
 

@@ -90,10 +90,40 @@ parse_with_grep() {
     exit 0
   fi
 
+  # Extract phase_files
+  pf_list=""
+  in_pf=0
+  while IFS= read -r line; do
+    if [[ "$line" == "phase_files:" ]]; then in_pf=1; continue; fi
+    if [[ $in_pf -eq 1 ]]; then
+      [[ "$line" =~ ^[a-zA-Z] ]] && break
+      f=$(echo "$line" | sed 's/^[[:space:]]*- //' | tr -d '"')
+      [[ -n "$f" ]] && pf_list="${pf_list:+$pf_list, }$f"
+    fi
+  done < "$STATE_FILE"
+
+  # Extract constraints (simple text extraction)
+  c_block=""
+  in_inv=0; in_dec=0
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^[[:space:]]*invariants: ]]; then in_inv=1; in_dec=0; continue; fi
+    if [[ "$line" =~ ^[[:space:]]*decisions: ]]; then in_dec=1; in_inv=0; continue; fi
+    if [[ "$line" =~ ^[[:space:]]*discovered: ]]; then in_dec=0; in_inv=0; continue; fi
+    if [[ $in_inv -eq 1 || $in_dec -eq 1 ]] && [[ "$line" =~ ^[[:space:]]+- ]]; then
+      c_text=$(echo "$line" | sed 's/^[[:space:]]*- //' | sed 's/.*constraint:[[:space:]]*//' | tr -d '"')
+      [[ -n "$c_text" ]] && c_block="${c_block}\\n  - $c_text"
+    fi
+    [[ "$line" =~ ^[a-z] ]] && { in_inv=0; in_dec=0; }
+  done < "$STATE_FILE"
+
   echo "Active task: $active_task (status: $status, mode: ${vm:-per_phase})" >&2
 
-  printf '{"additionalContext":"ACTIVE TASK CONTEXT:\\n- Task: %s\\n- Status: %s\\n- Path: %s\\n- PRD: %s/prd.md\\n- Plan: %s/plan.md\\n- Verification Mode: %s\\nAlways read state.yml and relevant task files before acting on any /task-* command.\\nIMPORTANT: Check constraints before making changes. Invariants must NEVER be violated."}' \
-    "$active_task" "$status" "$task_path" "$task_path" "$task_path" "${vm:-per_phase}"
+  ctx="ACTIVE TASK CONTEXT:\\n- Task: ${active_task}\\n- Status: ${status}\\n- Path: ${task_path}\\n- PRD: ${task_path}/prd.md\\n- Plan: ${task_path}/plan.md\\n- Verification Mode: ${vm:-per_phase}"
+  [[ -n "$pf_list" ]] && ctx="${ctx}\\n- Phase Files: ${pf_list}"
+  [[ -n "$c_block" ]] && ctx="${ctx}\\n\\nCONSTRAINTS:${c_block}"
+  ctx="${ctx}\\n\\nAlways read state.yml and relevant task files before acting on any /task-* command.\\nIMPORTANT: Check constraints before making changes. Invariants must NEVER be violated."
+
+  printf '{"additionalContext":"%s"}' "$ctx"
 }
 
 # Try Python first (if available), fall back to grep

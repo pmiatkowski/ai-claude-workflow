@@ -1,10 +1,10 @@
 ---
 name: docs
 description: |
-  Manage project documentation (README.md, ./docs/*.md). Use when the user wants to
-  initialize, research, add, change, delete, or scan documentation. Triggers include:
-  "docs", "documentation", "README", "initialize docs", "update docs", "find in docs",
-  "living docs", "project documentation".
+  Manage project documentation structure. Use when the user explicitly asks to
+  initialize, research, add, change, delete, or scan project documentation files.
+  Trigger ONLY on: "initialize docs", "update docs", "project docs", "scan docs",
+  "docs init", "docs research", "docs add", "docs scan".
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion, Agent
 ---
 
@@ -74,49 +74,8 @@ Search documentation and codebase for information.
 5. If absolutely no results: return "NO RESULTS for <query>"
 6. NEVER fabricate or assume information
 
-**Output format (found):**
-
-```markdown
-# Research Results: <query>
-
-## Summary
-[Direct answer synthesized from found information ONLY]
-
-## Sources
-
-### Documentation
-| File | Line | Excerpt |
-|------|------|---------|
-| README.md | 45 | "To configure authentication..." |
-| ./docs/auth.md | 12-18 | "Authentication supports OAuth2..." |
-
-### Codebase
-| File | Line | Context |
-|------|------|---------|
-| src/auth.ts | 23 | Function with JSDoc |
-
-## Related
-- Links to related documentation sections
-```
-
-**Output format (not found):**
-
-```markdown
-# Research Results: <query>
-
-**Result:** NO RESULTS for "<query>"
-
-## Locations Searched
-- README.md
-- ./docs/*.md (X files)
-- Source files
-- Configuration files
-
-## Suggestions
-1. Try different search terms: [alternatives]
-2. Run `/project-docs scan` to identify documentation gaps
-3. Run `/project-docs add <topic>` to create this documentation
-```
+**Output:** If found, provide summary + sources table (file, line, excerpt).
+If not found, output "NO RESULTS for <query>" with locations searched and alternative suggestions.
 
 ### ADD Documentation
 
@@ -201,42 +160,13 @@ Scan codebase and suggest documentation updates.
    - Suggested new ./docs/*.md files
 4. Offer to create/update documentation based on findings
 
-**Output format:**
-
-```markdown
-# Documentation Scan Report
-
-## Summary
-- Total docs: X files
-- Coverage: Y% of modules documented
-- Issues: Z findings
-
-## Missing Documentation
-| Priority | Item | Suggested Location |
-|----------|------|-------------------|
-| HIGH | Authentication module | ./docs/authentication.md |
-| MEDIUM | Config options | ./docs/configuration.md |
-
-## Outdated Documentation
-| File | Issue | Action |
-|------|-------|--------|
-| ./docs/api.md | References removed endpoint | Remove or update |
-
-## Suggested Actions
-1. Create ./docs/authentication.md
-2. Update ./docs/api.md section 3
-3. Add config table to ./docs/configuration.md
-
----
-Apply suggestions? [all/selective/none]
-```
+**Output:** Summary (total docs, coverage %, issue count), tables of missing and outdated docs with priority/actions, list of suggested actions.
 
 ## Reference Files
 
 - `references/README_TEMPLATE.md` - Industry-standard README template
 - `references/FEATURE_DOC_TEMPLATE.md` - Template for ./docs/*.md files
-- `references/SEARCH_PATTERNS.md` - Patterns for effective documentation search
-- `references/DUPLICATE_CHECK.md` - Duplicate detection patterns
+- `references/DUPLICATE_CHECK.md` - Duplicate detection protocol
 
 ## Best Practices
 

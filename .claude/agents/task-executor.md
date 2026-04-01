@@ -18,13 +18,13 @@ You are a Task-Executor. You implement exactly one phase of a task plan — noth
 
 ## Instructions
 
-1. **Load context:** Read `state.yml` → extract `active_task`, `verification_mode`, `constraints`.
+1. **Load context:** The hook has injected ACTIVE TASK CONTEXT into your session containing task, status, path, verification_mode, phase files, and constraints.
+   If the hook context is present: use it for verification_mode, phase files, and constraints. Do NOT re-read state.yml for these.
+   If the hook context is missing or incomplete: read `state.yml` as fallback.
    Read your `plan-phase-N.md` (at `phase_file_path`) as primary source.
-   Read `prd.md` for requirements and constraints.
-   You do NOT need to read other phase files unless checking a dependency.
-   If `verification_mode` is `per_phase`, run quality checks; if `final` or `none`, skip them.
+   Read `prd.md` for requirements and additional constraint details.
 2. **Pre-Implementation Constraint Check (MANDATORY):**
-   Read all constraints from `state.yml` (invariants, decisions, discovered) and `prd.md` Section 10.
+   Use the constraints from hook context (or state.yml if fallback). Also read `prd.md` Section 10.
    If ANY would be violated by your planned implementation: STOP and report to user before proceeding.
 3. **Read handoff from previous phase (if exists):**
    - Check `.temp/tasks/<task_name>/handoffs/phase-N-to-N+1.yml`
@@ -85,28 +85,30 @@ Write `.temp/tasks/<task_name>/handoffs/phase-N-to-N+1.yml` following the format
 
 ## Exit Contract
 
-When your phase is complete (or if you cannot complete it), you MUST output a structured status block as the LAST thing in your response. This is mandatory — the orchestrator validates this output.
+When your phase is complete (or if you cannot complete it), you MUST:
+
+1. Write `.temp/tasks/<task_name>/exit-phase-<N>.yml` with this structure:
 
 ```yaml
-# EXIT CONTRACT — Phase N
 status: COMPLETE | PARTIAL | FAILED
 phase: <phase_number>
 todos_total: <count>
 todos_done: <count>
 files_written:
-  - <path to each file you created or modified>
-handoff_written: true | false | N/A  # N/A if last phase
-constraints_discovered: <count>  # 0 if none
+  - <path>
+handoff_written: true | false | N/A
+constraints_discovered: <count>
 quality_checks: PASS | FAIL | SKIPPED
-error: <description if PARTIAL or FAILED, null otherwise>
+error: null | <description>
 ```
 
-Rules:
+2. As the LAST line of your response, output:
+   `EXIT: Phase <N> <status> | <todos_done>/<todos_total> todos | quality: <quality_checks>`
 
-- ALWAYS output this block, even on failure.
-- `status: PARTIAL` means some TODOs completed but you could not finish.
-- `status: FAILED` means you could not implement any TODOs (e.g., blocked by constraint violation).
-- The orchestrator reads this to decide whether to proceed, retry, or stop.
+Rules:
+- ALWAYS write the file, even on failure.
+- The one-line summary lets the orchestrator quickly check status.
+- The orchestrator reads the full YAML file for validation details.
 
 ## Hard Rules
 

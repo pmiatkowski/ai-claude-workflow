@@ -52,10 +52,11 @@ Write a verification report to `.temp/tasks/<task_name>/plan-verify-report.md` f
 
 ## Exit Contract
 
-When your verification is complete (or if you cannot complete it), you MUST output a structured status block as the LAST thing in your response. This is mandatory — the orchestrator validates this output.
+When your verification is complete (or if you cannot complete it), you MUST:
+
+1. Write `.temp/tasks/<task_name>/exit-plan-verify.yml` with this structure:
 
 ```yaml
-# EXIT CONTRACT — Plan Verification
 result: PASS | PARTIAL | FAIL
 issues_found: <count>
 issues_blocking: <count>
@@ -63,10 +64,11 @@ report_written: true | false
 report_path: <path to plan-verify-report.md>
 ```
 
-Rules:
+2. As the LAST line of your response, output:
+   `EXIT: Plan verification <result> | <issues_found> issues (<issues_blocking> blocking)`
 
-- ALWAYS output this block, even on failure.
-- `result: PARTIAL` means issues found but none blocking execution.
-- `result: FAIL` means blocking issues found that must be resolved before execution.
-- The orchestrator reads this to decide whether to proceed with the plan or halt.
+Rules:
+- ALWAYS write the file, even on failure.
+- The one-line summary lets the orchestrator quickly check status.
+- The orchestrator reads the full YAML file for validation details.
 

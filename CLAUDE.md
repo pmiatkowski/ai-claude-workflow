@@ -41,7 +41,6 @@ bash -n .claude/hooks/inject-task-context.sh
       references/
         README_TEMPLATE.md
         FEATURE_DOC_TEMPLATE.md
-        SEARCH_PATTERNS.md
         DUPLICATE_CHECK.md
     prd/                     # PRD creation skill
       SKILL.md
@@ -51,10 +50,6 @@ bash -n .claude/hooks/inject-task-context.sh
       SKILL.md
       references/
         RULE_TEMPLATE.md
-        DISCOVERY_PATTERNS.md
-        MEMORY_HIERARCHY.md
-    new-skill/               # Skill creation reference
-      skill-creation-guidelines.md
   agents/
     task-executor.md         # Implements one plan phase
     task-verifier.md      # Verifies full implementation

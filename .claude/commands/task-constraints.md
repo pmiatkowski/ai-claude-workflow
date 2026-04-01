@@ -98,8 +98,19 @@ Remove a constraint by ID (use with caution).
 
 ### Check Constraints
 
-Follow the constraint check protocol from `.claude/references/shared-patterns.md#constraint-check-protocol`.
-Then output the report using the format from `.claude/references/reports/constraint-compliance.md`.
+**Load constraints from:**
+1. `state.yml` -> `constraints.invariants`: rules that must NEVER be violated.
+2. `state.yml` -> `constraints.decisions`: constraints derived from PRD decisions.
+3. `state.yml` -> `constraints.discovered`: constraints found during implementation.
+4. `prd.md` Section 10: human-readable constraint descriptions.
+
+**For each constraint:**
+1. Read the relevant implementation files.
+2. Verify the code respects the constraint.
+3. Classify violations: CRITICAL (invariant violated -- BLOCK), HIGH (decision violated -- BLOCK), MEDIUM (partially met -- WARN), LOW (minor -- INFO).
+4. CRITICAL/HIGH: STOP and report. MEDIUM/LOW: note for report, continue.
+
+Output the report using the format from `.claude/references/reports/constraint-compliance.md`.
 
 ### Remove Constraint
 

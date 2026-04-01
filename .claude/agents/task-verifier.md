@@ -16,7 +16,7 @@ You verify that the implementation is complete, correct, and meets quality stand
 
 ## Instructions
 
-1. **Load context:** Read `state.yml` → extract constraints, `verification_mode`, and `phase_files`.
+1. **Load context:** Use the hook-injected ACTIVE TASK CONTEXT for constraints, `verification_mode`, and `phase_files`. If hook context is missing, read `state.yml` as fallback.
    Read each `plan-phase-N.md` to check TODO completion.
    A task is complete when its TODO shows `- [x]` in the phase file.
 2. Verify implementation:
@@ -45,10 +45,11 @@ You verify that the implementation is complete, correct, and meets quality stand
 
 ## Exit Contract
 
-When your verification is complete (or if you cannot complete it), you MUST output a structured status block as the LAST thing in your response. This is mandatory — the orchestrator validates this output.
+When your verification is complete (or if you cannot complete it), you MUST:
+
+1. Write `.temp/tasks/<task_name>/exit-verify.yml` with this structure:
 
 ```yaml
-# EXIT CONTRACT — Task Verification
 result: PASS | PARTIAL | FAIL
 phases_verified: <count>
 issues_found: <count>
@@ -57,9 +58,10 @@ report_written: true | false
 report_path: <path to verify-report.md>
 ```
 
-Rules:
+2. As the LAST line of your response, output:
+   `EXIT: Verification <result> | <issues_found> issues (<issues_critical> critical) | report: <report_written>`
 
-- ALWAYS output this block, even on failure.
-- `result: PARTIAL` means some issues found but none blocking.
-- `result: FAIL` means critical issues found that must be addressed.
-- The orchestrator reads this to decide whether to proceed with auto-remediation or report to the user.
+Rules:
+- ALWAYS write the file, even on failure.
+- The one-line summary lets the orchestrator quickly check status.
+- The orchestrator reads the full YAML file for validation details.
