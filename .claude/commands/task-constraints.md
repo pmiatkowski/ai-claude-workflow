@@ -34,20 +34,7 @@ List all constraints for the active task.
 /task-constraints list
 ```
 
-Output:
-```
-Constraints for task: <task-name>
-
-Invariants (Must Never Change):
-| ID | Constraint | Added |
-|----|------------|-------|
-| I1 | All API calls must be authenticated | 2024-01-15 |
-
-Decision-Derived:
-| ID | From | Constraint | Added |
-|----|------|------------|-------|
-| D1-1 | D1 | Must use OAuth2, not custom auth | 2024-01-15 |
-```
+Output: Header with task name. Two sections: "Invariants" table (ID, Constraint, Added) and "Decision-Derived" table (ID, From decision, Constraint, Added).
 
 ### `check`
 

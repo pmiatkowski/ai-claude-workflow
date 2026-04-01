@@ -44,14 +44,7 @@ List all available checkpoints for the active task.
 /task-checkpoint list
 ```
 
-Output:
-```
-Checkpoints for task: <task-name>
-| Name | Created | Files |
-|------|---------|-------|
-| before-refactor | 2024-01-15 10:30 | 5 files |
-| checkpoint-20240115-091500 | 2024-01-15 09:15 | 4 files |
-```
+Output: Header with task name. Table with columns: Name, Created, Files (count).
 
 ## Steps
 

@@ -39,20 +39,7 @@ Marks the active task as done, clears the active task pointer, and optionally ar
    - Remove `task_path`, `prd`, `plan`, `context`, `phase_files`, `verification_mode` fields from `state.yml` (they now point to a moved location).
 7. **Print summary:**
 
-   ```
-   Task Complete: <task-name>
-
-   | Detail | Value |
-   |--------|-------|
-   | Status | done |
-   | Phases | N/N completed |
-   | Duration | <created_at> → <completed_at> |
-   | Archived | yes/no |
-
-   Files modified:
-   - path/to/file1.ext (from Phase 1)
-   - path/to/file2.ext (from Phase 2)
-   ```
+   Summary: Header "Task Complete: <task-name>". Table with rows: Status, Phases (N/N completed), Duration (created_at → completed_at), Archived (yes/no). Then "Files modified:" list with each file path and source phase.
 
    For the files list, read each `plan-phase-N.md` and extract file paths from the `**Files:**` section. If handoff files exist in `.temp/tasks/<task-name>/handoffs/`, use those for the most accurate list.
 

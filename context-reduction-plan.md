@@ -235,7 +235,7 @@ REMOVE — "After Session Ends" steps 2-4 prose explanations:
 
 ---
 
-## Strategy 3: Deduplicate Shared Patterns
+## Strategy 3: Deduplicate Shared Patterns [DONE]
 
 ### Problem
 
