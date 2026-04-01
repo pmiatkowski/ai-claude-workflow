@@ -26,11 +26,11 @@ The system is a **task lifecycle management framework** comprising 13 commands, 
 
 ## Weak Points
 
-**1. Massive context consumption — the biggest risk.** Each command/agent file is 80–300+ lines of dense markdown. When Claude Code loads a command, it consumes significant context. The `task-execute` command alone is ~180 lines, and it references 4 agents (each 60–150 lines). With the PRD, plan, phase files, state.yml, handoffs, and CLAUDE.md all needing to be read, you're burning through context window fast on complex tasks. This is the system's #1 scalability bottleneck.
+[**1. Massive context consumption — the biggest risk.**](./1-massive-context-consumption.md) Each command/agent file is 80–300+ lines of dense markdown. When Claude Code loads a command, it consumes significant context. The `task-execute` command alone is ~180 lines, and it references 4 agents (each 60–150 lines). With the PRD, plan, phase files, state.yml, handoffs, and CLAUDE.md all needing to be read, you're burning through context window fast on complex tasks. This is the system's #1 scalability bottleneck.
 
 **Recommendation:** Aggressively trim agent instructions to essentials. Move output format templates to reference files read on-demand. Many agents have full markdown report templates inline that could be externalized.
 
-**2. Over-reliance on sub-agent spawning with no guarantee of fidelity.** The system assumes sub-agents (task-executor, plan-verificator, phase-reviewer, etc.) will faithfully follow long markdown instructions passed via the Task tool. In practice, Claude Code sub-agents have a smaller effective context and tend to drift from instructions, especially the detailed output formatting. The more prescriptive the template, the more likely partial compliance.
+[**2. Over-reliance on sub-agent spawning with no guarantee of fidelity.**](./2-over-reliance-on-sub-agent-spawning-with-no-guarantee-of-fidelity.md) The system assumes sub-agents (task-executor, plan-verificator, phase-reviewer, etc.) will faithfully follow long markdown instructions passed via the Task tool. In practice, Claude Code sub-agents have a smaller effective context and tend to drift from instructions, especially the detailed output formatting. The more prescriptive the template, the more likely partial compliance.
 
 **Recommendation:** Simplify agent instructions to core logic + hard rules. Accept that output formatting will vary. Focus agent prompts on *what to do* and *what not to do*, not on exact report shapes.
 

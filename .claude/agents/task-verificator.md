@@ -36,11 +36,8 @@ You verify that the implementation is complete, correct, and meets quality stand
 
    **f. Constraint compliance** — Verify all invariants and decision-derived constraints are respected.
 
-3. **Deep mode additional checks:**
-   - Run security checks (look for OWASP Top 10 vulnerabilities)
-   - Run performance checks (look for N+1 queries, memory leaks)
-   - Review handoff files for any unaddressed warnings
-   - Check ADRs were generated for significant decisions
+3. **Deep mode only:** Read `.claude/verification/quality.md`, `security.md`, and `performance.md` for checklist items. Do not load these in standard mode.
+   Then run: security checks (OWASP Top 10), performance checks (N+1 queries, memory leaks), quality checks, review handoff files, check ADR generation.
 
 4. Write a verification report to `.temp/tasks/<task_name>/verify-report.md`.
 Include: completeness, quality commands, PRD compliance, constraint compliance tables. Deep mode adds security/performance/handoff checks. End with issues found and summary.
