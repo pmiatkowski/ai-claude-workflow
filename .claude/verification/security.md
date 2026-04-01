@@ -1,6 +1,6 @@
 # Security Verification Rules
 
-These rules are checked by task-verificator in deep mode.
+These rules are checked by task-verifier in deep mode.
 
 ## OWASP Top 10 Checks
 

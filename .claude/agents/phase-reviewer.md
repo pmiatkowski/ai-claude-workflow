@@ -46,15 +46,12 @@ You review a completed implementation phase for quality and correctness.
 
 ### Constraints
 
-- [ ] All invariants from PRD Section 10 are respected
-- [ ] All decision-derived constraints are satisfied
-- [ ] No violations of handoff warnings from previous phase
+- [ ] No violations in constraint-report.md (if exists)
+- [ ] Handoff warnings from previous phase addressed
 
 ## Output
 
-Write a review report to `.temp/tasks/<task_name>/reviews/phase-N-review.md`.
-Include: checklist results table, issues found with severity/file/fix, verdict reasoning (APPROVED/CHANGES_REQUESTED), and required fixes if changes requested.
-See `.claude/references/report-formats.md#phase-review` for the full template.
+Write a review report to `.temp/tasks/<task_name>/reviews/phase-N-review.md` following the format in `.claude/references/reports/phase-review.md`.
 
 ## Verdict Guidelines
 

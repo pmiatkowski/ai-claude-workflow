@@ -4,10 +4,15 @@ Execute the implementation plan by spawning task-executor agents.
 
 ## Steps
 
-1. Follow the task context loading protocol from `.claude/references/shared-patterns.md#task-context-loading`.
-   Specifically extract: all phases, their status, `verification_mode`, and `phase_files`.
+1. **Load task context:**
+   a. Read `.temp/tasks/state.yml` — extract `active_task`, `task_path`, `status`, `phase_files`, `verification_mode`, and `constraints`.
+   b. Read `prd.md` (at `task_path/prd.md`) for requirements and constraints.
+   c. Read `plan.md` (at `task_path/plan.md`) for progress and implementation approach.
+   d. If `phase_files` is populated, read each `plan-phase-N.md` listed there.
+   e. If `context.md` exists, read it for additional context.
+   f. If `active_task` is `none` or missing: report "No active task" and stop.
 2. **Pre-Execution Verification Gate:**
-   Spawn the plan-verificator agent (see `.claude/agents/plan-verificator.md`) in **quick** mode with `task_name`, `plan_path`, and `prd_path`.
+   Spawn the plan-verifier agent (see `.claude/agents/plan-verifier.md`) in **quick** mode with `task_name`, `plan_path`, and `prd_path`.
    - **PASS** → proceed to step 3.
    - **PARTIAL** → warn the user with the issues found, then proceed to step 3.
    - **FAIL** → BLOCK execution and suggest `/task-verify plan deep`.
@@ -20,11 +25,32 @@ Execute the implementation plan by spawning task-executor agents.
 
 4. **Determine orchestration strategy** (see Orchestration Strategy below).
 5. Spawn task-executor agents using the Task tool based on the strategy.
-5.5. **Update plan.md Overall Progress:**
-   After all task-executors complete, read each `plan-phase-N.md` to check if all TODOs are marked `- [x]`.
-   For each phase where all TODOs passed, update the corresponding line in `plan.md` Overall Progress from `- [ ]` to `- [x]`.
-   This centralizes progress updates and avoids parallel write conflicts.
-6. After all task-executors complete, automatically spawn the **task-verificator agent** (unless `verification_mode=none`).
+5.5. **Validate executor exit contracts (MANDATORY):**
+   After each task-executor completes, parse its exit contract from the agent's final response.
+
+   a. **Check contract exists.** If no exit contract block found in the agent's output:
+      - Report warning: "Executor for phase N did not produce an exit contract."
+      - Fall back to file-based validation: check if `plan-phase-N.md` has all TODOs marked `- [x]`.
+
+   b. **Check contract status.** If `status: PARTIAL` or `status: FAILED`:
+      - Report the error to the user.
+      - Ask: "Phase N reported [status]. Retry this phase, skip it, or stop execution?"
+      - If retry: re-spawn executor for that phase (max 2 retries).
+      - If skip: proceed to next phase, note the skip in plan.md.
+      - If stop: halt execution and report partial progress.
+
+   c. **Check handoff file exists.** If executor reported `handoff_written: true`:
+      - Verify `.temp/tasks/<task_name>/handoffs/phase-N-to-N+1.yml` actually exists on disk.
+      - If missing: warn user, ask whether to proceed without handoff or retry.
+
+   d. **Check TODO consistency.** Read `plan-phase-N.md` and verify:
+      - Count of `- [x]` items matches `todos_done` from exit contract.
+      - Count of total items matches `todos_total`.
+      - If mismatch: warn user with specific discrepancy.
+
+5.6. **Update plan.md Overall Progress:**
+   For each phase where validation passed (all TODOs marked `- [x]`), update the corresponding line in `plan.md` Overall Progress from `- [ ]` to `- [x]`.
+6. After all task-executors complete and pass validation, automatically spawn the **task-verifier agent** (unless `verification_mode=none`).
 7. Run auto-remediation loop (see Auto-Remediation Loop section below).
 8. Report final status to user.
 
@@ -57,14 +83,14 @@ When `verification_mode=none`, no quality checks run during execution.
 - **Parallel**: Use multiple simultaneous Task tool calls. Only safe when phases have no dependencies and touch different files.
 - **Sequential**: Await each Task tool call before starting the next. Pass handoff path from previous task-executor to next.
 
-## task-verificator
+## task-verifier
 
-After all task-executors finish, spawn the Task-Verificator agent (see `.claude/agents/task-verificator.md`).
+After all task-executors finish, spawn the Task-Verifier agent (see `.claude/agents/task-verifier.md`).
 Pass it: task name, plan.md path, list of phase summaries, and the `phase_files` list.
 
-- When `verification_mode=per_phase`: The verificator re-runs quality checks to confirm they still pass, plus completeness and PRD compliance.
-- When `verification_mode=final`: The verificator confirms the Final Verification phase passed and checks completeness and PRD compliance.
-- When `verification_mode=none`: Skip spawning the verificator entirely. Report completion status to the user based on executor results.
+- When `verification_mode=per_phase`: The verifier re-runs quality checks to confirm they still pass, plus completeness and PRD compliance.
+- When `verification_mode=final`: The verifier confirms the Final Verification phase passed and checks completeness and PRD compliance.
+- When `verification_mode=none`: Skip spawning the verifier entirely. Report completion status to the user based on executor results.
 
 ## Builder-Reviewer Pattern (for complex phases)
 
@@ -72,7 +98,7 @@ For high-risk phases: spawn task-executor, then phase-reviewer. If rejected, re-
 
 ## Auto-Remediation Loop
 
-After the task-verificator completes:
+After the task-verifier completes:
 
 1. Read `verify-report.md` result (`PASS | PARTIAL | FAIL`).
 2. If **PASS** → done.

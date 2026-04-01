@@ -27,6 +27,28 @@ Marks the active task as done, clears the active task pointer, and optionally ar
    completed_at: <ISO timestamp>
    updated_at: <ISO timestamp>
    ```
+4.5. **Write to task registry:**
+   a. Read or create `.temp/tasks/registry.yml`.
+   b. Extract from the task's PRD:
+      - Key decisions from Section 9 (Decision Matrix) — take the `Chosen` column value for each row.
+      - Exported constraints from Section 10 — take all invariants and decision-derived constraints.
+   c. Extract from handoff files: full list of `files_modified`.
+   d. Append a new entry to `tasks` array:
+      ```yaml
+      - name: <task-name>
+        status: done
+        created_at: <from state.yml>
+        completed_at: <ISO timestamp>
+        prd_path: <path to prd.md, updated if archived>
+        depends_on: <from state.yml if set, otherwise null>
+        key_decisions:
+          - "<D1 summary>"
+          - "<D2 summary>"
+        constraints_exported:
+          - "<constraint text>"
+        files_modified:
+          - <file paths from handoffs>
+      ```
 5. **Determine archiving:**
    - If `--archive` flag was passed → archive without asking.
    - Otherwise ask:

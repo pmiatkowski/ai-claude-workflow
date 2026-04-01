@@ -1,22 +1,6 @@
 # Shared Patterns Reference
 
-Centralized protocols used across commands and agents. Reference these by section anchor (e.g., `.claude/references/shared-patterns.md#task-context-loading`).
-
----
-
-## Task Context Loading
-
-Load the full task context from state and task files.
-
-1. Read `.temp/tasks/state.yml` — extract `active_task`, `task_path`, `status`, `phase_files`, `verification_mode`, and `constraints`.
-2. Read `prd.md` (at `task_path/prd.md`) for requirements, intent, and constraints.
-3. Read `plan.md` (at `task_path/plan.md`) for progress and implementation approach.
-4. If `phase_files` is populated, read each `plan-phase-N.md` listed there for phase details.
-5. If `context.md` exists, read it for additional context gathered during the task.
-
-**Validation:**
-- If `active_task` is `none` or missing: report "No active task" and stop.
-- If any referenced file does not exist: note it but continue (files are created progressively).
+Centralized protocols used across commands and agents. Reference these by section anchor (e.g., `.claude/references/shared-patterns.md#quality-command-discovery`).
 
 ---
 

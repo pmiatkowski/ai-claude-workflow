@@ -44,13 +44,5 @@ Files that must never be modified:
 
 ## Output
 
-Write a localization report to `.temp/tasks/<task_name>/localization.md`.
-Include: must-modify/might-modify/protected file tables, dependency graph, conflict analysis, and recommendations.
-See `.claude/references/report-formats.md#localization-report` for the full template.
+Write `.temp/tasks/<task_name>/localization.md` following the format in `.claude/references/reports/localization-report.md`.
 
-## Integration
-
-This agent runs as "Phase 0" before implementation:
-1. After `/task-plan` completes
-2. Before `/task-execute` starts
-3. Output informs orchestration strategy

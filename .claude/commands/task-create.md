@@ -1,16 +1,25 @@
 # /task-create
 
-Create a new task. Usage: `/task-create <task-name> <brief description> [--quick]`
+Create a new task. Usage: `/task-create <task-name> <brief description> [--quick] [--after <predecessor-task>]`
 
 Add `--quick` to skip clarification and planning questions. Generates a minimal PRD and single-phase plan with `verification_mode: none`, then suggests `/task-execute` immediately. Best for small, well-defined tasks (fixes, renames, small additions).
+
+Add `--after <predecessor-task>` to inherit decisions, constraints, and file context from a completed task. The predecessor must exist in `.temp/tasks/registry.yml`.
 
 ## Steps
 
 1. Parse `$ARGUMENTS`:
    a. Detect `--quick` anywhere in the arguments string. If present, set QUICK_MODE=true and remove `--quick` from the string.
-   b. From the remaining string: first word is `<task-name>` (slugified, lowercase, hyphens), remainder is the description.
-   c. If QUICK_MODE is false, check the description against the Quick-Suggest Heuristic below. If it matches, mention to the user: "This looks like a quick task. Consider using `--quick` for a faster flow." Then proceed with the full flow unchanged.
+   b. Detect `--after <predecessor-task>` anywhere in the arguments string. If present, set PREDECESSOR=<predecessor-task> and remove the flag and its value from the string.
+   c. From the remaining string: first word is `<task-name>` (slugified, lowercase, hyphens), remainder is the description.
+   d. If QUICK_MODE is false, check the description against the Quick-Suggest Heuristic below. If it matches, mention to the user: "This looks like a quick task. Consider using `--quick` for a faster flow." Then proceed with the full flow unchanged.
 2. Create directory `.temp/tasks/<task-name>/`.
+2.5. **Load predecessor context (if `--after` specified):**
+   a. Read `.temp/tasks/registry.yml`.
+   b. Find the entry matching PREDECESSOR name. If not found, warn and continue without predecessor.
+   c. Extract `key_decisions`, `constraints_exported`, and `files_modified` from the registry entry.
+   d. If predecessor's `prd_path` exists, read its Section 9 (Decisions) and Section 10 (Constraints) for full context.
+   e. Store predecessor context for injection into the new PRD.
 3. Analyze the user's description carefully.
 4. **Branch on QUICK_MODE:**
    - If false → follow the **Full Flow** below.
@@ -32,7 +41,7 @@ See `.claude/references/prd-templates.md#full-prd` for the full template.
 
 ### state.yml Template
 
-Write `state.yml` with: `active_task`, `created_at`, `updated_at`, `status` (draft for full, planned for quick), `task_path`, `prd`, `plan`, `context` paths, and `constraints` (invariants/decisions/discovered arrays, initially empty). Quick mode also adds: `phase_files` list and `verification_mode: none`.
+Write `state.yml` with: `active_task`, `created_at`, `updated_at`, `status` (draft for full, planned for quick), `task_path`, `prd`, `plan`, `context` paths, `constraints` (invariants/decisions/discovered arrays, initially empty), and `depends_on` (predecessor task name or null). Quick mode also adds: `phase_files` list and `verification_mode: none`.
 
 ---
 

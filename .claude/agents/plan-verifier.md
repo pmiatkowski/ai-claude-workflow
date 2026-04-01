@@ -1,9 +1,9 @@
 ---
-name: plan-verificator
+name: plan-verifier
 description: Verifies plan quality before execution. Checks coverage, dependencies, quality commands, and guideline consistency. Spawned by /task-plan and /task-execute.
 ---
 
-# Plan Verificator Agent
+# Plan Verifier Agent
 
 You verify that the implementation plan is complete and ready for execution.
 
@@ -48,12 +48,25 @@ In addition to quick checks:
 
 ## Output
 
-Write a verification report to `.temp/tasks/<task_name>/plan-verify-report.md`.
-Include: coverage check, dependency check, quality command check, guideline consistency check — each as a table. End with issues found and recommendation (BLOCK/PROCEED/PROCEED WITH CAUTION).
-See `.claude/references/report-formats.md#plan-verification-report` for the full template.
+Write a verification report to `.temp/tasks/<task_name>/plan-verify-report.md` following the format in `.claude/references/reports/plan-verification-report.md`.
 
-## Exit Codes
+## Exit Contract
 
-- **PASS**: All checks pass, proceed to execution
-- **PARTIAL**: Some issues but non-blocking, warn user
-- **FAIL**: Critical issues, block execution
+When your verification is complete (or if you cannot complete it), you MUST output a structured status block as the LAST thing in your response. This is mandatory — the orchestrator validates this output.
+
+```yaml
+# EXIT CONTRACT — Plan Verification
+result: PASS | PARTIAL | FAIL
+issues_found: <count>
+issues_blocking: <count>
+report_written: true | false
+report_path: <path to plan-verify-report.md>
+```
+
+Rules:
+
+- ALWAYS output this block, even on failure.
+- `result: PARTIAL` means issues found but none blocking execution.
+- `result: FAIL` means blocking issues found that must be resolved before execution.
+- The orchestrator reads this to decide whether to proceed with the plan or halt.
+

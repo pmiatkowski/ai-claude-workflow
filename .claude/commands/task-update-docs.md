@@ -8,7 +8,7 @@ Update project documentation based on the completed task implementation.
 
 2. Read the task artifacts:
    - `prd.md` - What was requested and why
-   - `prd.md` Section 12 - Ad-hoc changes made during implementation
+   - `prd.md` Section 13 - Ad-hoc changes made during implementation
    - `plan.md` - What was implemented (check for completed phases)
 
 3. Analyze what changed:
@@ -17,7 +17,7 @@ Update project documentation based on the completed task implementation.
    - Features/APIs removed
    - Configuration changes
    - New dependencies
-   - Ad-hoc changes from Section 12
+   - Ad-hoc changes from Section 13
 
 4. **Research existing documentation** (using docs-researcher patterns):
    - Search README.md for related content
@@ -62,7 +62,7 @@ Always check these locations:
 - `./docs/api/*.md` (API reference)
 - `./docs/guides/*.md` (tutorials)
 - `CLAUDE.md` (AI guidelines - separate from user docs)
-- PRD Section 9 (Additional Context) for doc references
+- PRD Section 12 (Additional Context) for doc references
 
 ## Hard Rules
 

@@ -99,7 +99,7 @@ Remove a constraint by ID (use with caution).
 ### Check Constraints
 
 Follow the constraint check protocol from `.claude/references/shared-patterns.md#constraint-check-protocol`.
-Then output the report using the constraint-compliance format from `.claude/references/report-formats.md#constraint-compliance`.
+Then output the report using the format from `.claude/references/reports/constraint-compliance.md`.
 
 ### Remove Constraint
 
@@ -112,6 +112,6 @@ Then output the report using the constraint-compliance format from `.claude/refe
 
 Constraints are automatically:
 - Checked by task-executor before implementation
-- Verified by task-verificator after implementation
+- Verified by task-verifier after implementation
 - Injected into context by inject-task-context.sh hook
 - Updated when decisions are made in /task-clarify

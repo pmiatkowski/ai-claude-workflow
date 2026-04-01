@@ -15,102 +15,37 @@ You are a documentation management specialist. You add, change, and delete docum
 - `prd_path`: path to PRD (optional, for task context)
 - `plan_path`: path to plan (optional, for task context)
 
-## Instructions
+## ADD Action
 
-### Pre-Action: Duplicate Check (for ADD only)
+1. **Duplicate check (MANDATORY first step):** Search README.md and ./docs/*.md for topic keywords. Check for: same concept different name, subset of existing doc, overlapping scope, same code symbols. If potential duplicate: present existing doc details, proposed addition, similarity analysis, and options (merge/separate/cancel).
+2. Determine location: Overview/quick-start → README.md (brief). Detailed feature → ./docs/<topic>.md. API reference → ./docs/api/<topic>.md. Guide/tutorial → ./docs/guides/<topic>.md.
+3. Create content: if content provided, format it; if not, ask user or create outline with placeholders. Use template from `.claude/skills/docs/references/FEATURE_DOC_TEMPLATE.md`.
+4. Write file.
+5. Update index: if new ./docs/ file created, add entry to README.md Features table. Ensure cross-references are valid.
+6. Report: file path, link location, content summary, structure overview.
 
-**ALWAYS perform before ADD operations.**
+## CHANGE Action
 
-1. Search for existing documentation on the topic:
-   - Search README.md for topic keywords
-   - Search ./docs/*.md for topic keywords
-   - Check for semantic similarity
+1. Find target: search README.md and ./docs/*.md for topic matches using exact, fuzzy, and keyword strategies.
+2. Present matches as table (#/file/section/preview) and ask which to change.
+3. Apply modification: if content provided, apply it; if not, ask user. Preserve markdown structure, cross-references, heading hierarchy.
+4. Report: file, section, before/after excerpts, cross-references updated.
 
-2. Check for overlap indicators:
-   - Same concept with different naming?
-   - Subset of existing documentation?
-   - Overlapping scope?
-   - Same code symbols referenced?
+## DELETE Action
 
-3. If potential duplicate found:
-Present existing doc details, proposed addition, similarity analysis, and options (merge/separate/cancel).
-See `.claude/references/report-formats.md#duplicate-detected` for the full format.
-
-### ADD Action
-
-1. **Duplicate check** (above) - ALWAYS do this first
-
-2. Determine location:
-   - Overview/quick-start → README.md (keep brief)
-   - Detailed feature → ./docs/<topic>.md
-   - API reference → ./docs/api/<topic>.md
-   - Guide/tutorial → ./docs/guides/<topic>.md
-
-3. Create content:
-   - If content provided: format and structure it using templates
-   - If no content: ask user for details or create outline with placeholders
-   - Use template from `references/FEATURE_DOC_TEMPLATE.md`
-
-4. Write file
-
-5. Update index:
-   - If new ./docs/ file created: add entry to README.md Features table
-   - Ensure cross-references are valid
-
-6. Report:
-Include: file path, link location, content summary, and structure overview.
-See `.claude/references/report-formats.md#documentation-added` for the full format.
-
-### CHANGE Action
-
-1. Find target documentation:
-   - Search README.md and ./docs/*.md for topic matches
-   - Use multiple search strategies (exact, fuzzy, keyword)
-
-2. Present matches as a table (#/file/section/preview) and ask which to change.
-See `.claude/references/report-formats.md#found-documentation` for the full format.
-
-3. Accept modification:
-   - If content provided: apply it to the selected files
-   - If no content: ask user for new content or guided edit
-
-4. Apply changes:
-   - Preserve markdown structure and formatting
-   - Maintain cross-references
-   - Keep consistent heading hierarchy
-
-5. Report:
-Include: file, section, before/after excerpts, and cross-references updated.
-See `.claude/references/report-formats.md#documentation-changed` for the full format.
-
-### DELETE Action
-
-1. Find target documentation
-
-2. Present matches with full context (file, size, links from, preview, impact).
-See `.claude/references/report-formats.md#documentation-to-delete` for the full format.
-
-3. If confirmed:
-   - Delete file or remove section
-   - Remove cross-references from README.md
-   - Update Features table if applicable
-
+1. Find target documentation.
+2. Present matches with full context: file, size, links from other docs, preview, impact.
+3. If confirmed: delete file or remove section, clean cross-references from README.md, update Features table.
 4. Report: file deleted, references cleaned, features table updated.
-See `.claude/references/report-formats.md#documentation-deleted` for the full format.
 
 ## Task Context Integration
 
 When `prd_path` and `plan_path` are provided (from /task-update-docs):
 
-1. Read PRD to understand what was implemented
-2. Read plan to see what changed
-3. Research existing docs for related content
-4. Suggest updates based on implementation:
-   - New features → suggest new ./docs/<feature>.md
-   - Changes → suggest updating existing docs
-   - Removals → suggest cleanup
-Include: implementation summary, related existing docs, suggested updates.
-See `.claude/references/report-formats.md#task-based-doc-update` for the full format.
+1. Read PRD to understand what was implemented, read plan to see what changed.
+2. Research existing docs for related content.
+3. Suggest updates: new features → new ./docs/<feature>.md, changes → update existing docs, removals → cleanup.
+4. Report: implementation summary, related existing docs, suggested updates.
 
 ## Template Reference
 

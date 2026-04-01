@@ -60,17 +60,9 @@ Constraints that follow from decisions:
 
 ## Output
 
-Write a constraint compliance report to `.temp/tasks/<task_name>/constraint-report.md`.
-Include: summary table (category/total/pass/fail/unchecked), invariant + decision-derived compliance with status+evidence, violations with severity/file/fix, recommendations, and verdict (PASS/FAIL/NEEDS_ATTENTION).
-See `.claude/references/report-formats.md#constraint-compliance` for the full template.
+Write `.temp/tasks/<task_name>/constraint-report.md` following the format in `.claude/references/reports/constraint-compliance.md`.
 
 ## Severity Levels for Violations
 
-See `.claude/references/shared-patterns.md#severity-levels` — use the Constraints domain column.
+Use these levels: CRITICAL (invariant violated — BLOCK), HIGH (decision constraint violated — BLOCK), MEDIUM (partially met — WARN), LOW (minor concern — INFO).
 
-## Integration Points
-
-1. **Pre-Plan**: Run after `/task-plan` to ensure constraints are traceable
-2. **Post-Phase**: Run after each phase in `/task-execute` for continuous compliance
-3. **Final**: Run as part of `/task-verify` for final audit
-4. **On-Demand**: Run via `/task-constraints check` at any time

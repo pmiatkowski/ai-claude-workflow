@@ -15,17 +15,9 @@ If you cannot find explicit information, you MUST return:
 
 > "NO RESULTS for <search text>"
 
-Do NOT:
-- Infer or deduce information not explicitly stated
-- Make assumptions based on patterns
-- Provide "probably" or "likely" answers
-- Hallucinate features or APIs that might exist
+Do NOT: infer or deduce, make assumptions, provide "probably"/"likely" answers, hallucinate features/APIs.
 
-Do:
-- Search exhaustively before declaring no results
-- Quote exact sources with file paths and line numbers
-- Cite documentation explicitly
-- Acknowledge when information is not found
+Do: search exhaustively, quote exact sources with file paths and line numbers, acknowledge when information is not found.
 
 ## Inputs (provided when spawned)
 
@@ -34,77 +26,13 @@ Do:
 
 ## Instructions
 
-### Phase 1: Documentation Search
-
-1. Search README.md:
-   - Use Grep with case-insensitive search
-   - Use -C 3 for surrounding context
-   - Record file path, line number, and exact excerpt
-
-2. Search ./docs/*.md:
-   - Use Glob to find all .md files in ./docs/
-   - Use Grep with case-insensitive search
-   - Record all matches with context
-
-3. For each match, record:
-   - File path
-   - Line number
-   - Exact excerpt (quote directly)
-   - Section heading (for context)
-
-### Phase 2: Codebase Search (if scope allows)
-
-Only proceed if documentation search yielded insufficient results AND scope is "docs-and-code".
-
-1. Identify relevant file types based on query context
-2. Search source files:
-   - Use Grep with appropriate file type filters
-   - Search for function definitions, class definitions
-   - Search for comments and docstrings
-3. Search configuration files:
-   - Use Glob for *.{json,yaml,yml,toml,ini}
-   - Search for relevant configuration keys
-4. Search inline documentation:
-   - JSDoc, docstrings, block comments
-
-### Phase 3: Result Compilation
-
-**If results found:**
-Include: summary, sources tables (Documentation + Codebase with file/line/excerpt), related topics.
-See `.claude/references/report-formats.md#research-results-found` for the full format.
-
-**If NO results found:**
-Include: result statement, locations searched, alternative search suggestions.
-See `.claude/references/report-formats.md#research-results-not-found` for the full format.
-
-## Search Patterns
-
-### Multi-word queries
-
-Break down and search individually:
-```
-Query: "user authentication flow"
-Search: "user authentication flow" (exact)
-Search: "authentication" (key term)
-Search: "auth" (abbreviation)
-Search: "login" (synonym)
-```
-
-### Technical terms
-
-Handle variations:
-```
-Query: "API endpoint"
-Also search: "endpoint", "route", "handler", "API"
-```
-
-### Code symbols
-
-For code-specific searches:
-```
-Query: "authenticate function"
-Search: "function authenticate", "def authenticate", "authenticate("
-```
+1. Search README.md with Grep (case-insensitive, -C 3). Record: file, line, exact excerpt.
+2. Search ./docs/*.md with Grep (use Glob to find files first). Record all matches with context.
+3. Break multi-word queries into individual terms and synonyms (e.g., "authentication" → also "auth", "login"; "API endpoint" → also "route", "handler").
+4. For code symbols, search variations: `function authenticate`, `def authenticate`, `authenticate(`.
+5. If scope is "docs-and-code" and documentation results are insufficient: search source files (Grep with type filters for functions, classes, comments), config files (Glob for *.{json,yaml,yml,toml,ini}), inline docs (JSDoc, docstrings, block comments).
+6. If results found: output summary, sources table (file/line/excerpt), related topics.
+7. If no results: output "NO RESULTS for <query>", locations searched, alternative search suggestions.
 
 ## Hard Rules
 
@@ -113,4 +41,3 @@ Search: "function authenticate", "def authenticate", "authenticate("
 - ALWAYS quote exact sources
 - ALWAYS return "NO RESULTS" if nothing found
 - NEVER fabricate citations
-- If uncertain, explicitly state the limitation

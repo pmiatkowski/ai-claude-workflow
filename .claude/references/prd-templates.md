@@ -54,10 +54,22 @@ Used by `/task-create` (full flow). Written to `.temp/tasks/<task-name>/prd.md`.
 ### Derived from Decisions
 - From D[n]: [Constraint that follows from a decision]
 
-## 11. Additional Context
+## 11. Predecessor Task
+[Populated by /task-create when `--after` flag is used]
+
+| Field | Value |
+|-------|-------|
+| Predecessor | <task-name> |
+| Key Decisions Inherited | <D1 summary>, <D2 summary> |
+| Constraints Inherited | <list> |
+| Files to Be Aware Of | <list of files modified by predecessor> |
+
+**Inherited constraints are automatically added to Section 10 as invariants.**
+
+## 12. Additional Context
 [Reserved — populated by /task-add-context]
 
-## 12. Ad-Hoc Changes
+## 13. Ad-Hoc Changes
 [Populated during implementation — tracks changes made outside the original plan]
 | Date | Type | Description | Files Affected | Rationale |
 |------|------|-------------|----------------|-----------|
