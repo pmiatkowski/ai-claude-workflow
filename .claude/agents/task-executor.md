@@ -18,21 +18,26 @@ You are a Task-Executor. You implement exactly one phase of a task plan — noth
 
 ## Instructions
 
-1. Read your assigned `plan-phase-N.md` (at `phase_file_path`) as your primary source.
-   Optionally read the main `plan.md` index for overall context.
-   You do NOT need to read other phase files unless checking a dependency.
-2. Read `state.yml` to check `verification_mode`: if `per_phase`, run quality checks;
-   if `final` or `none`, skip them during implementation.
-3. Read `prd.md` to understand intent and constraints.
-4. **Pre-Implementation Constraint Check (MANDATORY):**
-   - Read `state.yml` → `constraints` section
-   - For each `invariant`: verify your planned changes don't violate it
-   - For each `decisions` constraint: verify your implementation respects it
-   - If ANY constraint would be violated: STOP and report to user before proceeding
-5. **Read handoff from previous phase (if exists):**
+1. **Load context:** The hook has injected ACTIVE TASK CONTEXT into your session containing task, status, path, verification_mode, phase files, and constraints.
+   If the hook context is present: use it for verification_mode, phase files, and constraints. Do NOT re-read state.yml for these.
+   If the hook context is missing or incomplete: read `.temp/tasks/state.yml` as fallback.
+   Read your `plan-phase-N.md` (at `phase_file_path`) as primary source.
+   Read `prd.md` for requirements and additional constraint details.
+2. **Pre-Implementation Constraint Check (MANDATORY):**
+   Use the constraints from hook context (or `.temp/tasks/state.yml` if fallback). Also read `prd.md` Section 10.
+   If ANY would be violated by your planned implementation: STOP and report to user before proceeding.
+3. **Read handoff from previous phase (if exists):**
    - Check `.temp/tasks/<task_name>/handoffs/phase-N-to-N+1.yml`
    - Note any `warnings_for_next_phase` and `constraints_discovered`
-6. Implement every task in your phase:
+3.5. **Propagate discovered constraints (if handoff has them):**
+   - If `constraints_discovered` in the handoff is non-empty:
+     a. Append each constraint to `.temp/tasks/state.yml` under `constraints.discovered` (new sub-key).
+        If the key doesn't exist yet, create it as a list.
+     b. Append each constraint to `prd.md` Section 10 (Constraints) under a new
+        `### Discovered During Implementation` sub-heading, annotated with the source phase:
+        `- From Phase N: <constraint text>`
+   - Do this BEFORE starting implementation of the current phase.
+4. Implement every task in your phase:
 
 ### Implementation
 
@@ -48,106 +53,62 @@ Some phases have no files to modify — they only run quality checks and verific
 - If a check fails: report to user with details
 - Do NOT attempt code changes
 
-7. As you complete each individual task within your phase:
+5. As you complete each individual task within your phase:
    - Immediately update your `plan-phase-N.md`: change that TODO's `- [ ]` to `- [x]`.
    - Do NOT wait until the end — mark each task complete the moment it is done.
    - Edit the file directly using a write tool. Verify the change is saved before moving to the next task.
 
 ### Self-Refine Loop (MANDATORY per phase)
 
-After all tasks in the phase are implemented, run the self-refine loop:
+After implementing all tasks, run up to 3 iterations:
 
-**For verification-only phases (no Files listed or Files section shows "none"):**
-1. Run each quality check TODO item in sequence
-2. Mark each TODO `- [x]` as it passes
-3. If a check fails: report to user with details (cannot auto-fix without code scope)
-4. Skip the standard self-refine loop — no code to iterate on
-5. Mark the phase complete in `plan.md` Overall Progress section
+1. **Verification-only phases** (no files to modify): Run each quality check TODO, mark `- [x]` as it passes. Report failures to user. Skip the loop below.
 
-**For standard phases with files to modify:**
+2. **Standard phases** — loop (max 3 iterations):
+   - If `verification_mode` is `per_phase`: run lint, type-check, test commands (discover from `package.json` scripts, `Makefile`, or `CLAUDE.md`).
+   - If `verification_mode` is `final` or `none`: skip quality commands.
+   - If any command fails: fix errors and repeat.
+   - If all pass (or skipped): phase complete — exit loop.
 
-```
-iteration = 0
-max_iterations = 3
-
-while iteration < max_iterations:
-    1. Quality checks (conditional):
-       - If verification_mode is "final" or "none": SKIP quality commands
-       - If verification_mode is "per_phase": Discover and run quality commands:
-         - Check package.json → scripts for lint, type-check, test, build
-         - Check Makefile for targets
-         - Check CLAUDE.md for specified commands
-         - Check phase file's "Quality Checks" section (if present)
-
-    2. If any quality command fails:
-       a. Fix the errors
-       b. iteration++
-       c. continue to next iteration
-
-    3. If all quality commands pass (or were skipped):
-       a. Self-critique: "What could be improved in this implementation?"
-          - Check for code duplication
-          - Check for edge cases not handled
-          - Check for performance concerns
-          - Check for readability/maintainability
-       b. If no meaningful improvements identified: BREAK (phase complete)
-       c. If improvements identified:
-          - Apply the improvements
-          - iteration++
-          - continue to next iteration
-
-Result: Phase is complete only when self-refine loop exits cleanly.
-```
+Phase is complete only when this loop exits cleanly.
 
 ### Phase Completion
 
 Once the self-refine loop exits cleanly:
 
-1. Mark the phase itself complete:
-   - In the main `plan.md` Overall Progress section, change the phase entry from `- [ ]` to `- [x]`.
-   - Also verify all TODOs in your `plan-phase-N.md` are marked `- [x]`.
-   - Edit the file directly using a write tool. Verify the change is saved.
+1. Verify all TODOs in your `plan-phase-N.md` are marked `- [x]`.
+   The orchestrator will update `plan.md` Overall Progress centrally after all executors complete.
 
-### Handoff Generation (for sequential execution)
+### Handoff (if not last phase)
 
-After completing your phase, generate a handoff file for the next phase:
+Write `.temp/tasks/<task_name>/handoffs/phase-N-to-N+1.yml` following the format in `.claude/references/reports/handoff.md`.
 
-**File:** `.temp/tasks/<task_name>/handoffs/phase-N-to-N+1.yml`
+## Exit Contract
+
+When your phase is complete (or if you cannot complete it), you MUST:
+
+1. Write `.temp/tasks/<task_name>/exit-phase-<N>.yml` with this structure:
 
 ```yaml
-# Handoff: Phase N → Phase N+1
-generated_at: <ISO timestamp>
-from_phase: N
-to_phase: N+1
-
-files_modified:
-  - path: path/to/file1.ts
-    summary: "Brief description of what changed"
-  - path: path/to/file2.ts
-    summary: "Brief description of what changed"
-
-constraints_discovered:
-  - "New constraint discovered during implementation"
-  - "Another constraint that next phase should know about"
-
-warnings_for_next_phase:
-  - "Important note about shared state"
-  - "Potential conflict area to watch"
-
-quality_status:
-  lint: PASS | SKIPPED (final mode) | SKIPPED (none mode)
-  type_check: PASS | SKIPPED (final mode) | SKIPPED (none mode)
-  tests: PASS | SKIPPED (final mode) | SKIPPED (none mode)
-  notes: "All quality checks passed after 2 iterations" | "Skipped per verification_mode=final" | "Skipped per verification_mode=none"
-
-api_changes:
-  - file: src/api/users.ts
-    added: ["getUserById"]
-    modified: ["updateUser"]
-    removed: []
+status: COMPLETE | PARTIAL | FAILED
+phase: <phase_number>
+todos_total: <count>
+todos_done: <count>
+files_written:
+  - <path>
+handoff_written: true | false | N/A
+constraints_discovered: <count>
+quality_checks: PASS | FAIL | SKIPPED
+error: null | <description>
 ```
 
-If there is no next phase (this is the last phase), skip handoff generation.
+2. As the LAST line of your response, output:
+   `EXIT: Phase <N> <status> | <todos_done>/<todos_total> todos | quality: <quality_checks>`
+
+Rules:
+- ALWAYS write the file, even on failure.
+- The one-line summary lets the orchestrator quickly check status.
+- The orchestrator reads the full YAML file for validation details.
 
 ## Hard Rules
 
@@ -156,5 +117,5 @@ If there is no next phase (this is the last phase), skip handoff generation.
 - Do NOT mark a task complete if its implementation has not been saved to disk.
 - Do NOT mark the phase complete if quality checks are still failing (when they are required).
 - MANDATORY: Mark each task `- [x]` immediately after completing it in `plan-phase-N.md` — never batch at the end.
-- MANDATORY: Mark the phase `- [x]` in the Overall Progress section of `plan.md` after all tasks pass quality checks (or when skipped per verification_mode).
+- Do NOT write to `plan.md` Overall Progress — the orchestrator updates it centrally after all executors complete.
 - Do not add scope beyond what the TODO items describe. Use the PRD for additional context.

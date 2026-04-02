@@ -1,9 +1,9 @@
 ---
-name: plan-verificator
+name: plan-verifier
 description: Verifies plan quality before execution. Checks coverage, dependencies, quality commands, and guideline consistency. Spawned by /task-plan and /task-execute.
 ---
 
-# Plan Verificator Agent
+# Plan Verifier Agent
 
 You verify that the implementation plan is complete and ready for execution.
 
@@ -21,7 +21,7 @@ Plans are split across multiple files:
 - Main index: `plan.md`
 - Phase details: `plan-phase-1.md`, `plan-phase-2.md`, etc.
 
-Read all phase files listed in `phase_files` from `state.yml` or the Phase Files section of `plan.md`. Apply all checks below across the individual phase files.
+Read all phase files listed in `phase_files` from `.temp/tasks/state.yml` or the Phase Files section of `plan.md`. Apply all checks below across the individual phase files.
 
 ## Instructions
 
@@ -48,53 +48,27 @@ In addition to quick checks:
 
 ## Output
 
-Write a verification report to `.temp/tasks/<task_name>/plan-verify-report.md`:
+Write a verification report to `.temp/tasks/<task_name>/plan-verify-report.md` following the format in `.claude/references/reports/plan-verification-report.md`.
 
-```markdown
-# Plan Verification Report: <task-name>
+## Exit Contract
 
-**Date:** <date>
-**Mode:** quick | deep
-**Result:** PASS | PARTIAL | FAIL
+When your verification is complete (or if you cannot complete it), you MUST:
 
-## Coverage Check
-| PRD Requirement | Mapped Tasks | Status |
-|-----------------|--------------|--------|
-| FR-1: ... | Task 1.1, Task 2.3 | COVERED |
-| FR-2: ... | - | MISSING |
+1. Write `.temp/tasks/<task_name>/exit-plan-verify.yml` with this structure:
 
-## Dependency Check
-| Phase | Depends On | Cycle Risk |
-|-------|------------|------------|
-| 1 | None | OK |
-| 2 | Phase 1 | OK |
-
-## Quality Command Check
-| Phase | Commands Defined | Status |
-|-------|-----------------|--------|
-| 1 | npm run lint, npm test | OK |
-| 2 | - | MISSING |
-
-## Guideline Consistency Check
-| Guideline (from CLAUDE.md) | Phase(s) Affected | Status | Notes |
-|----------------------------|-------------------|--------|-------|
-| Naming convention: ... | Phase 1, Phase 2 | OK | - |
-| Structure rule: ... | Phase 3 | VIOLATION | Plan creates file outside allowed dirs |
-
-## Issues Found
-| # | Severity | Issue | Recommendation |
-|---|----------|-------|----------------|
-| 1 | HIGH | FR-2 has no tasks | Add tasks to Phase 2 |
-| 2 | MEDIUM | Phase 2 missing quality commands | Add quality check section |
-
-## Recommendation
-[BLOCK / PROCEED / PROCEED WITH CAUTION]
-
-[If BLOCK: clear steps to fix]
+```yaml
+result: PASS | PARTIAL | FAIL
+issues_found: <count>
+issues_blocking: <count>
+report_written: true | false
+report_path: <path to plan-verify-report.md>
 ```
 
-## Exit Codes
+2. As the LAST line of your response, output:
+   `EXIT: Plan verification <result> | <issues_found> issues (<issues_blocking> blocking)`
 
-- **PASS**: All checks pass, proceed to execution
-- **PARTIAL**: Some issues but non-blocking, warn user
-- **FAIL**: Critical issues, block execution
+Rules:
+- ALWAYS write the file, even on failure.
+- The one-line summary lets the orchestrator quickly check status.
+- The orchestrator reads the full YAML file for validation details.
+

@@ -8,7 +8,7 @@ Update project documentation based on the completed task implementation.
 
 2. Read the task artifacts:
    - `prd.md` - What was requested and why
-   - `prd.md` Section 12 - Ad-hoc changes made during implementation
+   - `prd.md` Section 13 - Ad-hoc changes made during implementation
    - `plan.md` - What was implemented (check for completed phases)
 
 3. Analyze what changed:
@@ -17,7 +17,7 @@ Update project documentation based on the completed task implementation.
    - Features/APIs removed
    - Configuration changes
    - New dependencies
-   - Ad-hoc changes from Section 12
+   - Ad-hoc changes from Section 13
 
 4. **Research existing documentation** (using docs-researcher patterns):
    - Search README.md for related content
@@ -29,68 +29,9 @@ Update project documentation based on the completed task implementation.
    - For each significant decision (architectural, technology choice, pattern):
      - Create ADR file: `docs/adr/NNN-[slug].md`
      - Number sequentially based on existing ADRs
-   - ADR format:
+   - ADR format: Header "ADR-N: [Title]". Sections: Status, Context (from PRD), Decision (from Decision Matrix), Consequences (derived constraints from PRD Section 10), Alternatives Considered (table: Option, Pros, Cons, Why Not Chosen), Date.
 
-```markdown
-# ADR-N: [Title]
-
-## Status
-Accepted
-
-## Context
-[Why this decision was needed - from PRD]
-
-## Decision
-[What was decided - from Decision Matrix]
-
-## Consequences
-[Derived constraints from PRD Section 10]
-
-## Alternatives Considered
-| Option | Pros | Cons | Why Not Chosen |
-|--------|------|------|----------------|
-
-## Date
-[From Decision Matrix]
-```
-
-6. Generate documentation update suggestions:
-
-```markdown
-# Documentation Update Analysis
-
-## Implementation Summary
-[Brief summary from PRD/plan]
-
-## Ad-Hoc Changes Detected
-[List any changes from PRD Section 12 that need documentation]
-| Date | Type | Description | Doc Impact |
-|------|------|-------------|------------|
-
-## Related Existing Documentation
-| File | Section | Relevance |
-|------|---------|-----------|
-| ./docs/authentication.md | OAuth | Partial coverage - missing new flow |
-| README.md | Features | Missing new endpoints |
-
-## Suggested Updates
-
-### New Documentation Needed
-| Priority | Topic | Suggested File |
-|----------|-------|----------------|
-| HIGH | Token refresh flow | ./docs/token-refresh.md |
-
-### Updates to Existing Docs
-| File | Section | Change |
-|------|---------|--------|
-| ./docs/authentication.md | OAuth | Add refresh token section |
-| README.md | Features | Add 3 new endpoints to table |
-
-### Potential Duplicates Detected
-| New Topic | Existing Doc | Action |
-|-----------|--------------|--------|
-| OAuth flow | ./docs/authentication.md | Merge recommended |
-```
+6. Generate documentation update suggestions: Header "Documentation Update Analysis". Sections: Implementation Summary, Ad-Hoc Changes (table: Date, Type, Description, Doc Impact), Related Existing Documentation (table: File, Section, Relevance), Suggested Updates with subsections — New Documentation Needed (table: Priority, Topic, File), Updates to Existing Docs (table: File, Section, Change), Potential Duplicates (table: New Topic, Existing Doc, Action).
 
 6. Ask user:
    > "Apply which updates? [all/selective/none]"
@@ -103,22 +44,7 @@ Accepted
    - `plan_path`: path to plan for context
    - Specific updates to apply
 
-8. After docs-manager completes, summarize:
-
-```markdown
-# Documentation Updated
-
-## Files Changed
-- ./docs/authentication.md (+45 lines: OAuth refresh flow)
-- README.md (features table updated)
-
-## Files Created
-- ./docs/api-endpoints.md (new: 3 endpoints documented)
-
-## Cross-references Verified
-- All links in README.md verified
-- Related docs cross-linked
-```
+8. After docs-manager completes, summarize: Header "Documentation Updated". Sections: Files Changed (list with change description), Files Created (list with description), Cross-references Verified.
 
 ## Integration with /project-docs
 
@@ -136,7 +62,7 @@ Always check these locations:
 - `./docs/api/*.md` (API reference)
 - `./docs/guides/*.md` (tutorials)
 - `CLAUDE.md` (AI guidelines - separate from user docs)
-- PRD Section 9 (Additional Context) for doc references
+- PRD Section 12 (Additional Context) for doc references
 
 ## Hard Rules
 

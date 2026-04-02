@@ -1,6 +1,6 @@
 # Performance Verification Rules
 
-These rules are checked by task-verificator in deep mode.
+These rules are checked by task-verifier in deep mode.
 
 ## Database Performance
 
@@ -56,7 +56,7 @@ These rules are checked by task-verificator in deep mode.
 - [ ] TTL configured for cached items
 - [ ] Cache hit ratio monitored
 
-## Frontend Performance
+## UI Performance (if applicable)
 
 ### Bundle Size
 - [ ] No oversized bundles (> 500KB)
@@ -65,10 +65,10 @@ These rules are checked by task-verificator in deep mode.
 - [ ] Lazy loading for routes
 
 ### Rendering
-- [ ] No layout thrashing
-- [ ] Virtual scrolling for long lists
-- [ ] Debounced/throttled handlers
-- [ ] Memoization for expensive computations
+- [ ] No unnecessary re-renders or layout thrashing
+- [ ] Efficient list rendering for large datasets
+- [ ] Debounced/throttled event handlers
+- [ ] Caching for expensive computations
 
 ### Assets
 - [ ] Images optimized
@@ -92,25 +92,18 @@ These rules are checked by task-verificator in deep mode.
 
 ## Severity Levels
 
-| Level | Description | Action |
+| Level | Performance | Action |
 |-------|-------------|--------|
-| CRITICAL | System unusable | BLOCK - Fix immediately |
-| HIGH | Significant degradation | BLOCK - Fix before merge |
-| MEDIUM | Noticeable impact | WARN - Fix in current sprint |
-| LOW | Minor optimization | INFO - Address when possible |
+| CRITICAL | System unusable | BLOCK -- Fix immediately |
+| HIGH | Significant degradation | BLOCK -- Fix before merge |
+| MEDIUM | Noticeable impact | WARN -- Fix in current sprint |
+| LOW | Minor optimization | INFO -- Address when possible |
 
 ## Measurement Commands
 
-```bash
-# Database query analysis
-EXPLAIN ANALYZE <query>
+Discover project tooling:
+1. `package.json` scripts: look for build, analyze, benchmark commands
+2. `Makefile` targets: look for bench, profile, load-test targets
+3. Language-specific: `EXPLAIN ANALYZE` (SQL), `go test -bench` (Go), `cargo bench` (Rust), `pytest-benchmark` (Python)
 
-# Bundle size
-npm run build -- --analyze
-
-# Lighthouse
-npx lighthouse <url> --output=json
-
-# Load testing
-npx artillery run load-test.yml
-```
+Run relevant commands based on discovered tooling.

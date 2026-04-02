@@ -27,13 +27,13 @@ Scan the repository for:
 
 ## Updating PRD
 
-When user confirms, append to or update Section 9 (Additional Context) of the PRD:
+When user confirms, append to or update Section 12 (Additional Context) of the PRD:
 
 ```markdown
-## 9. Additional Context
+## 12. Additional Context
 
 ### [Source: files | url | discovery] — <date>
 [Summarized relevant findings]
 ```
 
-Update `updated_at` in `state.yml`.
+Update `updated_at` in `.temp/tasks/state.yml`.

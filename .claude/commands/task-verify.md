@@ -24,7 +24,7 @@ Check plan quality against the PRD:
 - Are the phases logically ordered with correct dependencies?
 - Is the code in the plan consistent with repo patterns and conventions?
 - Are quality checks defined for each phase?
-- **Deep mode**: Run plan-verificator agent for comprehensive analysis
+- **Deep mode**: Run plan-verifier agent for comprehensive analysis
 - Produce a coverage report.
 
 ### `code`
@@ -42,8 +42,8 @@ When `deep` is specified, spawn specialized agents:
 | Type | Agent | Additional Checks |
 |------|-------|-------------------|
 | prd | - | Decision matrix, constraint derivation |
-| plan | plan-verificator | Coverage, dependencies, file conflicts |
-| code | task-verificator | Constraints, security, performance |
+| plan | plan-verifier | Coverage, dependencies, file conflicts |
+| code | task-verifier | Constraints, security, performance |
 
 ## Output
 

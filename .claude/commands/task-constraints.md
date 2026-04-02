@@ -34,20 +34,7 @@ List all constraints for the active task.
 /task-constraints list
 ```
 
-Output:
-```
-Constraints for task: <task-name>
-
-Invariants (Must Never Change):
-| ID | Constraint | Added |
-|----|------------|-------|
-| I1 | All API calls must be authenticated | 2024-01-15 |
-
-Decision-Derived:
-| ID | From | Constraint | Added |
-|----|------|------------|-------|
-| D1-1 | D1 | Must use OAuth2, not custom auth | 2024-01-15 |
-```
+Output: Header with task name. Two sections: "Invariants" table (ID, Constraint, Added) and "Decision-Derived" table (ID, From decision, Constraint, Added).
 
 ### `check`
 
@@ -75,7 +62,7 @@ Remove a constraint by ID (use with caution).
 
 ### Add Invariant
 
-1. Read current `state.yml`
+1. Read current `.temp/tasks/state.yml`
 2. Add to `constraints.invariants` array:
    ```yaml
    constraints:
@@ -89,7 +76,7 @@ Remove a constraint by ID (use with caution).
 
 ### Add Decision Constraint
 
-1. Read current `state.yml`
+1. Read current `.temp/tasks/state.yml`
 2. Verify decision D-id exists in PRD Section 9
 3. Add to `constraints.decisions` array:
    ```yaml
@@ -105,40 +92,37 @@ Remove a constraint by ID (use with caution).
 
 ### List Constraints
 
-1. Read `state.yml` constraints section
+1. Read `.temp/tasks/state.yml` constraints section
 2. Read PRD Section 10
 3. Display formatted output
 
 ### Check Constraints
 
-1. Read all constraints
-2. Read implemented files (from plan.md)
-3. For each constraint:
-   - Analyze if code respects it
-   - Flag any violations
-4. Output report:
-   ```
-   Constraint Check Report
+**Load constraints from:**
+1. `.temp/tasks/state.yml` -> `constraints.invariants`: rules that must NEVER be violated.
+2. `.temp/tasks/state.yml` -> `constraints.decisions`: constraints derived from PRD decisions.
+3. `.temp/tasks/state.yml` -> `constraints.discovered`: constraints found during implementation.
+4. `prd.md` Section 10: human-readable constraint descriptions.
 
-   | Constraint | Status | Evidence |
-   |------------|--------|----------|
-   | I1: All API calls authenticated | PASS | All routes use authMiddleware |
-   | D1-1: Must use OAuth2 | PASS | OAuth2Strategy used in auth.ts |
+**For each constraint:**
+1. Read the relevant implementation files.
+2. Verify the code respects the constraint.
+3. Classify violations: CRITICAL (invariant violated -- BLOCK), HIGH (decision violated -- BLOCK), MEDIUM (partially met -- WARN), LOW (minor -- INFO).
+4. CRITICAL/HIGH: STOP and report. MEDIUM/LOW: note for report, continue.
 
-   Result: ALL PASS
-   ```
+Output the report using the format from `.claude/references/reports/constraint-compliance.md`.
 
 ### Remove Constraint
 
 1. Verify constraint exists
 2. Ask for confirmation (constraints should rarely be removed)
-3. Remove from `state.yml` and PRD Section 10
+3. Remove from `.temp/tasks/state.yml` and PRD Section 10
 4. Confirm to user
 
 ## Integration
 
 Constraints are automatically:
 - Checked by task-executor before implementation
-- Verified by task-verificator after implementation
+- Verified by task-verifier after implementation
 - Injected into context by inject-task-context.sh hook
 - Updated when decisions are made in /task-clarify

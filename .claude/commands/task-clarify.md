@@ -16,57 +16,13 @@ Run a structured clarification session for the active task.
 
 ## Clarification Session Format
 
-Use this exact format for each question. Ask questions one at a time — do NOT ask if the user wants to continue between questions; maintain a natural flow.
-
-```markdown
-## Question [N]: [Topic Name]
-
-[1–2 sentences explaining why this decision matters for the PRD]
-
-| Option | Description | Tradeoffs |
-|--------|-------------|-----------|
-| **A** | **[Short name]** — [Description] | [Pros/Cons] |
-| **B** | **[Short name]** — [Description] | [Pros/Cons] |
-| **C** | **[Short name]** — [Description] | [Pros/Cons] |
-| **D** | **[Short name]** — [Description] | [Pros/Cons] |
-
----
-
-**My Recommendation: Option [X]**
-
-[2–3 sentences explaining reasoning, acknowledging tradeoffs]
-
----
-```
-
-Wait for the user's response before asking the next question. Accept:
-- Single option: `B`
-- Combination: `B + D`
-- Modification: `B but without X`
-
-After each answer, note it internally. Do NOT recap after every question — only summarize at the very end.
+For each question: explain why it matters (1-2 sentences), present options in a table (option/description/tradeoffs), give your recommendation. Ask questions one at a time — maintain a natural flow, do NOT ask if the user wants to continue. Wait for response. Accept single option, combinations, or modifications. Note answers internally; summarize only at the end.
 
 ## After Session Ends
 
 When the user says "update PRD" (or equivalent):
-1. Rewrite `.temp/tasks/<n>/prd.md` incorporating all clarification answers directly into the relevant sections — update requirements, resolve ambiguities, fill gaps in place. Do not add change annotations, diff markers, or "previously X, now Y" notes. The document should read as if it was always written this way.
-2. **Populate the Decision Matrix** (Section 9 in PRD):
-   - For each question asked, add a row: `| D{N} | {Question topic} | {Options presented} | {User's choice} | {Why this choice} | {Date} |`
-   - Number decisions sequentially: D1, D2, D3...
-3. **Extract constraints to Section 10**:
-   - Add any invariants (constraints that must always hold) discovered
-   - For each decision, add derived constraints: `From D{N}: {constraint that follows}`
-4. **Update state.yml constraints**:
-   ```yaml
-   constraints:
-     invariants:
-       - "First invariant from discussion"
-       - "Second invariant"
-     decisions:
-       - id: D1
-         constraint: "Constraint derived from D1"
-       - id: D2
-         constraint: "Constraint derived from D2"
-   ```
-5. Update `updated_at` in `state.yml`.
-6. Tell the user what changed and suggest `/task-add-context` or `/task-plan` next.
+1. Rewrite `prd.md` incorporating all answers directly — no change annotations, the document should read as if always written this way.
+2. Populate the Decision Matrix (Section 9): one row per question (D1, D2, D3... with topic, options, choice, reasoning, date).
+3. Extract constraints to Section 10: invariants discovered + decision-derived constraints (`From D{N}: {constraint}`).
+4. Update `.temp/tasks/state.yml` constraints (invariants list + decisions with id/constraint) and `updated_at`.
+5. Tell the user what changed and suggest `/task-add-context` or `/task-plan` next.

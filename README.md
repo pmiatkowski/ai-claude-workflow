@@ -56,7 +56,7 @@ constraints:
 A `UserPromptSubmit` hook reads this file at the start of every Claude Code session and injects the active task context automatically. You'll see a banner:
 
 ```
-📌 Active task: my-feature (status: planned)
+Active task: my-feature (status: planned)
 ```
 
 Claude always knows the current task without you repeating it.
@@ -76,7 +76,7 @@ Each task lives in its own directory:
     context.md                     ← additional context from files, URLs, discovery
     localization.md                ← file impact analysis (Phase 0)
     constraint-report.md           ← constraint compliance audit
-    verify-report.md               ← written by task-verificator agent
+    verify-report.md               ← written by task-verifier agent
     checkpoints/                   ← saved task states
       before-refactor/
         state.yml
@@ -262,7 +262,7 @@ Executes the plan by spawning sub-agents. Claude asks two questions:
 
 #### Execution Flow
 
-1. **Plan Verification** — A `plan-verificator` agent checks plan quality before execution
+1. **Plan Verification** — A `plan-verifier` agent checks plan quality before execution
 2. **Localization (Phase 0)** — A `localization-agent` analyzes file impact and identifies conflicts
 3. **Task-Executor agents** — Each phase is implemented by a task-executor:
    - Reads `state.yml` to determine `verification_mode`
@@ -272,7 +272,7 @@ Executes the plan by spawning sub-agents. Claude asks two questions:
    - Runs all quality commands — fixes errors before finishing
    - Updates `plan.md` — marks every completed task `- [x]`
 4. **Phase Review (optional)** — A `phase-reviewer` agent reviews each phase for quality
-5. **Task-Verificator** — After all task-executors finish, runs automatically:
+5. **Task-Verifier** — After all task-executors finish, runs automatically:
    - Checks every planned task is marked complete
    - Reads the actual implementation files and compares against the plan
    - Verifies all functional requirements from the PRD are satisfied
@@ -329,11 +329,12 @@ Manage constraints for the active task. Constraints are rules that must never be
 | **Decision-derived** | Follows from clarification answers | "Must use OAuth2, not custom auth" (from D1) |
 
 Constraints are:
+
 - Stored in `state.yml` under `constraints:`
 - Documented in PRD Section 10
 - Injected into context by the hook
 - Checked by task-executor before implementation
-- Verified by task-verificator after implementation
+- Verified by task-verifier after implementation
 - Can be audited on-demand via `constraint-tracker` agent
 
 ---
@@ -349,6 +350,7 @@ Create or restore checkpoints of task state. Useful before risky changes.
 | `list` | List all checkpoints | `/task-checkpoint list` |
 
 **What gets saved:**
+
 - `state.yml`, `prd.md`, `plan.md`, `context.md`
 - All handoff files, review files
 - Constraint reports
@@ -438,24 +440,26 @@ Manage Claude Code coding guidelines (CLAUDE.md rules).
 Create comprehensive Product Requirements Documents through iterative discovery. A 13-phase Socratic process that surfaces assumptions, validates thinking, and builds genuine understanding.
 
 **Phases:**
+
 1. Discovery & Challenge
 2. Problem Validation
 3. User Deep-Dive
 4. Business Viability
 5. Solution Definition
 6-8. Requirements & Architecture
-9. Risk Assessment
-10. Go-to-Market
-11. Success Metrics
+6. Risk Assessment
+7. Go-to-Market
+8. Success Metrics
 12-13. Execution & Alignment
 
 ---
 
 ## Verification Rules
 
-Task-verificator checks against rules in `.claude/verification/`:
+Task-verifier checks against rules in `.claude/verification/`:
 
 ### Quality (`quality.md`)
+
 - Code readability (function size, naming, comments)
 - Complexity (cyclomatic complexity, nesting depth)
 - Duplication (DRY principle)
@@ -465,6 +469,7 @@ Task-verificator checks against rules in `.claude/verification/`:
 - Documentation
 
 ### Performance (`performance.md`)
+
 - Database (N+1 queries, indexing, query optimization)
 - API (response time, rate limiting, payload size)
 - Memory management (leaks, caching)
@@ -472,6 +477,7 @@ Task-verificator checks against rules in `.claude/verification/`:
 - Concurrency (parallelization, resource limits)
 
 ### Security (`security.md`)
+
 - OWASP Top 10 checks
 - Language-specific security patterns
 - Severity levels (CRITICAL → LOW)
@@ -522,15 +528,15 @@ Task-verificator checks against rules in `.claude/verification/`:
 # 6. Execute
 /task-execute
 
-# Plan-verificator runs: checks coverage, dependencies, quality commands
+# Plan-verifier runs: checks coverage, dependencies, quality commands
 # Localization-agent runs (Phase 0): identifies file conflicts
 # Claude asks: all phases, sequential or parallel?
 # → "phases 1,2 parallel, then phase 3 sequential"
 #
 # Spawns: task-executor for Phase 1 + task-executor for Phase 2 simultaneously
 # Both finish → spawns task-executor for Phase 3
-# All finish → verificator runs automatically
-# Task-Verificator report: PASS ✓
+# All finish → verifier runs automatically
+# Task-Verifier report: PASS ✓
 
 # 7. Check constraints
 /task-constraints check
@@ -583,8 +589,8 @@ Task-verificator checks against rules in `.claude/verification/`:
       skill-creation-guidelines.md
   agents/
     task-executor.md         # Implements one plan phase
-    task-verificator.md      # Verifies full implementation
-    plan-verificator.md      # Verifies plan quality before execution
+    task-verifier.md      # Verifies full implementation
+    plan-verifier.md      # Verifies plan quality before execution
     localization-agent.md    # Analyzes file impact (Phase 0)
     phase-reviewer.md        # Reviews completed phases
     constraint-tracker.md    # Monitors constraint compliance
@@ -606,7 +612,7 @@ Task-verificator checks against rules in `.claude/verification/`:
 
 2. **Multi-file plans**: Plans are split into an index `plan.md` and individual `plan-phase-N.md` files per phase. `verification_mode` in `state.yml` controls when quality checks run: `per_phase` (each phase), `final` (after all phases), or `none` (skip automated checks).
 
-3. **Task-Executor → Task-Verificator flow**: After all task-executors complete, the task-verificator runs automatically.
+3. **Task-Executor → Task-Verifier flow**: After all task-executors complete, the task-verifier runs automatically.
 
 4. **Constraints system**: Invariants and decision-derived rules that must never be violated. Tracked in `state.yml` and PRD Section 10.
 
@@ -667,13 +673,14 @@ The verification mode (`per_phase`, `final`, or `none`) lets you trade safety fo
 ### Why constraints are tracked separately
 
 Constraints come from two sources: fixed invariants (project requirements) and decisions (from clarification). Tracking them separately in `state.yml` enables:
+
 - Automatic injection into agent context
 - Compliance checking at multiple stages
 - Clear traceability from decisions to derived constraints
 
-### Why a separate task-verificator agent
+### Why a separate task-verifier agent
 
-Task-Executors are incentivized to finish their phase — they will rationalize partial compliance. The verificator runs after all execution is complete, with no investment in any particular phase, and checks the full picture: completeness, correctness, PRD compliance, constraints, and quality.
+Task-Executors are incentivized to finish their phase — they will rationalize partial compliance. The verifier runs after all execution is complete, with no investment in any particular phase, and checks the full picture: completeness, correctness, PRD compliance, constraints, and quality.
 
 ---
 
@@ -688,6 +695,6 @@ Task-Executors are incentivized to finish their phase — they will rationalize 
 | `context.md` | Additional gathered context | `/task-add-context` |
 | `localization.md` | File impact analysis | localization-agent |
 | `constraint-report.md` | Constraint compliance audit | constraint-tracker |
-| `verify-report.md` | Full verification report | verificator agent, `/task-verify` |
+| `verify-report.md` | Full verification report | verifier agent, `/task-verify` |
 | `checkpoints/` | Saved task states | `/task-checkpoint` |
 | `reviews/` | Phase review reports | phase-reviewer |

@@ -1,6 +1,6 @@
 # Security Verification Rules
 
-These rules are checked by task-verificator in deep mode.
+These rules are checked by task-verifier in deep mode.
 
 ## OWASP Top 10 Checks
 
@@ -65,17 +65,14 @@ These rules are checked by task-verificator in deep mode.
 
 ## Language-Specific Checks
 
-### JavaScript/TypeScript
-- [ ] No `eval()` usage
-- [ ] No `innerHTML` without sanitization
-- [ ] Helmet.js or similar for headers
+### Language-Specific (check applicable)
+- [ ] No `eval()`/`exec()` on user input (JS, Python, Ruby)
+- [ ] No unsanitized HTML injection (`innerHTML`, etc.)
+- [ ] ORM or parameterized queries used (no raw SQL concatenation)
+- [ ] Security headers configured (Helmet.js, Django middleware, etc.)
 - [ ] CORS configured properly
-
-### Python
-- [ ] No `exec()` or `eval()` on user input
-- [ ] ORM used (no raw SQL)
-- [ ] Secret key management (not in code)
-- [ ] CSRF protection enabled
+- [ ] CSRF protection enabled where applicable
+- [ ] Secret management (no keys in source code)
 
 ### General
 - [ ] Error messages don't leak information
@@ -85,9 +82,9 @@ These rules are checked by task-verificator in deep mode.
 
 ## Severity Levels
 
-| Level | Description | Action |
-|-------|-------------|--------|
-| CRITICAL | Active exploitation possible | BLOCK - Fix immediately |
-| HIGH | Significant vulnerability | BLOCK - Fix before merge |
-| MEDIUM | Moderate risk | WARN - Fix in current sprint |
-| LOW | Minor issue | INFO - Address when possible |
+| Level | Security | Action |
+|-------|----------|--------|
+| CRITICAL | Active exploitation possible | BLOCK -- Fix immediately |
+| HIGH | Significant vulnerability | BLOCK -- Fix before merge |
+| MEDIUM | Moderate risk | WARN -- Fix in current sprint |
+| LOW | Minor issue | INFO -- Address when possible |

@@ -1,6 +1,6 @@
 # Quality Verification Rules
 
-These rules are checked by task-verificator in deep mode.
+These rules are checked by task-verifier in deep mode.
 
 ## Code Quality
 
@@ -73,8 +73,8 @@ These rules are checked by task-verificator in deep mode.
 ### Code Documentation
 - [ ] Public APIs documented
 - [ ] Complex logic explained
-- [ ] Type annotations present (TypeScript)
-- [ ] JSDoc for public functions
+- [ ] Type annotations present (if language supports them)
+- [ ] Public functions documented (docstrings, JSDoc, or equivalent)
 
 ### README
 - [ ] Setup instructions clear
@@ -110,28 +110,19 @@ These rules are checked by task-verificator in deep mode.
 
 ## Severity Levels
 
-| Level | Description | Action |
-|-------|-------------|--------|
-| CRITICAL | Blocks release | BLOCK - Fix immediately |
-| HIGH | Significant quality issue | BLOCK - Fix before merge |
-| MEDIUM | Quality concern | WARN - Fix in current sprint |
-| LOW | Minor improvement | INFO - Address when possible |
+| Level | Quality | Action |
+|-------|---------|--------|
+| CRITICAL | Blocks release | BLOCK -- Fix immediately |
+| HIGH | Significant quality issue | BLOCK -- Fix before merge |
+| MEDIUM | Quality concern | WARN -- Fix in current sprint |
+| LOW | Minor improvement | INFO -- Address when possible |
 
 ## Quality Commands
 
-```bash
-# Linting
-npm run lint
+Discover and run from the project (check in order):
+1. `package.json` scripts: lint, type-check, test, build
+2. `Makefile` targets: lint, test, type-check, build
+3. `CLAUDE.md` dev commands section
+4. Phase file Quality Checks section
 
-# Type checking
-npm run type-check
-
-# Test coverage
-npm run test -- --coverage
-
-# Complexity analysis
-npx escomplex .
-
-# Duplicate detection
-npx jscpd src/
-```
+Run all discovered commands. Report failures with full output.
