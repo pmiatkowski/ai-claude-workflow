@@ -54,15 +54,23 @@ Add new rules to a CLAUDE.md file or `.claude/rules/*.md` file.
 7. Insert maintaining markdown structure
 8. For large rule sets, split across `.claude/rules/*.md` files and reference via `@path` imports in CLAUDE.md
 
+**Rule Abstraction Principle:**
+
+Rules must be high-level and implementation-agnostic. Describe **what** and **why**, not **how** with specific code.
+
+- **DO**: State rules as principles — "Validate all external input at system boundaries", "Use consistent error response shapes across all API endpoints"
+- **DO NOT**: Include code examples, specific function signatures, or implementation snippets unless the user explicitly asks for them
+- **Rationale**: Code examples become stale when implementations change. High-level rules remain correct regardless of framework version, library choice, or refactoring
+
+If a rule is hard to understand without an example, use a descriptive phrase instead:
+- Instead of a code block showing a function signature, write: "Wrap async operations in try/catch, log errors to the configured logger, and return user-safe messages"
+- Instead of a code block showing an import pattern, write: "Use named exports for all shared modules"
+
 **Example insertion:**
 
-```markdown
-## Code Style
-
-- Use 2-space indentation for all files
-- Use single quotes for strings in JavaScript/TypeScript
-- Add trailing commas in multiline structures
-```
+- Use consistent indentation across all source files
+- Prefer single quotes for strings in JavaScript and TypeScript
+- Include trailing commas in multiline data structures
 
 ### CHANGE Rules
 
@@ -179,7 +187,7 @@ Scan codebase to discover existing conventions and suggest rules.
 
 1. **Be Specific**: "Use 2-space indentation" > "Format code properly"
 2. **Use Structure**: Organize with markdown headings and bullet points
-3. **Provide Examples**: Include code examples for complex rules
+3. **Keep Rules Abstract**: Write high-level rules without code examples — only add code examples when the user explicitly requests them
 4. **Keep Current**: Review and update rules as project evolves
 5. **Use Imports**: For large rule sets, use `@path/to/import` syntax
 6. **Avoid Redundancy**: Don't duplicate rules across sections

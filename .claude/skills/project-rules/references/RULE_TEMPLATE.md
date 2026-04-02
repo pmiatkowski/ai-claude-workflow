@@ -37,7 +37,7 @@ Supported glob patterns: `**/*.ts`, `src/**/*`, `*.md`, `src/**/*.{ts,tsx}`
 - Another rule in same category
 ```
 
-### Rule with Rationale
+### Rule with Rationale (preferred)
 
 ```markdown
 ## Category Name
@@ -46,7 +46,11 @@ Supported glob patterns: `**/*.ts`, `src/**/*`, `*.md`, `src/**/*.{ts,tsx}`
 - **Why:** Named exports enable better tree-shaking and IDE autocompletion
 ```
 
-### Rule with Example
+> This is the recommended pattern for most rules. It captures intent without tying the rule to a specific implementation.
+
+### Rule with Example (user-requested only)
+
+> **Only use code examples when the user explicitly asks for them.** Prefer descriptive prose over code blocks — rules should remain correct regardless of implementation changes.
 
 ````markdown
 ## Category Name
@@ -99,6 +103,7 @@ Before adding a rule, verify:
 - [ ] **Consistent** - Does it conflict with existing rules?
 - [ ] **Scopable** - Is it clear when the rule applies?
 - [ ] **Enforceable** - Can it be verified programmatically or by review?
+- [ ] **Abstract** - Does the rule avoid specific code examples? (Unless user requested)
 
 ## Vague vs Specific Examples
 
