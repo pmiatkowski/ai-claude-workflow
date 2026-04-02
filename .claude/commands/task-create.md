@@ -41,7 +41,7 @@ See `.claude/references/prd-templates.md#full-prd` for the full template.
 
 ### state.yml Template
 
-Write `state.yml` with: `active_task`, `created_at`, `updated_at`, `status` (draft for full, planned for quick), `task_path`, `prd`, `plan`, `context` paths, `constraints` (invariants/decisions/discovered arrays, initially empty), and `depends_on` (predecessor task name or null). Quick mode also adds: `phase_files` list and `verification_mode: none`.
+Write `.temp/tasks/state.yml` (NOT inside the task folder — always at `.temp/tasks/state.yml`). Contents: `active_task`, `created_at`, `updated_at`, `status` (draft for full, planned for quick), `task_path`, `prd`, `plan`, `context` paths, `constraints` (invariants/decisions/discovered arrays, initially empty), and `depends_on` (predecessor task name or null). Quick mode also adds: `phase_files` list and `verification_mode: none`.
 
 ---
 
@@ -65,7 +65,7 @@ Immediately generate the implementation plan without asking questions:
 
 ### Step C: Write state.yml
 
-Use the state.yml Template above with quick-mode values: `status: planned`, include `phase_files` and `verification_mode: none`.
+Write `.temp/tasks/state.yml` (NOT inside the task folder — always at `.temp/tasks/state.yml`). Use the state.yml Template above with quick-mode values: `status: planned`, include `phase_files` and `verification_mode: none`.
 
 ### Step D: Confirm
 

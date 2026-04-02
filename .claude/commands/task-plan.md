@@ -58,7 +58,7 @@ Create a detailed implementation plan. NO code is implemented at this stage.
 
    e. Write all plan files.
 
-9. Write to `state.yml`: `phase_files` list, `verification_mode`, status `planned`.
+9. Write to `.temp/tasks/state.yml`: `phase_files` list, `verification_mode`, status `planned`.
 
 10. **Post-write deep verification (optional, for complex tasks):**
     If the task has 3+ phases or the user requested deep verification:

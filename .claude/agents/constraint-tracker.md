@@ -18,7 +18,7 @@ You monitor and audit constraint compliance throughout the task lifecycle.
 ### Pre-Plan Stage
 Verify that constraints are properly defined:
 1. Read PRD Section 10 (Constraints)
-2. Read state.yml constraints section
+2. Read `.temp/tasks/state.yml` constraints section
 3. Check for inconsistencies
 4. Report any missing constraints that should be derived from decisions
 

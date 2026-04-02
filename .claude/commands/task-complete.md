@@ -20,7 +20,7 @@ Marks the active task as done, clears the active task pointer, and optionally ar
      > **Warning:** N of M phases are incomplete. Mark task as done anyway? [yes/no]
 
      If **no** → stop. Suggest `/task-execute` or `/task-verify` first.
-4. **Update `state.yml`:**
+4. **Update `.temp/tasks/state.yml`:**
    ```yaml
    active_task: none
    status: done
@@ -58,7 +58,7 @@ Marks the active task as done, clears the active task pointer, and optionally ar
 6. **If archiving:**
    - Create `.temp/tasks/archive/` directory if it doesn't exist.
    - Move `.temp/tasks/<task-name>/` to `.temp/tasks/archive/<task-name>/`.
-   - Remove `task_path`, `prd`, `plan`, `context`, `phase_files`, `verification_mode` fields from `state.yml` (they now point to a moved location).
+   - Remove `task_path`, `prd`, `plan`, `context`, `phase_files`, `verification_mode` fields from `.temp/tasks/state.yml` (they now point to a moved location).
 7. **Print summary:**
 
    Summary: Header "Task Complete: <task-name>". Table with rows: Status, Phases (N/N completed), Duration (created_at → completed_at), Archived (yes/no). Then "Files modified:" list with each file path and source phase.

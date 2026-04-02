@@ -92,7 +92,7 @@ The system can create automatic checkpoints:
 - Before any phase marked as "high risk"
 - After `/task-clarify` completes (optional)
 
-Configure in `state.yml`:
+Configure in `.temp/tasks/state.yml`:
 ```yaml
 checkpoint_settings:
   auto_before_execute: true

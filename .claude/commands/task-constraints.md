@@ -62,7 +62,7 @@ Remove a constraint by ID (use with caution).
 
 ### Add Invariant
 
-1. Read current `state.yml`
+1. Read current `.temp/tasks/state.yml`
 2. Add to `constraints.invariants` array:
    ```yaml
    constraints:
@@ -76,7 +76,7 @@ Remove a constraint by ID (use with caution).
 
 ### Add Decision Constraint
 
-1. Read current `state.yml`
+1. Read current `.temp/tasks/state.yml`
 2. Verify decision D-id exists in PRD Section 9
 3. Add to `constraints.decisions` array:
    ```yaml
@@ -92,16 +92,16 @@ Remove a constraint by ID (use with caution).
 
 ### List Constraints
 
-1. Read `state.yml` constraints section
+1. Read `.temp/tasks/state.yml` constraints section
 2. Read PRD Section 10
 3. Display formatted output
 
 ### Check Constraints
 
 **Load constraints from:**
-1. `state.yml` -> `constraints.invariants`: rules that must NEVER be violated.
-2. `state.yml` -> `constraints.decisions`: constraints derived from PRD decisions.
-3. `state.yml` -> `constraints.discovered`: constraints found during implementation.
+1. `.temp/tasks/state.yml` -> `constraints.invariants`: rules that must NEVER be violated.
+2. `.temp/tasks/state.yml` -> `constraints.decisions`: constraints derived from PRD decisions.
+3. `.temp/tasks/state.yml` -> `constraints.discovered`: constraints found during implementation.
 4. `prd.md` Section 10: human-readable constraint descriptions.
 
 **For each constraint:**
@@ -116,7 +116,7 @@ Output the report using the format from `.claude/references/reports/constraint-c
 
 1. Verify constraint exists
 2. Ask for confirmation (constraints should rarely be removed)
-3. Remove from `state.yml` and PRD Section 10
+3. Remove from `.temp/tasks/state.yml` and PRD Section 10
 4. Confirm to user
 
 ## Integration

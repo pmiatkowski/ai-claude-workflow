@@ -24,5 +24,5 @@ When the user says "update PRD" (or equivalent):
 1. Rewrite `prd.md` incorporating all answers directly — no change annotations, the document should read as if always written this way.
 2. Populate the Decision Matrix (Section 9): one row per question (D1, D2, D3... with topic, options, choice, reasoning, date).
 3. Extract constraints to Section 10: invariants discovered + decision-derived constraints (`From D{N}: {constraint}`).
-4. Update `state.yml` constraints (invariants list + decisions with id/constraint) and `updated_at`.
+4. Update `.temp/tasks/state.yml` constraints (invariants list + decisions with id/constraint) and `updated_at`.
 5. Tell the user what changed and suggest `/task-add-context` or `/task-plan` next.

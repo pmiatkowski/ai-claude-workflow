@@ -21,7 +21,7 @@ Plans are split across multiple files:
 - Main index: `plan.md`
 - Phase details: `plan-phase-1.md`, `plan-phase-2.md`, etc.
 
-Read all phase files listed in `phase_files` from `state.yml` or the Phase Files section of `plan.md`. Apply all checks below across the individual phase files.
+Read all phase files listed in `phase_files` from `.temp/tasks/state.yml` or the Phase Files section of `plan.md`. Apply all checks below across the individual phase files.
 
 ## Instructions
 

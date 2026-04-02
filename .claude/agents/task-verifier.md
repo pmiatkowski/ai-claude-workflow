@@ -16,7 +16,7 @@ You verify that the implementation is complete, correct, and meets quality stand
 
 ## Instructions
 
-1. **Load context:** Use the hook-injected ACTIVE TASK CONTEXT for constraints, `verification_mode`, and `phase_files`. If hook context is missing, read `state.yml` as fallback.
+1. **Load context:** Use the hook-injected ACTIVE TASK CONTEXT for constraints, `verification_mode`, and `phase_files`. If hook context is missing, read `.temp/tasks/state.yml` as fallback.
    Read each `plan-phase-N.md` to check TODO completion.
    A task is complete when its TODO shows `- [x]` in the phase file.
 2. Verify implementation:
@@ -34,7 +34,7 @@ You verify that the implementation is complete, correct, and meets quality stand
 
    **e. Coding standards** — Read `CLAUDE.md` for guidelines. Check that implementation follows them.
 
-   **f. Constraints** — Check constraint-report.md for violations. If none exists, verify from state.yml.
+   **f. Constraints** — Check constraint-report.md for violations. If none exists, verify from `.temp/tasks/state.yml`.
 
 3. **Deep mode only:** Read `.claude/verification/quality.md`, `security.md`, and `performance.md` for checklist items. Do not load these in standard mode.
    Then run: security checks (OWASP Top 10), performance checks (N+1 queries, memory leaks), quality checks, review handoff files, check ADR generation.

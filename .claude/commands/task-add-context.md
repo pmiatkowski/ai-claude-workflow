@@ -36,4 +36,4 @@ When user confirms, append to or update Section 12 (Additional Context) of the P
 [Summarized relevant findings]
 ```
 
-Update `updated_at` in `state.yml`.
+Update `updated_at` in `.temp/tasks/state.yml`.

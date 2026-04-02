@@ -20,18 +20,18 @@ You are a Task-Executor. You implement exactly one phase of a task plan — noth
 
 1. **Load context:** The hook has injected ACTIVE TASK CONTEXT into your session containing task, status, path, verification_mode, phase files, and constraints.
    If the hook context is present: use it for verification_mode, phase files, and constraints. Do NOT re-read state.yml for these.
-   If the hook context is missing or incomplete: read `state.yml` as fallback.
+   If the hook context is missing or incomplete: read `.temp/tasks/state.yml` as fallback.
    Read your `plan-phase-N.md` (at `phase_file_path`) as primary source.
    Read `prd.md` for requirements and additional constraint details.
 2. **Pre-Implementation Constraint Check (MANDATORY):**
-   Use the constraints from hook context (or state.yml if fallback). Also read `prd.md` Section 10.
+   Use the constraints from hook context (or `.temp/tasks/state.yml` if fallback). Also read `prd.md` Section 10.
    If ANY would be violated by your planned implementation: STOP and report to user before proceeding.
 3. **Read handoff from previous phase (if exists):**
    - Check `.temp/tasks/<task_name>/handoffs/phase-N-to-N+1.yml`
    - Note any `warnings_for_next_phase` and `constraints_discovered`
 3.5. **Propagate discovered constraints (if handoff has them):**
    - If `constraints_discovered` in the handoff is non-empty:
-     a. Append each constraint to `state.yml` under `constraints.discovered` (new sub-key).
+     a. Append each constraint to `.temp/tasks/state.yml` under `constraints.discovered` (new sub-key).
         If the key doesn't exist yet, create it as a list.
      b. Append each constraint to `prd.md` Section 10 (Constraints) under a new
         `### Discovered During Implementation` sub-heading, annotated with the source phase:
